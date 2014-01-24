@@ -26,7 +26,7 @@ This project requires the following other projects to run:
 
 * Manual master installation: go to the root Dojo installation directory and clone liaison from github:
 
-	$ git clone git://github.com/ibm-dojo/liaison.git
+	$ git clone git://github.com/ibm-js/liaison.git
 
 Then install dependencies:
 

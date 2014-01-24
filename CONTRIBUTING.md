@@ -102,7 +102,7 @@ and merge them into your local clone and then push them to your GitHub fork:
 
 ```bash
 $ cd liaison
-$ git remote add upstream git@github.com:ibm-dojo/liaison.git
+$ git remote add upstream git@github.com:ibm-js/liaison.git
 $ git fetch upstream
 ```
 
