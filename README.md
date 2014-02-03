@@ -22,13 +22,17 @@ This project requires the following other projects to run:
 
 ## Installation
 
-* Bower release installation: `bower install liaison`
+## Installation
 
-* Manual master installation: go to the root Dojo installation directory and clone liaison from github:
+_Bower_ release installation:
+
+    $ bower install liaison
+
+_Manual_ master installation:
 
 	$ git clone git://github.com/ibm-js/liaison.git
 
-Then install dependencies:
+Then install dependencies with bower (or manually from github if you prefer to):
 
 	$ cd liaison
 	$ bower install
