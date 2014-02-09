@@ -1,0 +1,14 @@
+@font-face{
+	font-family: Helvetica Neue;
+	src: local("Helvetica Neue Light"), local("HelveticaNeue-Light");
+}
+
+body, input {
+	font-family: Segoe UI, Helvetica Neue, Helvetica, arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+}
+
+.cell {
+	width: 16ex;
+	display: inline-block;
+}

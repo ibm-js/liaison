@@ -45,8 +45,8 @@ The project has a very specific coding style that are checked using this [jshint
 
 ## Inline Documentation
 
-For now our inline API documentation is using [DojoDoc][].  Any pull request should ensure it has updated the inline
-documentation appropriately or added the appropriate inline documentation.
+This project uses [JSDoc](https://github.com/jsdoc3/jsdoc) format for inline API documentation.
+Any pull request should ensure it has updated the inline documentation appropriately or added the appropriate inline documentation.
 
 ## Test Cases
 
