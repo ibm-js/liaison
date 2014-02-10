@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="./css/examples.css">
+		<script type="text/javascript" src="../../requirejs/require.js" data-main="../../"></script>
+		<script type="text/javascript">
+			require([
+				"liaison/wrapper",
+				"liaison/ObservablePath",
+				"liaison/BindingSourceList",
+				"liaison/DOMTreeBindingTarget"
+			], function(wrapper, ObservablePath, BindingSourceList){
+				function startup(){
+					var o = wrapper.wrap({
+						first: "John",
+						last: "Doe"
+					});
+					o.set("name", new BindingSourceList([
+						new ObservablePath(o, "first"),
+						new ObservablePath(o, "last")
+					], function(a){
+						return a[0] + " " + a[1];
+					}));
+					document.getElementById("main-template").bind("bind", o);
+				}
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<template id="main-template">
+			<input type="text" placeholder="Type your first name" value="{{first}}">
+			<input type="text" placeholder="Type your last name" value="{{last}}">
+			<div>Hello, {{name}}! Length of your name is: {{name.length}}</div>
+		</template>
+	</body>
+</html>

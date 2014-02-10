@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="./css/examples.css">
+		<style type="text/css">
+			.close-button {
+				color: red;
+			}
+
+			ul.namelist {
+				margin: 0;
+				padding: 2px;
+				border: solid #4080ff 1px;
+				list-style-type: none;
+			}
+
+			ul.namelist li {
+				display: inline-block;
+				border: solid #4080ff 1px;
+				margin: 2px;
+				padding: 2px;
+			}
+
+			ul.namelist img {
+				padding: 1px;
+			}
+		</style>
+		<script type="text/javascript" src="../../requirejs/require.js" data-main="../../"></script>
+		<script type="text/javascript">
+			var ctrl;
+			require([
+				"liaison/wrapper",
+				"liaison/ObservablePath",
+				"liaison/BindingSourceList",
+				"liaison/Each",
+				"liaison/DOMTreeBindingTarget"
+			], function(wrapper, ObservablePath, BindingSourceList, Each){
+				function startup(){
+					var seq = 0,
+						o = wrapper.wrap({
+							addItem: function(event){
+								this.items.push({id: seq++, Name: this.newName});
+								this.set("newName", "");
+								event.preventDefault();
+							},
+							removeItem: function(id){
+								var index = this.items.indexOf(this.items.filter(function(entry){ return entry.id == id; })[0]);
+								if(index >= 0){
+									this.items.splice(index, 1);
+								}
+							},
+							items: [
+								{id: seq++, Name: "Anne Ackerman"},
+								{id: seq++, Name: "Ben Beckham"},
+								{id: seq++, Name: "Chad Chapman"},
+								{id: seq++, Name: "Irene Ira"},
+								{id: seq++, Name: "John Jacklin"}
+							]
+						});
+					o.set("totalNameLength", new Each(new ObservablePath(o, "items"), function(a){
+						return a.reduce(function(length, entry){
+							return length + entry.Name.length;
+						}, 0);
+					}));
+					ctrl = document.getElementById("main-template").bind("bind", o).model;
+				}
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<template id="main-template">
+			<form onsubmit="ctrl.addItem(event);">
+				<input type="text" placeholder="Type the new name" value="{{newName}}">
+			</form>
+			<ul class="namelist">
+				<template repeat="{{items}}">
+					<li>
+						{{Name}}
+						<span class="close-button" onclick="ctrl.removeItem({{id}});">X</span>
+					</li>
+				</template>
+			</ul>
+			<div>Sum of lengths of names: {{totalNameLength}}</div>
+		</template>
+	</body>
+</html>

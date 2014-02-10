@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../css/examples.css">
+		<script type="text/javascript" src="../../../platform/platform.js"></script>
+		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
+		<script type="text/javascript">
+			var ctrl;
+
+			require([
+				"liaison/wrapper",
+				"liaison/polymer/patches"
+			], function(wrapper){
+				function startup(){
+					ctrl = document.getElementById("main-template").model = wrapper.wrap({
+						data: [
+							{
+								title: "Model1",
+								names: [
+									{
+										First: "Anne1",
+										Last: "Ackerman1"
+									},
+									{
+										First: "Ben1",
+										Last: "Beckham1"
+									},
+									{
+										First: "Chad1",
+										Last: "Chapman1"
+									}
+								]
+							},
+							{
+								title: "Model2",
+								names: [
+									{
+										First: "Anne2",
+										Last: "Ackerman2"
+									},
+									{
+										First: "Ben2",
+										Last: "Beckham2"
+									}
+								]
+							},
+							{
+								title: "Model3",
+								names: [
+									{
+										First: "Anne3",
+										Last: "Ackerman3"
+									}
+								]
+							}
+						],
+						select: function(title){
+							ctrl.set("current", ctrl.data.filter(function(entry){
+								return entry.title == title;
+							})[0].names);
+						}
+					});
+
+					ctrl.set("current", ctrl.data[0].names);
+				}
+
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<template id="main-template" bind>
+			<div>
+				<template repeat="{{data}}">
+					<input type="button" value="{{title}}" onclick="ctrl.select('{{title}}');">
+				</template>
+			</div>
+			<template repeat="{{current}}">
+				<div>First: <input type="text" value="{{First}}"></div>
+				<div>Last: <input type="text" value="{{Last}}"></div>
+			</template>
+		</template>
+	</body>
+</html>

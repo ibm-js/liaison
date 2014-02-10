@@ -15,12 +15,14 @@ All contributions require a [Dojo Foundation CLA](http://dojofoundation.org/abou
 
 ## Dependencies
 
-This project requires the following other projects to run:
- * dojo
- * delite
- * ...
+This project requires AMD loader ([requirejs](http://requirejs.org/) or [Dojo](http://dojotoolkit.org/)) to run in browser.
 
-## Installation
+## Integration with other libraries
+
+This project has integration code for the following projects:
+
+* [delite](https://github.com/ibm-js/delite) (Under delite directory)
+* [Polymer TemplateBinding](http://www.polymer-project.org/docs/polymer/databinding.html) (Under polymer directory)
 
 ## Installation
 

@@ -1,0 +1,68 @@
+.basic-box {
+	display: block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.floating-box {
+	display: block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.flex-box {
+	display: -webkit-box;
+	display: -moz-flex;
+	display: -ms-flexbox;
+	display: flex;
+}
+
+.flex-horizontal {
+	-webkit-box-orient: horizontal;
+	-moz-flex-direction: row;
+	-ms-flex-direction: row;
+	flex-direction: row;
+}
+
+.flex-vertical {
+	-webkit-box-orient: vertical;
+	-moz-flex-direction: column;
+	-ms-flex-direction: column;
+	flex-direction: column;
+}
+
+.flex-child-fixed {
+	-moz-flex: none;
+	-ms-flex: none;
+	flex: none;
+}
+
+.flex-child-stretch {
+	-webkit-box-flex: 1;
+	-moz-flex: auto;
+	-ms-flex: auto;
+	flex: auto;
+}
+
+.flex-center {
+	-webkit-box-pack: center;
+	-webkit-box-align: center;
+	-ms-flex-pack: center;
+	-ms-flex-align: center;
+	justify-content: center;
+	align-items: center;
+}

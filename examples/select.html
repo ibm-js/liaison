@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="./css/examples.css">
+		<script type="text/javascript" src="../../requirejs/require.js" data-main="../../"></script>
+		<script type="text/javascript">
+			var ctrl;
+
+			require([
+				"liaison/wrapper",
+				"liaison/DOMTreeBindingTarget"
+			], function(wrapper){
+				function startup(){
+					document.getElementById("main-template").bind("bind", ctrl = wrapper.wrap({
+						Serial: "360324",
+						First: "John",
+						Last: "Doe",
+						Email: "jdoe@example.com",
+						ShipTo: {
+							Type: "Home",
+							Address: {
+								Street: "123 Valley Rd",
+								City: "Katonah",
+								State: "NY",
+								Zip: "10536"
+							},
+							Telephone: {
+								AreaCode: "123",
+								Landline: {
+									Number: "456-7890",
+									Extension: "42"
+								},
+								Cell: {
+									Number: "765-4321"
+								}
+							}
+						},
+						BillTo: {
+							Type: "Office",
+							Address: {
+								Street: "17 Skyline Dr",
+								City: "Hawthorne",
+								State: "NY",
+								Zip: "10532"
+							},
+							Telephone: {
+								AreaCode: "098",
+								Landline: {
+									Number: "765-4321",
+									Extension: "24"
+								},
+								Cell: {
+									Number: "123-4567"
+								}
+							}
+						},
+						select: function(item){
+							ctrl.set("current", ctrl[item]);
+							ctrl.set("Selected", item);
+						}
+					}));
+				}
+
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<template id="main-template">
+			<div><span class="cell">Order#:</span> <input type="text" value="{{Serial}}"></div>
+			<div><span class="cell">Last name:</span> <input type="text" value="{{Last}}"></div>
+			<div><span class="cell">Email:</span> <input type="text" value="{{Email}}"></div>
+			<div>
+				<input type="button" value="Ship To" onclick="ctrl.select('ShipTo');">
+				<input type="button" value="Bill To" onclick="ctrl.select('BillTo');">
+			</div>
+			<div><span class="cell">Selected Address:</span> <input type="text" value="{{Selected}}"></div>
+			<template bind="{{current}}">
+				<div><span class="cell">Type:</span> <input type="text" value="{{Type}}"></div>
+				<template bind="{{Address}}">
+					<div><span class="cell">Street:</span> <input type="text" value="{{Street}}"></div>
+					<div><span class="cell">City:</span> <input type="text" value="{{City}}"></div>
+					<div><span class="cell">State:</span> <input type="text" value="{{State}}"></div>
+					<div><span class="cell">Zipcode:</span> <input type="text" value="{{Zip}}"></div>
+				</template>
+				<template bind="{{Telephone}}">
+					<div><span class="cell">Area code:</span> <input type="text" value="{{AreaCode}}"></div>
+					<div><span class="cell">Landline Number:</span> <input type="text" value="{{Landline.Number}}"></div>
+					<div><span class="cell">Extension:</span> <input type="text" value="{{Landline.Extension}}"></div>
+					<div><span class="cell">Cell Number:</span> <input type="text" value="{{Cell.Number}}"></div>
+				</template>
+			</template>
+		</template>
+	</body>
+</html>

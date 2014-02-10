@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../css/examples.css">
+		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
+		<script id="masterdetail-item-template" type="text/x-template">
+			<div>
+				Name:
+				<input type="text" value="{{First}}"></input>
+				<input type="button" value="Details" onclick="ctrl.selectItem({{id}});"></input>
+			</div>
+		</script>
+		<script id="masterdetail-template" type="text/x-template">
+			<div>
+				<template repeat="{{items}}">
+					<div>
+						<liaison-example-masterdetail-item First="{{First}}" id="{{id}}"></liaison-example-masterdetail-item>
+					</div>
+				</template>
+				<div>
+					<div><span class="cell">First name:</span> <input type="text" value="{{current.First}}"></div>
+					<div><span class="cell">Last name:</span> <input type="text" value="{{current.Last}}"></div>
+					<div><span class="cell">Office:</span> <input type="text" value="{{current.Office}}"></div>
+					<div><span class="cell">Email:</span> <input type="text" value="{{current.Email}}"></div>
+					<div><span class="cell">Telephone:</span> <input type="text" value="{{current.Tel}}"></div>
+					<div><span class="cell">Fax:</span> <input type="text" value="{{current.Fax}}"></div>
+				</div>
+			</div>
+		</script>
+		<script type="text/javascript">
+			var ctrl;
+
+			require([
+				"delite/register",
+				"delite/Widget",
+				"liaison/wrapper",
+				"liaison/delite/createRenderer",
+				"liaison/delite/TemplateBinderExtension"
+			], function(register, Widget, wrapper, createRenderer){
+				function startup(){
+					var seq = 0;
+					register("liaison-example-masterdetail-item", [HTMLElement, Widget], {
+						buildRendering: createRenderer(document.getElementById("masterdetail-item-template").innerHTML),
+						baseClass: "liaison-example-masterdetail-item",
+						id: undefined,
+						First: undefined						
+					});
+					register("liaison-example-masterdetail", [HTMLElement, Widget], {
+						buildRendering: createRenderer(document.getElementById("masterdetail-template").innerHTML),
+						baseClass: "liaison-example-masterdetail",
+						items: wrapper.wrap([
+							{
+								id: seq++,
+								First: "Anne",
+								Last: "Ackerman",
+								Location: "NY",
+								Office: "1S76",
+								Email: "a.a@test.com",
+								Tel: "123-764-8237",
+								Fax: "123-764-8228"
+							},
+							{
+								id: seq++,
+								First: "Ben",
+								Last: "Beckham",
+								Location: "NY",
+								Office: "5N47",
+								Email: "b.b@test.com",
+								Tel: "123-764-8599",
+								Fax: "123-764-8600"
+							},
+							{
+								id: seq++,
+								First: "Chad",
+								Last: "Chapman",
+								Location: "CA",
+								Office: "1278",
+								Email: "c.c@test.com",
+								Tel: "408-764-8237",
+								Fax: "408-764-8228"
+							},
+							{
+								id: seq++,
+								First: "Irene",
+								Last: "Ira",
+								Location: "NJ",
+								Office: "F09",
+								Email: "i.i@test.com",
+								Tel: "514-764-6532",
+								Fax: "514-764-7300"
+							},
+							{
+								id: seq++,
+								First: "John",
+								Last: "Jacklin",
+								Location: "CA",
+								Office: "6701",
+								Email: "j.j@test.com",
+								Tel: "408-764-1234",
+								Fax: "408-764-4321"
+							}
+						]),
+						selectItem: function(id){
+							this.set("current", this.items.filter(function(item){
+								return item.id == id;
+							})[0]);
+						}
+					});
+					register.parse();
+					ctrl = document.querySelector("liaison-example-masterdetail");
+				}
+
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<liaison-example-masterdetail></liaison-example-masterdetail>
+	</body>
+</html>

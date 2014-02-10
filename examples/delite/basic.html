@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../css/examples.css">
+		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
+		<script id="basic-template" type="text/x-template">
+			<div>
+				<input type="text" placeholder="Type your first name" value="{{first}}">
+				<input type="text" placeholder="Type your last name" value="{{last}}">
+				<div>Hello, {{name}}! Length of your name is: {{name.length}}</div>
+			</div>
+		</script>
+		<script type="text/javascript">
+			require([
+				"dcl/dcl",
+				"delite/register",
+				"delite/Widget",
+				"liaison/ObservablePath",
+				"liaison/BindingSourceList",
+				"liaison/delite/createRenderer"
+			], function (dcl, register, Widget, ObservablePath, BindingSourceList, createRenderer) {
+				function startup() {
+					register("liaison-example-basic", [HTMLElement, Widget], {
+						buildRendering: createRenderer(document.getElementById("basic-template").innerHTML),
+						baseClass: "liaison-example-basic",
+						first: "John",
+						last: "Doe",
+						createdCallback: dcl.superCall(function(sup){
+							return function(){
+								this.name = new BindingSourceList([
+									new ObservablePath(this, "first"),
+									new ObservablePath(this, "last")
+								], function(a){
+									return a[0] + " " + a[1];
+								});
+								sup && sup.apply(this, arguments);
+							};
+						})
+					});
+					register.parse();
+				}
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<liaison-example-basic></liaison-example-basic>
+	</body>
+</html>
