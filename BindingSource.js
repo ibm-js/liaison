@@ -2,7 +2,7 @@
  * An interface that abstracts various types of things that can be observed.
  * {@link BindingSource} points to something like object path, a list of {@link BindingSource}, etc.
  * @class BindingSource
- * @augments DojoHandle
+ * @augments Handle
  * @abstract
  */
 
@@ -11,7 +11,7 @@
  * @method BindingSource#observe
  * @abstract
  * @param {BindingSource~ChangeCallback} callback The change callback.
- * @returns {DojoHandle} The handle to stop observing.
+ * @returns {Handle} The handle to stop observing.
  */
 
 /**

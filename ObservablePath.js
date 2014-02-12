@@ -183,7 +183,7 @@
 		 * Observes a change in a path of {@link module:liaison/Observable Observable}.
 		 * @method
 		 * @param {BindingSource~ChangeCallback} callback The change callback.
-		 * @returns {DojoHandle} The handle to stop observing.
+		 * @returns {Handle} The handle to stop observing.
 		 */
 		observe: (function () {
 			function observePathCallback(newValue, oldValue) {

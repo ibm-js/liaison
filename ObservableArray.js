@@ -278,7 +278,7 @@
 	 * @method
 	 * @param {Object} observable The {@link module:liaison/ObservableArray ObservableArray} to observe.
 	 * @param {module:liaison/Observable~ChangeCallback} callback The change callback.
-	 * @returns {DojoHandle} The handle to stop observing.
+	 * @returns {Handle} The handle to stop observing.
 	 * @throws {TypeError} If the 1st argument is non-object or null.
 	 */
 	ObservableArray.observe = (function () {

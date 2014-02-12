@@ -316,7 +316,7 @@
 			 * @param {Array.<module:liaison/Observable~ChangeType>}
 			 *     [accept={@link module:liaison/Observable~DEFAULT_CHANGETYPES}]
 			 *     The list of change record types to observe.
-			 * @returns {DojoHandle} The handle to stop observing.
+			 * @returns {Handle} The handle to stop observing.
 			 * @throws {TypeError} If the 1st argument is non-object or null.
 			 */
 			Observable.observe = (function () {
