@@ -1,7 +1,7 @@
 /**
  * Handle with a method to clean-up memory.
- * @class DojoHandle
+ * @class Handle
  */
 /** Clean-up the handle.
- * @method DojoHandle#remove
+ * @method Handle#remove
  */

@@ -22,7 +22,7 @@
 	 * @function module:liaison/wrapStateful
 	 * @param {external:dojo/Stateful} stateful
 	 *     The {@link http://dojotoolkit.org/reference-guide/dojo/Stateful.html dojo/Stateful} instance.
-	 * @return {DojoHandle} The handle to stop emitting {@link module:liaison/Observable~ChangeRecord}.
+	 * @return {Handle} The handle to stop emitting {@link module:liaison/Observable~ChangeRecord}.
 	 */
 	return function (stateful) {
 		if (!stateful._observable) {

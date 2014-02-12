@@ -52,7 +52,7 @@
 		 * Observes a change in a list of {@link BindingSource}.
 		 * @method
 		 * @param {BindingSource~ChangeCallback} callback The change callback.
-		 * @returns {DojoHandle} The handle to stop observing.
+		 * @returns {Handle} The handle to stop observing.
 		 */
 		observe: (function () {
 			function bindingSourceCallback(indexOf, newValue) {
