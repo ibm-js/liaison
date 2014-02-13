@@ -476,7 +476,9 @@ define([
 				// ["a", "b", "c", "A", "B", "g", "h", "0", "1", "2"]
 				// SPLICE: {index: 5, removed: ["g"], added: ["x", "y"]}
 				// ["a", "b", "c", "A", "B", "x", "y", "h", "0", "1", "2"]
-				// MERGED: {index: 3, removed: ["d", "e", "f", "g"], added: ["A", "B", "x", "y"]}, {index: 8, removed: ["i, "j"], added: ["0", "1", "2"]}
+				// MERGED:
+				//     {index: 3, removed: ["d", "e", "f", "g"], added: ["A", "B", "x", "y"]},
+				//     {index: 8, removed: ["i, "j"], added: ["0", "1", "2"]}
 				var dfd = this.async(1000),
 					observableArray = ObservableArray.apply(undefined, baseData);
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
@@ -509,7 +511,9 @@ define([
 				// ["a", "b", "c", "A", "B", "g", "h", "0", "1", "2"]
 				// SPLICE: {index: 6, removed: ["h"], added: ["x", "y"]}
 				// ["a", "b", "c", "A", "B", "g", "x", "y", "0", "1", "2"]
-				// MERGED: {index: 3, removed: ["d", "e", "f"], added: ["A", "B"]}, {index: 6, removed: ["h", "i, "j"], added: ["x", "y", "0", "1", "2"]}
+				// MERGED:
+				//     {index: 3, removed: ["d", "e", "f"], added: ["A", "B"]},
+				//     {index: 6, removed: ["h", "i, "j"], added: ["x", "y", "0", "1", "2"]}
 				var dfd = this.async(1000),
 					observableArray = ObservableArray.apply(undefined, baseData);
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {

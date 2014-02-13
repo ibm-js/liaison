@@ -141,7 +141,9 @@ define([
 				}));
 				observable.set("foo", "Foo1");
 			});
-			it("An observer changing a value that is observed. Such observer is defined before BindingSourceList.observe(). newValue should keep fresh value, oldValue should reflect change records in last run-loop", function () {
+			it("An observer changing a value that is observed."
+				+ " Such observer is defined before BindingSourceList.observe()."
+				+ " newValue should keep fresh value, oldValue should reflect change records in last run-loop", function () {
 				var dfd = this.async(1000),
 					count = 0,
 					observable = new Observable({foo: "Foo0", bar: "Bar0", baz: "Baz0"}),

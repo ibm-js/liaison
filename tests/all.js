@@ -1,12 +1,17 @@
-define([
-	"./Observable",
-	"./ObservableArray",
-	"./ObservablePath",
-	"./BindingSourceList",
-	"./Each",
-	"./wrapper",
-	"dojo/has!host-browser?./DOMBindingTarget",
-	"dojo/has!host-browser?./DOMTreeBindingTarget",
-	"dojo/has!host-browser?./delite/sandbox",
-	"dojo/has!host-browser?./polymer/sandbox"
-], 1);
+define((function () {
+	var list = [
+		"./Observable",
+		"./ObservableArray",
+		"./ObservablePath",
+		"./BindingSourceList",
+		"./Each",
+		"./wrapper"
+	];
+	if (typeof window !== "undefined") {
+		list.push("./DOMBindingTarget",
+			"./DOMTreeBindingTarget",
+			"./delite/sandbox",
+			"./polymer/sandbox");
+	}
+	return list;
+})(), 1);
