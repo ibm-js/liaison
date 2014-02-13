@@ -15,6 +15,7 @@ define([
 				}
 			});
 			it("Enumerate observable instance", function () {
+				/* jshint unused: false */
 				var found = false,
 					observable = new Observable();
 				for (var s in observable) {

@@ -26,6 +26,7 @@
 	 *     The length of the new array or the initial list of array elements.
 	 */
 	var ObservableArray,
+		augmentedMethods,
 		defineProperty = Object.defineProperty,
 		REGEXP_GLOBAL_OBJECT = /\[\s*object\s+global\s*\]/i; // Global object in node.js
 
@@ -55,16 +56,22 @@
 			// We need to create large amount of change records to do so,
 			// when splice happens with large amount of removals/adds
 			ObservableArray = function (length) {
-				var beingConstructed = this && !REGEXP_GLOBAL_OBJECT.test(this) && !this.hasOwnProperty("length");
+				var beingConstructed = this && !REGEXP_GLOBAL_OBJECT.test(this) && !this.hasOwnProperty("length"),
+					// If this is called as regular function (instead of constructor), work with a new instance
+					self = beingConstructed ? [] : new ObservableArray();
 				if (beingConstructed) {
-					Observable.call(this);
+					Observable.call(self);
 					// Make ObservableArray marker not enumeable, configurable or writable
-					defineProperty(this, observableArrayMarker, {value: 1});
-					// Make the length not enumeable
-					defineProperty(this, "length", {value: 0, configurable: true, writable: true});
+					defineProperty(self, observableArrayMarker, {value: 1});
+					// Make those methods not enumeable
+					for (var s in augmentedMethods) {
+						defineProperty(self, s, {
+							value: augmentedMethods[s],
+							configurable: true,
+							writable: true
+						});
+					}
 				}
-				// If this is called as regular function (instead of constructor), work with a new instance
-				var self = beingConstructed ? this : new ObservableArray();
 				if (typeof length === "number" && arguments.length === 1) {
 					self.length = length;
 				} else {
@@ -134,37 +141,32 @@
 				return result;
 			}
 
-			ObservableArray.prototype = Object.create(Array.prototype, {
-				set: { // Make set() not enumeable or configurable
-					/**
-					 * Sets a value and automatically emits change record(s)
-					 * compatible with {@link http://wiki.ecmascript.org/doku.php?id=harmony:observe ECMAScript Harmony Array.observe()}.
-					 * @method module:liaison/ObservableArray#set
-					 * @param {string} name The property name.
-					 * @param value The property value.
-					 * @returns The value set.
-					 */
-					value: function (name, value) {
-						var args;
-						if (name === "length") {
-							args = new Array(Math.max(value - this.length, 0));
-							args.unshift(Math.min(this.length, value), Math.max(this.length - value, 0));
-							splice.apply(this, args);
-						} else if (!isNaN(name) && +name >= this.length) {
-							args = new Array(name - this.length);
-							args.push(value);
-							args.unshift(this.length, 0);
-							splice.apply(this, args);
-						} else {
-							Observable.prototype.set.call(this, name, value);
-						}
-						return value;
-					}
-				}
-			});
-
-			var spliceMethods = /** @lends module:liaison/ObservableArray# */ {
+			augmentedMethods = /** @lends module:liaison/ObservableArray# */ {
 				splice: splice,
+
+				/**
+				 * Sets a value and automatically emits change record(s)
+				 * compatible with {@link http://wiki.ecmascript.org/doku.php?id=harmony:observe ECMAScript Harmony Array.observe()}.
+				 * @param {string} name The property name.
+				 * @param value The property value.
+				 * @returns The value set.
+				 */
+				set: function (name, value) {
+					var args;
+					if (name === "length") {
+						args = new Array(Math.max(value - this.length, 0));
+						args.unshift(Math.min(this.length, value), Math.max(this.length - value, 0));
+						splice.apply(this, args);
+					} else if (!isNaN(name) && +name >= this.length) {
+						args = new Array(name - this.length);
+						args.push(value);
+						args.unshift(this.length, 0);
+						splice.apply(this, args);
+					} else {
+						Observable.prototype.set.call(this, name, value);
+					}
+					return value;
+				},
 
 				/**
 				 * Removes the last element from an array
@@ -252,13 +254,6 @@
 					return this.length;
 				}
 			};
-			for (var s in spliceMethods) {	// Make those methods not enumeable
-				defineProperty(ObservableArray.prototype, s, {
-					value: spliceMethods[s],
-					configurable: true,
-					writable: true
-				});
-			}
 		})();
 	}
 
@@ -315,9 +310,7 @@
 						targetIndexIsSmaller = targetRecord.index < newRecord.index,
 						splicesIntersectAmount = Math.min(
 							targetIndexIsSmaller ? newRecord.removed.length : targetRecord.addedCount,
-							(newRecord.index
-									- targetRecord.index
-									+ (targetIndexIsSmaller ? -targetRecord.addedCount : newRecord.removed.length))
+							(newRecord.index - targetRecord.index + (targetIndexIsSmaller ? -targetRecord.addedCount : newRecord.removed.length))
 								* (targetIndexIsSmaller ? -1 : 1)),
 						splicesIntersectOrAdjacent = splicesIntersectAmount >= 0,
 						splicesIntersect = splicesIntersectAmount > 0;
@@ -328,16 +321,10 @@
 							newRecord.removed.slice(); // .removed may be read-only
 						[].push.apply(
 							removed,
-							targetIndexIsSmaller ?
-								newRecord.removed.slice(splicesIntersect ? splicesIntersectAmount : 0) :
-								targetRecord.removed);
+							targetIndexIsSmaller ? newRecord.removed.slice(splicesIntersect ? splicesIntersectAmount : 0) : targetRecord.removed);
 						if (!targetIndexIsSmaller) {
 							// Addition happens when second splice's dirty range contains first splice's dirty range
-							[].push.apply(
-								removed,
-								newRecord.removed.slice(
-									targetRecord.index + targetRecord.addedCount
-									- newRecord.index));
+							[].push.apply(removed, newRecord.removed.slice(targetRecord.index + targetRecord.addedCount - newRecord.index));
 						}
 
 						var addedCount = targetRecord.addedCount - splicesIntersectAmount + newRecord.addedCount;

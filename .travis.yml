@@ -1,0 +1,11 @@
+language: node_js
+node_js: "0.10"
+install:
+  - npm -g install jshint
+  - npm install intern
+  - cd node_modules/intern
+  - npm install --production
+  - cd ../..
+script:
+  - jshint --exclude-path .gitignore .
+  - node node_modules/intern/bin/intern-client.js config=tests/intern
