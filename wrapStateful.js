@@ -11,11 +11,6 @@
 })(this, function (Observable) {
 	"use strict";
 
-	function set(name, value) {
-		/* jshint validthis: true */
-		this[name] = value;
-	}
-
 	/**
 	 * Make a stateful to emit a {@link module:liaison/Observable~ChangeRecord change record}
 	 * upon change in {@link http://dojotoolkit.org/reference-guide/dojo/Stateful.html dojo/Stateful}.
@@ -36,7 +31,7 @@
 					oldValue: old
 				});
 			});
-			stateful.set = set.bind(stateful);
+			stateful.set = stateful._set.bind(stateful);
 			if (stateful.own) {
 				stateful.own(h);
 			}

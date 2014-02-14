@@ -30,30 +30,30 @@
 		</script>
 		<script type="text/javascript">
 			require([
-				"dcl/dcl",
 				"delite/register",
-				"delite/Widget",
+				"liaison/wrapper",
 				"liaison/ObservablePath",
 				"liaison/BindingSourceList",
 				"liaison/delite/createRenderer",
+				"liaison/delite/widgets/Widget",
 				"dojox/charting/Chart",
 				"dojox/charting/themes/PlotKit/blue",
 				"liaison/DOMTreeBindingTarget",
 				"dojox/charting/plot2d/Pie"
-			], function(dcl, register, Widget, ObservablePath, BindingSourceList, createRenderer, Chart, blue){
-				var BindingSourceSeries = (function(){
-					function setDataAndPushChanges(value){
+			], function (register, wrapper, ObservablePath, BindingSourceList, createRenderer, Widget, Chart, blue) {
+				var BindingSourceSeries = (function () {
+					function setDataAndPushChanges(value) {
 						this.data = value;
 						if(this.series){
 							this.series.chart.updateSeries(this.series.name, this);
 							this.series.chart.delayedRender();
 						}
 					}
-					return function(source){
-						this.setSeriesObject = function(series){
+					return function (source) {
+						this.setSeriesObject = function (series) {
 							this.series = series;
 						};
-						this.destroy = function(){
+						this.destroy = function () {
 							if(h){ h.remove(); h = null; }
 						};
 						var h = source.observe(setDataAndPushChanges.bind(this));
@@ -63,17 +63,32 @@
 
 				function startup () {
 					var REGEXP_NUMBER_BINDING = /^number:(.*)$/;
-					register("liaison-example-loan", [HTMLElement, Widget], {
+					register("liaison-example-loan", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("loan-template").innerHTML),
 						baseClass: "liaison-example-loan",
 						Name: "John Doe",
 						BaseIncome: 50000,
 						BonusIncome: 10000,
+						TotalIncome: wrapper.computed(function (BaseIncome, BonusIncome) {
+							return BaseIncome + BonusIncome;
+						}, "BaseIncome", "BonusIncome"),
 						Mortgage: 1000,
 						Taxes: 500,
 						OtherHousing: 1200,
+						TotalHousing: wrapper.computed(function (Mortgage, Taxes, OtherHousing) {
+							return Mortgage + Taxes + OtherHousing;
+						}, "Mortgage", "Taxes", "OtherHousing"),
+						HousingPercent: wrapper.computed(function (TotalHousing, TotalIncome) {
+							return Math.round(TotalHousing / TotalIncome * 100);
+						}, "TotalHousing", "TotalIncome"),
+						HousingPercentError: wrapper.computed(function (HousingPercent) {
+							return HousingPercent > 33 ? "Housing should be less than 1/3 total expenses!" : "";
+						}, "HousingPercent"),
+						HousingPercentDisabled: wrapper.computed(function (HousingPercent) {
+							return HousingPercent <= 0 ? "disabled" : null;
+						}, "HousingPercent"),
 						isZipValid: true,
-						createBindingSourceFactory: function(target) {
+						createBindingSourceFactory: function (target) {
 							var match = REGEXP_NUMBER_BINDING.exec(target);
 							if(match){
 								var path = match[1];
@@ -85,38 +100,8 @@
 									});
 								}
 							}
-						},
-						createdCallback: dcl.superCall(function (sup) {
-							return function(){
-								this.TotalHousing = new BindingSourceList([
-									new ObservablePath(this, "Mortgage"),
-									new ObservablePath(this, "Taxes"),
-									new ObservablePath(this, "OtherHousing")
-								], function(a){
-									return a[0] + a[1] + a[2];
-								});
-								this.TotalIncome = new BindingSourceList([
-									new ObservablePath(this, "BaseIncome"),
-									new ObservablePath(this, "BonusIncome")
-								], function(a){
-									return a[0] + a[1];
-								});
-								this.HousingPercent = new BindingSourceList([
-									new ObservablePath(this, "TotalHousing"),
-									new ObservablePath(this, "TotalIncome")
-								], function(a){
-									return Math.round(a[0] / a[1] * 100);
-								});
-								this.HousingPercentError = new ObservablePath(this, "HousingPercent", function(housingPercent){
-									return housingPercent > 33 ? "Housing should be less than 1/3 total expenses!" : "";
-								});
-								this.HousingPercentDisabled = new ObservablePath(this, "HousingPercent", function(housingPercent){
-									return housingPercent <= 0 ? "disabled" : null;
-								});
-								sup && sup.apply(this, arguments);
-							};
-						})
-					});
+						}
+					}));
 					register.parse();
 					var model = document.querySelector("liaison-example-loan"),
 						source = new BindingSourceList([

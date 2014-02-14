@@ -404,5 +404,27 @@
 		})();
 	}
 
+	/* global Path */
+	if (typeof Path !== "undefined") {
+		// setValueFrom to support Observable interface
+		Path.prototype.setValueFrom = function (o, value) {
+			var prop = this[this.length - 1];
+			if (this.length > 0) {
+				for (var i = 0, l = this.length - 1; i < l; ++i) {
+					o = o == null ? o : o[this[i]];
+				}
+			}
+			if (o != null && prop) {
+				if (typeof o.set === "function") {
+					o.set(prop, value);
+				} else {
+					o[prop] = value;
+				}
+				return true;
+			}
+			return false;
+		};
+	}
+
 	return Observable;
 });

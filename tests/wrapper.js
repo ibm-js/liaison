@@ -3,10 +3,11 @@ define([
 	"intern/chai!expect",
 	"../Observable",
 	"../ObservableArray",
+	"../ObservablePath",
 	"../wrapper"
-], function (bdd, expect, Observable, ObservableArray, wrapper) {
+], function (bdd, expect, Observable, ObservableArray, ObservablePath, wrapper) {
 	/* jshint withstmt: true */
-	/* global describe, it */
+	/* global describe, it, afterEach */
 	with (bdd) {
 		describe("Test liaison/wrapper", function () {
 			function CustomClz() {}
@@ -48,7 +49,34 @@ define([
 						foo: "Foo",
 						bar: "Bar"
 					}))
-				});
+				}),
+				withComputed = {
+					foo: "Foo",
+					bar: "Bar",
+					foobar: wrapper.computed(function (foo, bar) {
+						return foo + " " + bar;
+					}, "foo", "bar"),
+					date: date,
+					func: func,
+					custom: custom,
+					child: {
+						foo: "Foo",
+						bar: "Bar"
+					},
+					a: ["Foo", "Bar", date, func, custom, {
+						foo: "Foo",
+						bar: "Bar"
+					}],
+					aLength: wrapper.computedArray(function (a) {
+						return a.length;
+					}, "a")
+				};
+			var handles = [];
+			afterEach(function () {
+				for (var handle = null; (handle = handles.shift());) {
+					typeof handle.close === "function" ? handle.close() : handle.remove();
+				}
+			});
 			it("Wrap non-object", function () {
 				expect(wrapper.wrap(bool)).to.equal(bool);
 				expect(wrapper.wrap(num)).to.equal(num);
@@ -97,6 +125,70 @@ define([
 				expect(roundTripped.a[3].length).to.equal(2);
 				expect(roundTripped.a[4]).to.equal(custom);
 				expect(Observable.test(roundTripped.a[5])).not.to.be.true;
+			});
+			it("Round-trip with computed properties", function () {
+				var roundTripped = wrapper.unwrap(wrapper.wrap(withComputed));
+				expect(roundTripped).to.deep.equal(withComputed);
+				expect(Observable.test(roundTripped)).not.to.be.true;
+				expect(typeof roundTripped.date.getTime).to.equal("function");
+				expect(roundTripped.func.length).to.equal(2);
+				expect(roundTripped.custom).to.equal(custom);
+				expect(Observable.test(roundTripped.child)).not.to.be.true;
+				expect(ObservableArray.test(roundTripped.a)).not.to.be.true;
+				expect(typeof roundTripped.a[2].getTime).to.equal("function");
+				expect(roundTripped.a[3].length).to.equal(2);
+				expect(roundTripped.a[4]).to.equal(custom);
+				expect(Observable.test(roundTripped.a[5])).not.to.be.true;
+			});
+			it("Computed property", function () {
+				var changeCount = 0,
+					dfd = this.async(1000),
+					o = wrapper.wrap({
+						first: "John",
+						last: "Doe",
+						name: wrapper.computed(function (first, last) {
+							return first + " " + last;
+						}, "first", "last"),
+						nameLength: wrapper.computed(function (name) {
+							return name.length;
+						}, "name")
+					});
+				new ObservablePath(o, "name").observe(dfd.rejectOnError(function (name, oldName) {
+					expect(name).to.equal("Ben Doe");
+					expect(oldName).to.equal("John Doe");
+					if (++changeCount >= 2) {
+						dfd.resolve(1);
+					}
+				}));
+				new ObservablePath(o, "nameLength").observe(dfd.rejectOnError(function (length, oldLength) {
+					expect(length).to.equal(7);
+					expect(oldLength).to.equal(8);
+					if (++changeCount >= 2) {
+						dfd.resolve(1);
+					}
+				}));
+				o.set("first", "Ben");
+			});
+			it("Computed array", function () {
+				var dfd = this.async(1000),
+					o = wrapper.wrap({
+						items: [
+							{Name: "Anne Ackerman"},
+							{Name: "Ben Beckham"},
+							{Name: "Chad Chapman"},
+							{Name: "Irene Ira"}
+						],
+						totalNameLength: wrapper.computedArray(function (a) {
+							return a.reduce(function (length, entry) {
+								return length + entry.Name.length;
+							}, 0);
+						}, "items")
+					});
+				new ObservablePath(o, "totalNameLength").observe(dfd.callback(function (length, oldLength) {
+					expect(length).to.equal(57);
+					expect(oldLength).to.equal(45);
+				}));
+				o.items.push({Name: "John Jacklin"});
 			});
 		});
 	}

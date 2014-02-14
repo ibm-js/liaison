@@ -108,6 +108,11 @@
 		open: function (callback, thisObject) {
 			this.callbacks.splice(0, this.callbacks.length);
 			this.observe(callback.bind(thisObject));
+			// Reset rawOldValues upon open()
+			this.rawOldValues = [];
+			for (var i = 0, l = this.sources.length; i < l; ++i) {
+				this.rawOldValues.push(this.sources[i].getFrom());
+			}
 			return this.getFrom();
 		},
 

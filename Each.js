@@ -13,6 +13,10 @@
 })(this, function (Observable, ObservableArray) {
 	"use strict";
 
+	/* global ArrayObserver */
+
+	var EMPTY_OBJECT = {};
+
 	/**
 	 * A {@link BindingSource} to observe changes in array elements.
 	 * @class module:liaison/Each
@@ -30,10 +34,9 @@
 	 *     before being sent to source.
 	 */
 	function Each(source, formatter, parser) {
-		if (typeof (source || {}).observe === "function") {
-			this.source = source;
-			this.a = source.getFrom();
-		} else if (typeof (source || {}).splice === "function") {
+		if (typeof (source || EMPTY_OBJECT).observe === "function") {
+			this.a = (this.source = source).getFrom();
+		} else if (typeof (source || EMPTY_OBJECT).splice === "function") {
 			this.a = source;
 		}
 		this.formatter = formatter;
@@ -59,8 +62,14 @@
 				observeArrayCallback.call(this);
 				if (ObservableArray.canObserve(newValue)) {
 					var boundCallback = observeArrayCallback.bind(this);
-					this.ha = Object.create(ObservableArray.observe(newValue, boundCallback));
-					this.ha.deliver = Observable.deliverChangeRecords.bind(Observable, boundCallback);
+					if (typeof ArrayObserver !== "undefined") {
+						this.ha = Object.create(new ArrayObserver(newValue));
+						this.ha.open(boundCallback);
+						this.ha.remove = this.ha.close;
+					} else {
+						this.ha = Object.create(ObservableArray.observe(newValue, boundCallback));
+						this.ha.deliver = Observable.deliverChangeRecords.bind(Observable, boundCallback);
+					}
 				} else {
 					console.warn("The array from data source is not an instance of ObservableArray."
 						+ " Observation not happening.");
@@ -111,10 +120,16 @@
 					if (ObservableArray.canObserve(this.a)) {
 						if (!this.ha) {
 							var boundCallback = observeArrayCallback.bind(this);
-							this.ha = Object.create(ObservableArray.observe(this.a, boundCallback));
-							this.ha.deliver = Observable.deliverChangeRecords.bind(Observable, boundCallback);
-							this.ha.discardChanges = discardChangeRecordsFromCallback.bind(this, boundCallback);
-							this.oldValue = this.getFrom();
+							if (typeof ArrayObserver !== "undefined") {
+								this.ha = Object.create(new ArrayObserver(this.a));
+								this.ha.open(boundCallback);
+								this.oldValue = this.ha.value;
+							} else {
+								this.ha = Object.create(ObservableArray.observe(this.a, boundCallback));
+								this.ha.deliver = Observable.deliverChangeRecords.bind(Observable, boundCallback);
+								this.ha.discardChanges = discardChangeRecordsFromCallback.bind(this, boundCallback);
+								this.oldValue = this.getFrom();
+							}
 						}
 					} else {
 						console.warn(

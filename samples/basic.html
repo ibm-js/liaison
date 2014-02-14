@@ -6,21 +6,16 @@
 		<script type="text/javascript">
 			require([
 				"liaison/wrapper",
-				"liaison/ObservablePath",
-				"liaison/BindingSourceList",
 				"liaison/DOMTreeBindingTarget"
-			], function(wrapper, ObservablePath, BindingSourceList){
-				function startup(){
+			], function (wrapper) {
+				function startup() {
 					var o = wrapper.wrap({
 						first: "John",
-						last: "Doe"
+						last: "Doe",
+						name: wrapper.computed(function (first, last) {
+							return first + " " + last;
+						}, "first", "last")
 					});
-					o.set("name", new BindingSourceList([
-						new ObservablePath(o, "first"),
-						new ObservablePath(o, "last")
-					], function(a){
-						return a[0] + " " + a[1];
-					}));
 					document.getElementById("main-template").bind("bind", o);
 				}
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);

@@ -10,7 +10,6 @@
 		<script type="text/javascript" src="../../dojo/dojo.js" data-dojo-config="async: 1"></script>
 		<script type="text/javascript">
 			require([
-				"liaison/assignObservable",
 				"liaison/wrapper",
 				"liaison/ObservablePath",
 				"liaison/BindingSourceList",
@@ -18,64 +17,51 @@
 				"dojox/charting/themes/PlotKit/blue",
 				"liaison/DOMTreeBindingTarget",
 				"dojox/charting/plot2d/Pie"
-			], function(assignObservable, wrapper, ObservablePath, BindingSourceList, Chart, blue){
-				var BindingSourceSeries = (function(){
-					function setDataAndPushChanges(value){
+			], function (wrapper, ObservablePath, BindingSourceList, Chart, blue) {
+				var BindingSourceSeries = (function () {
+					function setDataAndPushChanges (value) {
 						this.data = value;
 						if(this.series){
 							this.series.chart.updateSeries(this.series.name, this);
 							this.series.chart.delayedRender();
 						}
 					}
-					return function(source){
-						this.setSeriesObject = function(series){
+					return function (source) {
+						this.setSeriesObject = function (series) {
 							this.series = series;
 						};
-						this.destroy = function(){
-							if(h){ h.remove(); h = null; }
+						this.destroy = function () {
+							if (h) { h.remove(); h = null; }
 						};
 						var h = source.observe(setDataAndPushChanges.bind(this));
 						setDataAndPushChanges.call(this, source.getFrom());
 					};
 				})();
 
-				function startup(){
+				function startup() {
 					var model = wrapper.wrap({
 						Name: "John Doe",
 						BaseIncome: 50000,
 						BonusIncome: 10000,
+						TotalIncome: wrapper.computed(function (BaseIncome, BonusIncome) {
+							return BaseIncome + BonusIncome;
+						}, "BaseIncome", "BonusIncome"),
 						Mortgage: 1000,
 						Taxes: 500,
 						OtherHousing: 1200,
+						TotalHousing: wrapper.computed(function (Mortgage, Taxes, OtherHousing) {
+							return Mortgage + Taxes + OtherHousing;							
+						}, "Mortgage", "Taxes", "OtherHousing"),
+						HousingPercent: wrapper.computed(function (TotalHousing, TotalIncome) {
+							return Math.round(TotalHousing / TotalIncome * 100);
+						}, "TotalHousing", "TotalIncome"),
+						HousingPercentError: wrapper.computed(function (HousingPercent) {
+							return HousingPercent > 33 ? "Housing should be less than 1/3 total expenses!" : "";
+						}, "HousingPercent"),
+						HousingPercentDisabled: wrapper.computed(function (HousingPercent) {
+							return HousingPercent <= 0 ? "disabled" : null;
+						}, "HousingPercent"),
 						isZipValid: true
-					});
-
-					assignObservable(model, {
-						TotalHousing: new BindingSourceList([
-							new ObservablePath(model, "Mortgage"),
-							new ObservablePath(model, "Taxes"),
-							new ObservablePath(model, "OtherHousing")
-						], function(a){
-							return a[0] + a[1] + a[2];
-						}),
-						TotalIncome: new BindingSourceList([
-							new ObservablePath(model, "BaseIncome"),
-							new ObservablePath(model, "BonusIncome")
-						], function(a){
-							return a[0] + a[1];
-						}),
-						HousingPercent: new BindingSourceList([
-							new ObservablePath(model, "TotalHousing"),
-							new ObservablePath(model, "TotalIncome")
-						], function(a){
-							return Math.round(a[0] / a[1] * 100);
-						}),
-						HousingPercentError: new ObservablePath(model, "HousingPercent", function(housingPercent){
-							return housingPercent > 33 ? "Housing should be less than 1/3 total expenses!" : "";
-						}),
-						HousingPercentDisabled: new ObservablePath(model, "HousingPercent", function(housingPercent){
-							return housingPercent <= 0 ? "disabled" : null;
-						})
 					});
 
 					var source = new BindingSourceList([
@@ -90,12 +76,12 @@
 
 					var REGEXP_NUMBER_BINDING = /^number:(.*)$/,
 						template = document.getElementById("main-template");
-					template.createBindingSourceFactory = function(target){
+					template.createBindingSourceFactory = function (target) {
 						var match = REGEXP_NUMBER_BINDING.exec(target);
 						if(match){
 							var path = match[1];
 							return function(model){
-								return new ObservablePath(model, path, function(value){
+								return new ObservablePath(model, path, function (value) {
 									return value + "";
 								}, function(value){
 									return +value;

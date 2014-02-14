@@ -80,24 +80,6 @@ define([
 				observable.set("foo", new ObservableArray({Name: "Irene Ira"}, {Name: "John Jacklin"}));
 				observable.foo.push({Name: "Anne Ackerman"}, {Name: "Ben Beckham"});
 			});
-			it("Observing Each", function () {
-				var dfd = this.async(1000),
-					observable = new Observable({foo: new ObservableArray(
-						{Name: "Anne Ackerman"},
-						{Name: "Ben Beckham"},
-						{Name: "Chad Chapman"})}),
-					observablePath = new ObservablePath(observable, "totalLength");
-				observable.set("totalLength", new Each(new ObservablePath(observable, "foo"), function (a) {
-					return a.reduce(function (length, entry) {
-						return length + entry.Name.length;
-					}, 0);
-				}));
-				expect(observablePath.getFrom()).to.equal(36);
-				handles.push(observablePath.observe(dfd.callback(function (newValue) {
-					expect(newValue).to.equal(57);
-				})));
-				observable.foo.push({Name: "Irene Ira"}, {Name: "John Jacklin"});
-			});
 			// TODO(asudoh): Add tests for oldValue
 		});
 	}

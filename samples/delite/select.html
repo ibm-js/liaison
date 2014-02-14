@@ -35,19 +35,18 @@
 
 			require([
 				"delite/register",
-				"delite/Widget",
-				"liaison/wrapper",
-				"liaison/delite/createRenderer"
-			], function(register, Widget, wrapper, createRenderer){
-				function startup(){
-					register("liaison-example-select", [HTMLElement, Widget], {
+				"liaison/delite/createRenderer",
+				"liaison/delite/widgets/Widget"
+			], function (register, createRenderer, Widget) {
+				function startup () {
+					register("liaison-example-select", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("select-template").innerHTML),
 						baseClass: "liaison-example-select",
 						Serial: "360324",
 						First: "John",
 						Last: "Doe",
 						Email: "jdoe@example.com",
-						ShipTo: wrapper.wrap({
+						ShipTo: {
 							Type: "Home",
 							Address: {
 								Street: "123 Valley Rd",
@@ -65,8 +64,8 @@
 									Number: "765-4321"
 								}
 							}
-						}),
-						BillTo: wrapper.wrap({
+						},
+						BillTo: {
 							Type: "Office",
 							Address: {
 								Street: "17 Skyline Dr",
@@ -84,12 +83,14 @@
 									Number: "123-4567"
 								}
 							}
-						}),
-						select: function(item){
+						},
+						current: undefined,
+						Selected: undefined,
+						select: function (item) {
 							this.set("current", this[item]);
 							this.set("Selected", item);
 						}
-					});
+					}));
 					register.parse();
 					ctrl = document.querySelector("liaison-example-select");
 				}
