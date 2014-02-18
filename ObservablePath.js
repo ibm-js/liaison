@@ -40,7 +40,7 @@
 		// it preferes regular loop over array extras,
 		// which makes cyclomatic complexity higher.
 		/* jshint maxcomplexity: 15, validthis: true */
-		var found = context.isSource;
+		var found;
 		if (!found && !context.discardChangeRecords) {
 			for (var records = newValue, i = 0, l = records.length; i < l; ++i) {
 				if (records[i].name === context.prop) {
@@ -108,31 +108,23 @@
 			}
 		}
 		return function (o, path, callback) {
-			var isSource = typeof (o || {}).observe === "function",
-				comps = getPathComps(path, true),
+			var comps = getPathComps(path, true),
 				isEmpty = comps.length === 0,
-				prop = !isSource && comps.shift(),
+				prop = comps.shift(),
 				remainder = comps,
 				context = {
 					callback: callback,
 					prop: prop,
-					remainder: remainder,
-					isSource: isSource
+					remainder: remainder
 				},
 				boundObserveCallback = observeCallback.bind(o, context);
 
 			if (typeof o === "object") {
-				if (isSource) {
-					context.hProp = Object.create(o.observe(boundObserveCallback));
-					context.hProp.deliver = o.deliver.bind(o);
-					context.hProp.discardChanges = o.discardChanges.bind(o);
-				} else if (!isEmpty && Observable.canObserve(o)) {
-					context.hProp = Object.create(Observable.observe(o, boundObserveCallback));
-					context.hProp.deliver = Observable.deliverChangeRecords.bind(Observable, boundObserveCallback);
-					context.hProp.discardChanges = discardChangeRecordsFromCallback.bind(context, boundObserveCallback);
-				}
+				context.hProp = Object.create(Observable.observe(o, boundObserveCallback));
+				context.hProp.deliver = Observable.deliverChangeRecords.bind(Observable, boundObserveCallback);
+				context.hProp.discardChanges = discardChangeRecordsFromCallback.bind(context, boundObserveCallback);
 				if (!isEmpty) {
-					context.hRemainder = observePath(isSource ? o.getFrom() : o[prop], remainder, callback);
+					context.hRemainder = observePath(o[prop], remainder, callback);
 				}
 			} else if (!isEmpty) {
 				console.warn("Attempt to observe non-object " + o + " with " + path + ". Observation not happening.");
@@ -192,7 +184,7 @@
 					try {
 						callbacks[i].call(
 							this.object,
-							this.getFrom(),
+							this.boundFormatter ? this.boundFormatter(newValue) : newValue,
 							this.boundFormatter ? this.boundFormatter(oldValue) : oldValue);
 					} catch (e) {
 						console.error("Error occured in ObservablePath callback: " + (e.stack || e));

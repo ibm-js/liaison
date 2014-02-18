@@ -7,11 +7,8 @@
 		<script type="text/javascript">
 			var ctrl;
 
-			require([
-				"liaison/wrapper",
-				"liaison/polymer/patches"
-			], function(wrapper){
-				function startup(){
+			require(["liaison/wrapper"], function (wrapper) {
+				function startup() {
 					var seq = 0;
 					ctrl = document.getElementById("main-template").model = wrapper.wrap({
 						items: [
@@ -66,7 +63,7 @@
 								Fax: "408-764-4321"
 							}
 						],
-						selectItem: function(id){
+						selectItem: function (id) {
 							ctrl.set("current", ctrl.items.filter(function(item){
 								return item.id == id;
 							})[0]);

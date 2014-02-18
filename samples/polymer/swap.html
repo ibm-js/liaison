@@ -7,10 +7,7 @@
 		<script type="text/javascript">
 			var ctrl;
 
-			require([
-				"liaison/wrapper",
-				"liaison/polymer/patches"
-			], function(wrapper){
+			require(["liaison/wrapper"], function (wrapper) {
 				function startup(){
 					ctrl = document.getElementById("main-template").model = wrapper.wrap({
 						data: [
@@ -54,7 +51,7 @@
 								]
 							}
 						],
-						select: function(title){
+						select: function (title) {
 							ctrl.set("current", ctrl.data.filter(function(entry){
 								return entry.title == title;
 							})[0].names);

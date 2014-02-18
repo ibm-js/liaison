@@ -48,16 +48,12 @@
 		<script type="text/javascript">
 			var ctrl;
 			require([
-				"dcl/dcl",
 				"delite/register",
-				"delite/Widget",
 				"liaison/wrapper",
-				"liaison/ObservablePath",
-				"liaison/BindingSourceList",
-				"liaison/Each",
 				"liaison/delite/createRenderer",
+				"liaison/delite/widgets/Widget",
 				"liaison/delite/TemplateBinderExtension"
-			], function(dcl, register, Widget, wrapper, ObservablePath, BindingSourceList, Each, createRenderer){
+			], function (register, wrapper, createRenderer, Widget) {
 				function startup(){
 					var seq = 0;
 					register("liaison-example-collection-item", [HTMLLIElement, Widget], {
@@ -65,38 +61,34 @@
 						baseClass: "liaison-example-collection-item",
 						item: undefined
 					});
-					register("liaison-example-collection", [HTMLElement, Widget], {
+					register("liaison-example-collection", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("collection-template").innerHTML),
 						baseClass: "liaison-example-collection",
-						addItem: function(event){
+						addItem: function (event) {
 							this.items.push({id: seq++, Name: this.newName});
 							this.set("newName", "");
 							event.preventDefault();
 						},
-						removeItem: function(id){
+						removeItem: function (id) {
 							var index = this.items.indexOf(this.items.filter(function(entry){ return entry.id == id; })[0]);
 							if(index >= 0){
 								this.items.splice(index, 1);
 							}
 						},
-						items: wrapper.wrap([
+						items: [
 							{id: seq++, Name: "Anne Ackerman"},
 							{id: seq++, Name: "Ben Beckham"},
 							{id: seq++, Name: "Chad Chapman"},
 							{id: seq++, Name: "Irene Ira"},
 							{id: seq++, Name: "John Jacklin"}
-						]),
-						createdCallback: dcl.superCall(function(sup){
-							return function(){
-								this.totalNameLength = new Each(new ObservablePath(this, "items"), function(a){
-									return a.reduce(function(length, entry){
-										return length + entry.Name.length;
-									}, 0);
-								});
-								sup && sup.apply(this, arguments);
-							};
-						})
-					});
+						],
+						totalNameLength: wrapper.computedArray(function (a) {
+							return a.reduce(function(length, entry){
+								return length + entry.Name.length;
+							}, 0);
+						}, "items"),
+						newName: undefined
+					}));
 					register.parse();
 					ctrl = document.querySelector("liaison-example-collection"); // TODO(asudoh): Can we use data-dojo-attach-event?
 				}

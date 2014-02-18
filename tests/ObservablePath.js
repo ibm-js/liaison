@@ -120,34 +120,6 @@ define([
 				}));
 				binding.setTo("Foo1");
 			});
-			it("BindingSource in path: Simple", function () {
-				var binding,
-					dfd = this.async(1000),
-					observable = new Observable({bar: "Bar0"}),
-					source = new ObservablePath(observable, "bar");
-				handles.push(binding = new ObservablePath(new Observable({foo: source}), "foo"));
-				binding.observe(dfd.callback(function (newValue, oldValue) {
-					expect(oldValue).to.equal("Bar0");
-					expect(newValue).to.equal("Bar1");
-				}));
-				expect(binding.getFrom()).to.equal("Bar0");
-				observable.set("bar", "Bar1");
-			});
-			it("BindingSource in path: More complex", function () {
-				var binding,
-					dfd = this.async(1000),
-					observable = new Observable({bar: new Observable({baz: "Baz"})}),
-					source = new ObservablePath(observable, "bar");
-				handles.push(binding = new ObservablePath(new Observable({foo: source}), "foo.baz"));
-				binding.observe(dfd.callback(function (newValue, oldValue) {
-					expect(oldValue).to.equal("Baz");
-					expect(newValue).to.equal("BAZ");
-					binding.setTo("BaZ");
-					expect(observable.bar.baz).to.equal("BaZ");
-				}));
-				expect(binding.getFrom()).to.equal("Baz");
-				observable.bar.set("baz", "BAZ");
-			});
 			it("Empty property", function () {
 				var observable = new Observable({foo: "Foo"}),
 					source = new ObservablePath(observable, "");

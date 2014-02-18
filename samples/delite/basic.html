@@ -12,31 +12,21 @@
 		</script>
 		<script type="text/javascript">
 			require([
-				"dcl/dcl",
 				"delite/register",
-				"delite/Widget",
-				"liaison/ObservablePath",
-				"liaison/BindingSourceList",
-				"liaison/delite/createRenderer"
-			], function (dcl, register, Widget, ObservablePath, BindingSourceList, createRenderer) {
+				"liaison/wrapper",
+				"liaison/delite/createRenderer",
+				"liaison/delite/widgets/Widget"
+			], function (register, wrapper, createRenderer, Widget) {
 				function startup() {
-					register("liaison-example-basic", [HTMLElement, Widget], {
+					register("liaison-example-basic", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("basic-template").innerHTML),
 						baseClass: "liaison-example-basic",
 						first: "John",
 						last: "Doe",
-						createdCallback: dcl.superCall(function(sup){
-							return function(){
-								this.name = new BindingSourceList([
-									new ObservablePath(this, "first"),
-									new ObservablePath(this, "last")
-								], function(a){
-									return a[0] + " " + a[1];
-								});
-								sup && sup.apply(this, arguments);
-							};
-						})
-					});
+						name: wrapper.computed(function (first, last) {
+							return first + " " + last;
+						}, "first", "last")
+					}));
 					register.parse();
 				}
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
