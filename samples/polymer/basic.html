@@ -5,25 +5,15 @@
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
 		<script type="text/javascript">
-			require([
-				"liaison/wrapper",
-				"liaison/ObservablePath",
-				"liaison/BindingSourceList",
-				"liaison/BindingTarget",
-				"liaison/polymer/patches",
-				"liaison/polymer/prepareBinding"
-			], function(wrapper, ObservablePath, BindingSourceList, BindingTarget){
-				function startup(){
+			require(["liaison/wrapper"], function (wrapper) {
+				function startup() {
 					var o = wrapper.wrap({
 						first: "John",
-						last: "Doe"
+						last: "Doe",
+						name: wrapper.computed(function (first, last) {
+							return first + " " + last;
+						}, "first", "last")
 					});
-					o.set("name", new BindingSourceList([
-						new ObservablePath(o, "first"),
-						new ObservablePath(o, "last")
-					], function(a){
-						return a[0] + " " + a[1];
-					}));
 					document.getElementById("main-template").model = o;
 				}
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);

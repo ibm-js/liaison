@@ -7,10 +7,7 @@
 		<script type="text/javascript">
 			var ctrl;
 
-			require([
-				"liaison/wrapper",
-				"liaison/polymer/patches"
-			], function(wrapper){
+			require(["liaison/wrapper"], function (wrapper) {
 				function startup(){
 					ctrl = document.getElementById("main-template").model = wrapper.wrap({
 						Serial: "360324",
@@ -55,7 +52,7 @@
 								}
 							}
 						},
-						select: function(item){
+						select: function (item) {
 							ctrl.set("current", ctrl[item]);
 							ctrl.set("Selected", item);
 						}

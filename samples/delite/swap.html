@@ -22,15 +22,14 @@
 			require([
 				"dcl/dcl",
 				"delite/register",
-				"delite/Widget",
-				"liaison/wrapper",
-				"liaison/delite/createRenderer"
-			], function(dcl, register, Widget, wrapper, createRenderer){
-				function startup(){
-					register("liaison-example-swap", [HTMLElement, Widget], {
+				"liaison/delite/createRenderer",
+				"liaison/delite/widgets/Widget"
+			], function (dcl, register, createRenderer, Widget) {
+				function startup () {
+					register("liaison-example-swap", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("swap-template").innerHTML),
 						baseClass: "liaison-example-swap",
-						data: wrapper.wrap([
+						data: [
 							{
 								title: "Model1",
 								names: [
@@ -70,19 +69,20 @@
 									}
 								]
 							}
-						]),
-						select: function(title){
-							this.set("current", this.data.filter(function(entry){
+						],
+						current: undefined,
+						select: function (title) {
+							this.set("current", this.data.filter(function (entry) {
 								return entry.title == title;
 							})[0].names);
 						},
-						createdCallback: dcl.superCall(function(sup){
-							return function(){
+						createdCallback: dcl.superCall(function (sup) {
+							return function () {
 								this.current = this.data[0].names;
 								sup && sup.apply(this, arguments);
 							};
 						})
-					});
+					}));
 					register.parse();
 					ctrl = document.querySelector("liaison-example-swap");
 				}

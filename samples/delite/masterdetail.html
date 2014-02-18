@@ -32,12 +32,11 @@
 
 			require([
 				"delite/register",
-				"delite/Widget",
-				"liaison/wrapper",
 				"liaison/delite/createRenderer",
+				"liaison/delite/widgets/Widget",
 				"liaison/delite/TemplateBinderExtension"
-			], function(register, Widget, wrapper, createRenderer){
-				function startup(){
+			], function (register, createRenderer, Widget) {
+				function startup() {
 					var seq = 0;
 					register("liaison-example-masterdetail-item", [HTMLElement, Widget], {
 						buildRendering: createRenderer(document.getElementById("masterdetail-item-template").innerHTML),
@@ -45,10 +44,10 @@
 						id: undefined,
 						First: undefined						
 					});
-					register("liaison-example-masterdetail", [HTMLElement, Widget], {
+					register("liaison-example-masterdetail", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("masterdetail-template").innerHTML),
 						baseClass: "liaison-example-masterdetail",
-						items: wrapper.wrap([
+						items: [
 							{
 								id: seq++,
 								First: "Anne",
@@ -99,13 +98,14 @@
 								Tel: "408-764-1234",
 								Fax: "408-764-4321"
 							}
-						]),
-						selectItem: function(id){
-							this.set("current", this.items.filter(function(item){
+						],
+						current: undefined,
+						selectItem: function (id) {
+							this.set("current", this.items.filter(function (item) {
 								return item.id == id;
 							})[0]);
 						}
-					});
+					}));
 					register.parse();
 					ctrl = document.querySelector("liaison-example-masterdetail");
 				}
