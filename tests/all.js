@@ -1,17 +1,7 @@
 define((function () {
-	var list = [
-		"./Observable",
-		"./ObservableArray",
-		"./ObservablePath",
-		"./BindingSourceList",
-		"./Each",
-		"./wrapper"
-	];
+	var list = ["./allNode", "./allSauce"];
 	if (typeof window !== "undefined") {
-		list.push("./DOMBindingTarget",
-			"./DOMTreeBindingTarget",
-			"./delite/sandbox",
-			"./polymer/sandbox");
+		list.push("./polymer/sandbox");
 	}
 	return list;
 })(), 1);
