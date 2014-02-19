@@ -1,7 +1,7 @@
 env:
   global:
-    - secure: "HY++owD4vRnSK/s3aYmLeEY1U/A2el913PXNsQkc/LSosRjbUbmVrCc4PpJqJbsEw4vGSfmf3Lm3ISnMOazPFmaN0/acKMewB1n3ePC0I7STp7qkiCXz6rZ5maI0kxnNtEFnXUR/UzQ7he6wyosB25R4wJj5eUVMOLqIhmCC33Q="
-    - secure: "msXeat5AYVhv5pD6h2qMWwEOeq9ahnyRUzv0htfHb5u33jBfb+82ZDbWK2iidWKrsRdHjjtfX6Y2FYFUJPpumGOBdSY8fUpPC6hzXVDZumSCSti49T14BlYB0JpiWxguyuMqRkVC7w15K9Nd3UQiLrTIexJrgaVxf1kQDjWLlps="
+    - secure: "DIXpQDgbpXgAIujhnphavBBP5jWonN4G5cn7UHkk+vioJvd/5wkJGZOZKXYqZnO2Pe50d7WMZ5RIdgtvUT6YOGVykGIo3beT/agBNMBjd4gJyJTSEf5zYl//cy6BTt6GNFY/0E05Q3f8IiuJSkxRmMEaPHnA9+O+rlB9woTfZOo="
+    - secure: "ja2aI/UwJ5mNreCoMLnAppquJhpUf1D4gfSKrTobPU/FpPUY/aUOue+jJAhWJtjjh6I/FXH+2f6HVnU8AdqEkF7HyZpAKKCxNTZvVnS3XT4fzjKv4874tCyY38Z1eN75vSo5TptrYQtVEA8G1ZGvsHPeaPvRI+1lXLkvo+ewpxQ="
 language: node_js
 node_js: "0.10"
 install:
@@ -23,4 +23,4 @@ script:
   - jshint --exclude-path .gitignore .
   - cd ..
   - node liaison/node_modules/intern/bin/intern-client.js config=liaison/tests/intern
-  - node liaison/node_modules/intern/runner.js config=liaison/tests/sauce
+  - if [[ "$TRAVIS_SECURE_ENV_VARS" == "true" ]]; then node liaison/node_modules/intern/runner.js config=liaison/tests/sauce; fi
