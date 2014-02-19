@@ -41,7 +41,20 @@ define([
 				wrapStateful(this);
 			}
 			if (!this._template) {
-				this._template = templateElement.create(template, this.ownerDocument);
+				var prefix = "";
+				if (document.all && template[0] === "{") {
+					// Template string beginning with '{' seems to hang IE9/10 when the widget gets into another element (with appendChild(), etc.).
+					// Adding "<!---->" to template string seems to work around that.
+					var ieVer = parseFloat(navigator.appVersion.split("MSIE ")[1]) || undefined,
+						mode = document.documentMode;
+					if (mode && mode !== 5 && Math.floor(ieVer) !== mode) {
+						ieVer = mode;
+					}
+					if (ieVer < 11) {
+						prefix = "<!---->";
+					}
+				}
+				this._template = templateElement.create(prefix + template, this.ownerDocument);
 				this._template.createBindingSourceFactory = this.createBindingSourceFactory;
 			}
 			new TemplateBinder(this._template).create(this, this, "beforeEnd");

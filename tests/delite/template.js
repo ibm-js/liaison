@@ -197,6 +197,9 @@ define([
 					}
 				});
 				setTimeout(dfd.rejectOnError(function () {
+					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
+						w.removeChild(w.firstChild);
+					}
 					expect(w.childNodes[0].nodeValue).to.equal("John ");
 					expect(w.childNodes[1].value).to.equal("John");
 					expect(w.childNodes[3].textContent).to.equal("Ben ");
@@ -231,6 +234,9 @@ define([
 				setTimeout(dfd.rejectOnError(function () {
 					var w = div.querySelector("liaison-test-nested");
 					setTimeout(dfd.rejectOnError(function () {
+						if (w.firstChild.nodeType === Node.COMMENT_NODE) {
+							w.removeChild(w.firstChild);
+						}
 						expect(w.childNodes[0].nodeValue).to.equal("John ");
 						expect(w.childNodes[1].value).to.equal("John");
 						expect(w.childNodes[3].textContent).to.equal("Ben ");
@@ -388,6 +394,9 @@ define([
 					}
 				});
 				setTimeout(dfd.rejectOnError(function () {
+					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
+						w.removeChild(w.firstChild);
+					}
 					expect(w.firstChild.textContent).to.equal("*John* ");
 					expect(input.value).to.equal("John");
 					input.value = "Anne";

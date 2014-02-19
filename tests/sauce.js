@@ -10,14 +10,15 @@ define(["./intern"], function (intern) {
 		},
 
 		environments: [
+			{browserName: "internet explorer", version: "9", platform: "Windows 7"},
+			{browserName: "internet explorer", version: "10", platform: "Windows 8"},
 			{browserName: "internet explorer", version: "11", platform: "Windows 8.1"},
-			// {browserName: "internet explorer", version: "10", platform: "Windows 8"},
-			// {browserName: "internet explorer", version: "9", platform: "Windows 7"},
-			{browserName: "firefox", version: "25", platform: [/*"OS X 10.6", "Linux",*/ "Windows 7"]},
-			{browserName: "chrome", version: "", platform: [/*"Linux", "OS X 10.6",*/ "Windows 7"]},
-			// {browserName: "iphone", platform: "OS X 10.8", version: "6.1", "device-orientation": "portrait"}
-			{browserName: "safari", version: "7", platform: "OS X 10.9"},
+			{browserName: "firefox", version: "25", platform: [/*"OS X 10.6",*/ "Linux", "Windows 7"]},
+			{browserName: "chrome", version: "", platform: [/*"OS X 10.6", */ "Linux", "Windows 7"]},
 			{browserName: "safari", version: "6", platform: "OS X 10.8"},
+			{browserName: "safari", version: "7", platform: "OS X 10.9"},
+			// Non-empty selenium-version causes "browser failed to start" error for unknown reason
+			// {browserName: "iphone", version: "6.1", platform: "OS X 10.8", "device-orientation": "portrait", "selenium-version": ""}
 		],
 
 		maxConcurrency: 3,

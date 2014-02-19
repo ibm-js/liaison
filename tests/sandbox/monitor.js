@@ -5,5 +5,8 @@ define(["dojo/topic"], function (topic) {
 				window.postMessage(JSON.stringify(suite.toJSON()), "*");
 			}
 		});
+		topic.subscribe("/error", function (error) {
+			window.postMessage(JSON.stringify({__error: "" + error}), "*");
+		});
 	};
 });
