@@ -1,11 +1,26 @@
+env:
+  global:
+    - secure: "HY++owD4vRnSK/s3aYmLeEY1U/A2el913PXNsQkc/LSosRjbUbmVrCc4PpJqJbsEw4vGSfmf3Lm3ISnMOazPFmaN0/acKMewB1n3ePC0I7STp7qkiCXz6rZ5maI0kxnNtEFnXUR/UzQ7he6wyosB25R4wJj5eUVMOLqIhmCC33Q="
+    - secure: "msXeat5AYVhv5pD6h2qMWwEOeq9ahnyRUzv0htfHb5u33jBfb+82ZDbWK2iidWKrsRdHjjtfX6Y2FYFUJPpumGOBdSY8fUpPC6hzXVDZumSCSti49T14BlYB0JpiWxguyuMqRkVC7w15K9Nd3UQiLrTIexJrgaVxf1kQDjWLlps="
 language: node_js
 node_js: "0.10"
 install:
+  - npm -g install bower
   - npm -g install jshint
   - npm install intern
+  - bower install
   - cd node_modules/intern
   - npm install --production
-  - cd ../..
+  - cd ../../..
+  - git clone https://github.com/uhop/dcl.git
+  - git clone https://github.com/dojo/dojo.git
+  - git clone https://github.com/ibm-js/delite.git
+  - git clone https://github.com/ibm-js/deliteful.git
+  - git clone https://github.com/ibm-js/dpointer.git
+  - git clone https://github.com/ibm-js/requirejs-dplugins.git
+  - cd liaison
 script:
   - jshint --exclude-path .gitignore .
-  - node node_modules/intern/bin/intern-client.js config=tests/intern
+  - cd ..
+  - node liaison/node_modules/intern/bin/intern-client.js config=liaison/tests/intern
+  - node liaison/node_modules/intern/runner.js config=liaison/tests/sauce
