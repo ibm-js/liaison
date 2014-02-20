@@ -39,13 +39,10 @@
 				}
 				function remove(callback) {
 					/* jshint validthis: true */
-					var callbacks = this.callbacks;
-					for (var i = callbacks.length - 1; i >= 0; --i) {
-						if (callbacks[i] === callback) {
-							callbacks.splice(i, 1);
-						}
+					for (var index; (index = this.callbacks.indexOf(callback)) >= 0;) {
+						this.callbacks.splice(index, 1);
 					}
-					if (callbacks.length === 0) {
+					if (this.callbacks.length === 0) {
 						this.h.remove();
 						this.h = null;
 					}

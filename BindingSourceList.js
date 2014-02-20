@@ -62,19 +62,20 @@
 					oldValues = boundFormatter ? boundFormatter(this.rawOldValues) : this.rawOldValues,
 					newValues = this.getFrom();
 				for (var callbacks = this.callbacks.slice(), i = 0, l = callbacks.length; i < l; ++i) {
-					callbacks[i].call(sources, newValues, oldValues);
+					try {
+						callbacks[i].call(sources, newValues, oldValues);
+					} catch (e) {
+						console.error("Error occured in BindingSourceList callback: " + (e.stack || e));
+					}
 				}
 				this.rawOldValues[indexOf] = newValue;
 			}
 			function remove(callback) {
 				/* jshint validthis: true */
-				var callbacks = this.callbacks;
-				for (var i = callbacks.length - 1; i >= 0; --i) {
-					if (callbacks[i] === callback) {
-						callbacks.splice(i, 1);
-					}
+				for (var index; (index = this.callbacks.indexOf(callback)) >= 0;) {
+					this.callbacks.splice(index, 1);
 				}
-				if (callbacks.length === 0 && this.handles) {
+				if (this.callbacks.length === 0 && this.handles) {
 					for (var h = null; (h = this.handles.pop());) {
 						h.remove();
 					}

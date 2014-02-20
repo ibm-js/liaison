@@ -86,16 +86,18 @@
 				if (!this.discardChangeRecords) {
 					var newValue = this.getFrom();
 					for (var callbacks = this.callbacks.slice(), i = 0, l = callbacks.length; i < l; ++i) {
-						callbacks[i].call(this, newValue, this.oldValue);
+						try {
+							callbacks[i].call(this, newValue, this.oldValue);
+						} catch (e) {
+							console.error("Error occured in Each callback: " + (e.stack || e));
+						}
 					}
 					this.oldValue = newValue;
 				}
 			}
 			function remove(callback) {
-				for (var i = this.callbacks.length - 1; i >= 0; --i) {
-					if (this.callbacks[i] === callback) {
-						this.callbacks.splice(i, 1);
-					}
+				for (var index; (index = this.callbacks.indexOf(callback)) >= 0;) {
+					this.callbacks.splice(index, 1);
 				}
 				if (this.callbacks.length === 0) {
 					if (this.ha) {
