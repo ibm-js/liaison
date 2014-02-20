@@ -20,14 +20,18 @@ define([
 	 *     The parameters governing
 	 *     this {@link module:liaison/delite/WidgetBindingTarget WidgetBindingTarget}'s behavior.
 	 */
-	function WidgetBindingTarget() {
-		BindingTarget.apply(this, arguments);
-		this.hw = this.object.own(this.object.watch(this.property, function (name, old, current) {
+	var WidgetBindingTarget = (function () {
+		function setTo(name, old, current) {
 			if ((this.source || EMPTY_OBJECT).setTo) {
 				this.source.setTo(current);
 			}
-		}.bind(this)))[0];
-	}
+		}
+		return function () {
+			BindingTarget.apply(this, arguments);
+			this.hw = this.object.own(this.object.watch(this.property, setTo.bind(this)))[0];
+		};
+	})();
+
 
 	WidgetBindingTarget.prototype = Object.create(BindingTarget.prototype);
 

@@ -18,9 +18,7 @@
 	function getObjectPath(o, path) {
 		for (var comps = getPathComps(path), i = 0, l = comps.length; i < l; ++i) {
 			var comp = comps[i];
-			o = o == null ? o :
-				typeof (o[comp] || {}).getFrom === "function" ? o[comp].getFrom() :
-				o[comp];
+			o = o == null ? o : o[comp];
 		}
 		return o;
 	}
@@ -31,7 +29,6 @@
 		o = comps.length > 0 ? getObjectPath(o, comps) : o;
 		return o == null || !path ? undefined :
 			typeof o.set === "function" ? o.set(prop, value) :
-			typeof (o[prop] || {}).setTo === "function" ? o[prop].setTo(value) :
 			(o[prop] = value);
 	}
 
@@ -193,13 +190,10 @@
 			}
 			function remove(callback) {
 				/* jshint validthis: true */
-				var callbacks = this.callbacks;
-				for (var i = callbacks.length - 1; i >= 0; --i) {
-					if (callbacks[i] === callback) {
-						callbacks.splice(i, 1);
-					}
+				for (var index; (index = this.callbacks.indexOf(callback)) >= 0;) {
+					this.callbacks.splice(index, 1);
 				}
-				if (callbacks.length === 0) {
+				if (this.callbacks.length === 0) {
 					this.h.remove();
 					this.h = null;
 				}

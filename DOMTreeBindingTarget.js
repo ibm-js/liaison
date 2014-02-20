@@ -160,15 +160,13 @@ define([
 							}
 						}
 					}
+					var position = referenceNode ? "beforeBegin" : "beforeEnd";
+					referenceNode = referenceNode || this.object.parentNode;
 					for (var iAddition = 0; iAddition < splices[i].addedCount; ++iAddition) {
-						var position = referenceNode ? "beforeBegin" : "beforeEnd";
 						this.contents.splice(
 							spliceIndex + iAddition,
 							0,
-							new TemplateBinder(upgraded).create(
-								this.model[spliceIndex + iAddition],
-								referenceNode || this.object.parentNode,
-								position));
+							new TemplateBinder(upgraded).create(this.model[spliceIndex + iAddition], referenceNode, position));
 					}
 				}
 			}

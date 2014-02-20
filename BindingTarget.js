@@ -57,22 +57,26 @@
 		 * @param {BindingSource} source
 		 *     The {@link BindingSource} to bind this {@link module:liaison/BindingTarget BindingTarget} to.
 		 */
-		bind: function (source) {
-			if (this.h) {
-				this.h.remove();
-				this.h = null;
+		bind: (function () {
+			function set(value) {
+				/* jshint validthis: true */
+				this.value = value;
 			}
-			this.source = source;
-			if (source && source.observe) {
-				this.h = source.observe(function (newValue) {
-					this.value = newValue;
-				}.bind(this));
-				this.value = source.getFrom();
-			} else {
-				this.value = source;
-			}
-			return this;
-		},
+			return function (source) {
+				if (this.h) {
+					this.h.remove();
+					this.h = null;
+				}
+				this.source = source;
+				if (source && source.observe) {
+					this.h = source.observe(set.bind(this));
+					this.value = source.getFrom();
+				} else {
+					this.value = source;
+				}
+				return this;
+			};
+		})(),
 
 		/**
 		 * Updates source with the current value of this {@link module:liaison/BindingTarget BindingTarget}.
