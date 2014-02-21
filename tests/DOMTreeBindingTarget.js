@@ -13,7 +13,8 @@ define([
 	"dojo/text!../tests/templates/deepNestedTemplate.html",
 	"dojo/text!../tests/templates/simpleWithConditionalAttributeBindingTemplate.html",
 	"dojo/text!../tests/templates/simpleConditionalBindingTemplate.html",
-	"dojo/text!../tests/templates/emptyBindingTemplate.html"
+	"dojo/text!../tests/templates/emptyBindingTemplate.html",
+	"dojo/text!../tests/templates/eventTemplate.html"
 ], function (
 	bdd,
 	expect,
@@ -29,7 +30,8 @@ define([
 	deepNestedTemplate,
 	simpleWithConditionalAttributeBindingTemplate,
 	simpleConditionalBindingTemplate,
-	emptyBindingTemplate
+	emptyBindingTemplate,
+	eventTemplate
 ) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
@@ -494,6 +496,44 @@ define([
 						expect(iterator.nextNode().nodeValue).to.equal(observableArray[i] + " ");
 						expect(inputs[i].value).to.equal(observableArray[i]);
 					}
+				}), 100);
+			});
+			it("Declarative events", function () {
+				var event,
+					senderDiv,
+					targetDiv,
+					dfd = this.async(2000),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template")),
+					observable = new Observable({
+						handleClick: dfd.rejectOnError(function (event, detail, sender) {
+							expect(event.type).to.equal("click");
+							expect(sender).to.equal(senderDiv);
+							observable.set("handleClick", dfd.callback(function (event, detail, sender) {
+								expect(event.type).to.equal("click");
+								expect(sender).to.equal(senderDiv);
+							}));
+							setTimeout(dfd.rejectOnError(function () {
+								event = document.createEvent("MouseEvents");
+								event.initEvent("click", true, true);
+								targetDiv.dispatchEvent(event);
+							}), 500);
+						})
+					});
+				template.innerHTML = eventTemplate;
+				handles.push(template.bind("bind", observable));
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				setTimeout(dfd.rejectOnError(function () {
+					senderDiv = template.nextSibling;
+					targetDiv = senderDiv.firstChild;
+					event = document.createEvent("MouseEvents");
+					event.initEvent("click", true, true);
+					targetDiv.dispatchEvent(event);
 				}), 100);
 			});
 		});

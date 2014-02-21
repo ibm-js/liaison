@@ -9,8 +9,8 @@
 				<div><span class="cell">Last name:</span> <input type="text" value="{{Last}}"></div>
 				<div><span class="cell">Email:</span> <input type="text" value="{{Email}}"></div>
 				<div>
-					<input type="button" value="Ship To" onclick="ctrl.select('ShipTo');">
-					<input type="button" value="Bill To" onclick="ctrl.select('BillTo');">
+					<input type="button" value="Ship To" on-click="{{select}}" data-item="ShipTo">
+					<input type="button" value="Bill To" on-click="{{select}}" data-item="BillTo">
 				</div>
 				<div><span class="cell">Selected Address:</span> <input type="text" value="{{Selected}}"></div>
 				<template bind="{{current}}">
@@ -31,21 +31,19 @@
 			</div>
 		</script>
 		<script type="text/javascript">
-			var ctrl;
-
 			require([
 				"delite/register",
 				"liaison/delite/createRenderer",
 				"liaison/delite/widgets/Widget"
 			], function (register, createRenderer, Widget) {
 				function startup () {
-					register("liaison-example-select", [HTMLElement, Widget], Widget.wrap({
+					register("liaison-sample-select", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("select-template").innerHTML),
-						baseClass: "liaison-example-select",
+						baseClass: "liaison-sample-select",
 						Serial: "360324",
 						First: "John",
 						Last: "Doe",
-						Email: "jdoe@example.com",
+						Email: "jdoe@sample.com",
 						ShipTo: {
 							Type: "Home",
 							Address: {
@@ -86,13 +84,13 @@
 						},
 						current: undefined,
 						Selected: undefined,
-						select: function (item) {
+						select: function (event, detail, sender) {
+							var item = sender.getAttribute("data-item");
 							this.set("current", this[item]);
 							this.set("Selected", item);
 						}
 					}));
 					register.parse();
-					ctrl = document.querySelector("liaison-example-select");
 				}
 
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
@@ -100,6 +98,6 @@
 		</script>
 	</head>
 	<body>
-		<liaison-example-select></liaison-example-select>
+		<liaison-sample-select></liaison-sample-select>
 	</body>
 </html>

@@ -14,7 +14,7 @@
 				list-style-type: none;
 			}
 
-			ul.namelist liaison-example-collection-item {
+			ul.namelist liaison-sample-collection-item {
 				display: inline-block;
 				border: solid #4080ff 1px;
 				margin: 2px;
@@ -29,24 +29,23 @@
 		<script id="collection-item-template" type="text/x-template">
 			<li>
 				{{item.Name}}
-				<span class="close-button" onclick="ctrl.removeItem({{item.id}});">X</span>
+				<span class="close-button" on-click="{{removeItem}}">X</span>
 			</li>
 		</script>
 		<script id="collection-template" type="text/x-template">
 			<div>
-				<form onsubmit="ctrl.addItem(event);">
+				<form on-submit="{{addItem}}">
 					<input type="text" placeholder="Type the new name" value="{{newName}}">
 				</form>
-				<ul class="namelist">
+				<ul class="namelist" on-liaison-sample-collection-item-remove-requested="{{removeItem}}">
 					<template repeat="{{items}}">
-						<liaison-example-collection-item item="{{}}"></liaison-example-collection-item>
+						<liaison-sample-collection-item item="{{}}"></liaison-sample-collection-item>
 					</template>
 				</ul>
 				<div>Sum of lengths of names: {{totalNameLength}}</div>
 			</div>
 		</script>
 		<script type="text/javascript">
-			var ctrl;
 			require([
 				"delite/register",
 				"liaison/delite/createRenderer",
@@ -55,21 +54,27 @@
 			], function (register, createRenderer, Widget) {
 				function startup(){
 					var seq = 0;
-					register("liaison-example-collection-item", [HTMLLIElement, Widget], {
+					register("liaison-sample-collection-item", [HTMLLIElement, Widget], {
 						buildRendering: createRenderer(document.getElementById("collection-item-template").innerHTML),
-						baseClass: "liaison-example-collection-item",
-						item: undefined
+						baseClass: "liaison-sample-collection-item",
+						item: undefined,
+						removeItem: function () {
+							var event = document.createEvent("CustomEvent");
+							event.initCustomEvent("liaison-sample-collection-item-remove-requested", true, true, {id: this.item.id});
+							this.dispatchEvent(event);
+						}
 					});
-					register("liaison-example-collection", [HTMLElement, Widget], Widget.wrap({
+					register("liaison-sample-collection", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("collection-template").innerHTML),
-						baseClass: "liaison-example-collection",
-						addItem: function (event) {
+						baseClass: "liaison-sample-collection",
+						addItem: function (event, detail, sender) {
+							sender.querySelector("input").blur(); // IE9 does not blur <input> at onsubmit. TODO(asudoh): Switch to oninput
 							this.items.push({id: seq++, Name: this.newName});
 							this.set("newName", "");
 							event.preventDefault();
 						},
-						removeItem: function (id) {
-							var index = this.items.indexOf(this.items.filter(function(entry){ return entry.id == id; })[0]);
+						removeItem: function (event, detail) {
+							var index = this.items.indexOf(this.items.filter(function(entry){ return entry.id == detail.id; })[0]);
 							if(index >= 0){
 								this.items.splice(index, 1);
 							}
@@ -89,13 +94,12 @@
 						newName: undefined
 					}));
 					register.parse();
-					ctrl = document.querySelector("liaison-example-collection"); // TODO(asudoh): Can we use data-dojo-attach-event?
 				}
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
 			});
 		</script>
 	</head>
 	<body>
-		<liaison-example-collection></liaison-example-collection>
+		<liaison-sample-collection></liaison-sample-collection>
 	</body>
 </html>
