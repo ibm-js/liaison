@@ -5,6 +5,27 @@
 		<title>Test runner sandbox</title>
 		<script type="text/javascript">
 			(function(){
+				if (!window.console) {
+					// IE9 in Sauce Labs environment does not seems to have console object unless dev tools is turned on.
+					// It causes an error in intern/lib/realClient.js:28
+					(function () {
+						function noop() {}
+						window.console = {
+							error: noop,
+							warn: noop,
+							info: noop,
+							log: noop,
+							debug: noop,
+							debug: noop,
+							group: noop,
+							groupCollapsed: noop,
+							groupEnd: noop,
+							time: noop,
+							timeEnd: noop,
+							trace: noop
+						};
+					})();
+				}
 				this.__internConfig = {
 					baseUrl: location.pathname.replace(/\/+[^\/]*$/, "/") + "../../../",
 					internUrl: location.pathname.replace(/\/+[^\/]*$/, "/") + "../../node_modules/intern"
@@ -15,8 +36,8 @@
 		<script type="text/javascript" src="./config.js"></script>
 		<script type="text/javascript">
 			(function(){
-				require(this.__internConfig, ["liaison/tests/sandbox/monitor"], function(monitor){
-					if(window.parent != window){
+				require(this.__internConfig, ["liaison/tests/sandbox/monitor"], function (monitor) {
+					if (window.parent != window) {
 						monitor();
 					}
 					require(["intern/client"]);

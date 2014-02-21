@@ -20,7 +20,9 @@ define([
 						iframe.addEventListener("load", dfd.rejectOnError(function () {
 							iframe.contentWindow.addEventListener("message", dfd.rejectOnError(function (event) {
 								var suite = JSON.parse(event.data);
-								if (suite.name === "main") {
+								if (suite.__error) {
+									dfd.reject(suite.__error);
+								} else if (suite.name === "main") {
 									if (suite.numFailedTests > 0) {
 										throw new Error(suite.numFailedTests + " out of "
 											+ suite.numTests + " sandbox tests have been failed.");
