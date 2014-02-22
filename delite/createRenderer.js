@@ -57,7 +57,7 @@ define([
 				this._template = templateElement.create(prefix + template, this.ownerDocument);
 				this._template.createBindingSourceFactory = this.createBindingSourceFactory;
 			}
-			new TemplateBinder(this._template).create(this, this, "beforeEnd");
+			this.own(new TemplateBinder(this._template))[0].create(this, this, "beforeEnd");
 		};
 	};
 

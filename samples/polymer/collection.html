@@ -2,81 +2,91 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
-		<style type="text/css">
-			.close-button {
-				color: red;
-			}
-
-			ul.namelist {
-				margin: 0;
-				padding: 2px;
-				border: solid #4080ff 1px;
-				list-style-type: none;
-			}
-
-			ul.namelist li {
-				display: inline-block;
-				border: solid #4080ff 1px;
-				margin: 2px;
-				padding: 2px;
-			}
-
-			ul.namelist img {
-				padding: 1px;
-			}
-		</style>
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
-		<script type="text/javascript">
-			var ctrl;
-			require(["liaison/wrapper"], function (wrapper) {
-				function startup () {
-					var seq = 0,
-						o = wrapper.wrap({
-							addItem: function(event){
-								this.items.push({id: seq++, Name: this.newName});
-								this.set("newName", "");
-								event.preventDefault();
-							},
-							removeItem: function(id){
-								var index = this.items.indexOf(this.items.filter(function (entry) { return entry.id == id; })[0]);
-								if(index >= 0){
-									this.items.splice(index, 1);
-								}
-							},
-							items: [
-								{id: seq++, Name: "Anne Ackerman"},
-								{id: seq++, Name: "Ben Beckham"},
-								{id: seq++, Name: "Chad Chapman"},
-								{id: seq++, Name: "Irene Ira"},
-								{id: seq++, Name: "John Jacklin"}
-							],
-							totalNameLength: wrapper.computedArray(function (a) {
-								return a.reduce(function(length, entry){
-									return length + entry.Name.length;
-								}, 0);
-							}, "items")
-						});
-					ctrl = document.getElementById("main-template").model = o;
-				}
-				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
-			});
-		</script>
+		<link rel="import" href="../../../polymer/polymer.html">
+		<polymer-element name="liaison-sample-collection-item" attributes="item">
+			<template>
+				<style type="text/css">
+					li {
+						display: inline-block;
+						border: solid #4080ff 1px;
+						margin: 2px;
+						padding: 2px;
+					}
+
+					.close-button {
+						color: red;
+						cursor: pointer;
+					}
+				</style>
+				<li>
+					{{item.Name}}
+					<span class="close-button" on-click="{{remove}}">X</span>
+				</li>
+			</template>
+			<script type="text/javascript">
+				Polymer("liaison-sample-collection-item", {
+					remove: function () {
+						this.fire("liaison-sample-collection-item-remove-requested", {item: this.item});
+					}
+				});
+			</script>
+		</polymer-element>
+		<polymer-element name="liaison-sample-collection">
+			<template>
+				<style type="text/css">
+					ul.namelist {
+						margin: 0;
+						padding: 2px;
+						border: solid #4080ff 1px;
+						list-style-type: none;
+					}
+				</style>
+				<link rel="stylesheet" type="text/css" href="../css/examples.css">
+				<form on-submit="{{addItem}}">
+					<input type="text" placeholder="Type the new name" value="{{newName}}">
+				</form>
+				<ul class="namelist" on-liaison-sample-collection-item-remove-requested="{{removeItem}}">
+					<template repeat="{{items}}">
+						<liaison-sample-collection-item item="{{}}"></liaison-sample-collection-item>
+					</template>
+				</ul>
+				<div>Sum of lengths of names: {{totalNameLength}}</div>
+			</template>
+			<script type="text/javascript">
+				require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
+					var seq = 0;
+					Polymer("liaison-sample-collection", wrapperProto.wrap({
+						items: [
+							{id: seq++, Name: "Anne Ackerman"},
+							{id: seq++, Name: "Ben Beckham"},
+							{id: seq++, Name: "Chad Chapman"},
+							{id: seq++, Name: "Irene Ira"},
+							{id: seq++, Name: "John Jacklin"}
+						],
+						totalNameLength: wrapperProto.computedArray(function (a) {
+							return a.reduce(function(length, entry){
+								return length + entry.Name.length;
+							}, 0);
+						}, "items"),
+						addItem: function (event) {
+							this.items.push({id: seq++, Name: this.newName});
+							this.newName = "";
+							event.preventDefault();
+						},
+						removeItem: function (event, detail) {
+							var index = this.items.indexOf(this.items.filter(function (entry) { return entry.id == detail.item.id; })[0]);
+							if(index >= 0){
+								this.items.splice(index, 1);
+							}
+						}
+					}));
+				});
+			</script>
+		</polymer-element>
 	</head>
 	<body>
-		<template id="main-template" bind>
-			<form onsubmit="ctrl.addItem(event);">
-				<input type="text" placeholder="Type the new name" value="{{newName}}">
-			</form>
-			<ul class="namelist">
-				<template repeat="{{items}}">
-					<li>
-						{{Name}}
-						<span class="close-button" onclick="ctrl.removeItem({{id}});">X</span>
-					</li>
-				</template>
-			</ul>
-			<div>Sum of lengths of names: {{totalNameLength}}</div>
-		</template>
+		<liaison-sample-collection></liaison-sample-collection>
 	</body>
 </html>

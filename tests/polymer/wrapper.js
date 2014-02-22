@@ -1,8 +1,10 @@
 define([
 	"intern!bdd",
 	"intern/chai!expect",
-	"../../wrapper"
-], function (bdd, expect, wrapper) {
+	"../../wrapper",
+	"dojo/text!./templates/computedTemplate.html",
+	"dojo/text!./templates/computedArrayTemplate.html"
+], function (bdd, expect, wrapper, computedTemplate, computedArrayTemplate) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it, PathObserver */
 	with (bdd) {
@@ -67,7 +69,7 @@ define([
 				var dfd = this.async(2000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
-				template.innerHTML = "<div>{{name}}</div><div>{{name.length}}</div>";
+				template.innerHTML = computedTemplate;
 				template.setAttribute("bind", "");
 				template.model = wrapper.wrap({
 					first: "John",
@@ -102,7 +104,7 @@ define([
 				var dfd = this.async(2000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
-				template.innerHTML = "{{totalNameLength}}";
+				template.innerHTML = computedArrayTemplate;
 				template.setAttribute("bind", "");
 				template.model = wrapper.wrap({
 					items: [

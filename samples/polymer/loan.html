@@ -2,118 +2,119 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
-		<style type="text/css">
-			.error-message {
-				color: red;
-			}
-		</style>
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
 		<script type="text/javascript" src="../../../dojo/dojo.js" data-dojo-config="async: 1"></script>
-		<script type="text/javascript">
-			require([
-				"liaison/wrapper",
-				"liaison/ObservablePath",
-				"liaison/BindingSourceList",
-				"dojox/charting/Chart",
-				"dojox/charting/themes/PlotKit/blue",
-				"dojox/charting/plot2d/Pie"
-			], function (wrapper, ObservablePath, BindingSourceList, Chart, blue) {
-				var BindingSourceSeries = (function () {
-					function setDataAndPushChanges(value) {
-						this.data = value;
-						if(this.series){
-							this.series.chart.updateSeries(this.series.name, this);
-							this.series.chart.delayedRender();
-						}
+		<link rel="import" href="../../../polymer/polymer.html">
+		<polymer-element name="liaison-sample-loan">
+			<template>
+				<link rel="stylesheet" type="text/css" href="../css/examples.css">
+				<style type="text/css">
+					.error-message {
+						color: red;
 					}
-					return function (source) {
-						this.setSeriesObject = function (series) {
-							this.series = series;
+				</style>
+				<h2>Borrower information</h2>
+				<div><span class="cell">Name:</span> <input type="text" value="{{Name}}"></div>
+				<h2>Expenses</h2>
+				<div><span class="cell">Mortgage:</span> <input type="text" value="{{number:Mortgage}}"></div>
+				<div><span class="cell">Real Estate Taxes:</span> <input type="text" value="{{number:Taxes}}"></div>
+				<div><span class="cell">Other Housing:</span> <input type="text" value="{{number:OtherHousing}}"></div>
+				<div><span class="cell">Total Housing:</span> <input type="text" value="{{number:TotalHousing}}"></div>
+				<h2>Income</h2>
+				<div><span class="cell">Base Income:</span> <input type="text" value="{{number:BaseIncome}}"></div>
+				<div><span class="cell">Bonus Income:</span> <input type="text" value="{{number:BonusIncome}}"></div>
+				<div><span class="cell">Total Income:</span> <input type="text" value="{{number:TotalIncome}}"></div>
+				<h2>Analysis</h2>
+				<div><span class="cell">Percent Housing (Under 33%):</span> <input type="text" disabled="{{HousingPercentDisabled}}" value="{{number:HousingPercent}}"> <span class="error-message">{{HousingPercentError}}</span></div>
+			</template>
+			<script type="text/javascript">
+				require([
+					"liaison/ObservablePath",
+					"liaison/BindingSourceList",
+					"liaison/polymer/wrapperProto",
+					"dojox/charting/Chart",
+					"dojox/charting/themes/PlotKit/blue",
+					"dojox/charting/plot2d/Pie"
+				], function (ObservablePath, BindingSourceList, wrapperProto, Chart, blue) {
+					var BindingSourceSeries = (function () {
+						function setDataAndPushChanges(value) {
+							this.data = value;
+							if(this.series){
+								this.series.chart.updateSeries(this.series.name, this);
+								this.series.chart.delayedRender();
+							}
+						}
+						return function (source) {
+							this.setSeriesObject = function (series) {
+								this.series = series;
+							};
+							this.destroy = function () {
+								if (h) { h.remove(); h = null; }
+							};
+							var h = source.observe(setDataAndPushChanges.bind(this));
+							setDataAndPushChanges.call(this, source.getFrom());
 						};
-						this.destroy = function () {
-							if (h) { h.remove(); h = null; }
-						};
-						var h = source.observe(setDataAndPushChanges.bind(this));
-						setDataAndPushChanges.call(this, source.getFrom());
+					})();
+					Polymer.api.instance.mdv.instanceTemplate = function (template) {
+						var REGEXP_NUMBER_BINDING = /^number:(.*)$/;
+						return template.createInstance(this, {
+							prepareBinding: function (target) {
+								var match = REGEXP_NUMBER_BINDING.exec(target);
+								if (match) {
+									var path = match[1];
+									return function (model) {
+										return new ObservablePath(model, path, function (value) {
+											return value + "";
+										}, function (value) {
+											return +value;
+										});
+									}
+								}
+							}
+						});
 					};
-				})();
-
-				function startup() {
-					var model = wrapper.wrap({
+					Polymer("liaison-sample-loan", wrapperProto.wrap({
 						Name: "John Doe",
 						BaseIncome: 50000,
 						BonusIncome: 10000,
-						TotalIncome: wrapper.computed(function (BaseIncome, BonusIncome) {
+						TotalIncome: wrapperProto.computed(function (BaseIncome, BonusIncome) {
 							return BaseIncome + BonusIncome;
 						}, "BaseIncome", "BonusIncome"),
 						Mortgage: 1000,
 						Taxes: 500,
 						OtherHousing: 1200,
-						TotalHousing: wrapper.computed(function (Mortgage, Taxes, OtherHousing) {
+						TotalHousing: wrapperProto.computed(function (Mortgage, Taxes, OtherHousing) {
 							return Mortgage + Taxes + OtherHousing;							
 						}, "Mortgage", "Taxes", "OtherHousing"),
-						HousingPercent: wrapper.computed(function (TotalHousing, TotalIncome) {
+						HousingPercent: wrapperProto.computed(function (TotalHousing, TotalIncome) {
 							return Math.round(TotalHousing / TotalIncome * 100);
 						}, "TotalHousing", "TotalIncome"),
-						HousingPercentError: wrapper.computed(function (HousingPercent) {
+						HousingPercentError: wrapperProto.computed(function (HousingPercent) {
 							return HousingPercent > 33 ? "Housing should be less than 1/3 total expenses!" : "";
 						}, "HousingPercent"),
-						HousingPercentDisabled: wrapper.computed(function (HousingPercent) {
+						HousingPercentDisabled: wrapperProto.computed(function (HousingPercent) {
 							return HousingPercent <= 0 ? "disabled" : null;
 						}, "HousingPercent"),
-						isZipValid: true
-					});
-
-					var source = new BindingSourceList([
-						new ObservablePath(model, "Mortgage"),
-						new ObservablePath(model, "Taxes"),
-						new ObservablePath(model, "OtherHousing")
-					]);
-					new Chart("chart")
-					 .setTheme(blue)
-					 .addPlot("default", {type: "Pie"})
-					 .addSeries("default", new BindingSourceSeries(source)).render();
-
-					var REGEXP_NUMBER_BINDING = /^number:(.*)$/,
-						template = document.getElementById("main-template");
-					template.bindingDelegate = {
-						prepareBinding: function (target) {
-							var match = REGEXP_NUMBER_BINDING.exec(target);
-							if(match){
-								var path = match[1];
-								return function(model){
-									return new ObservablePath(model, path, function (value) {
-										return value + "";
-									}, function(value){
-										return +value;
-									});
-								}
-							}
+						isZipValid: true,
+						createdCallback: function () {
+							this.super();
+							var source = new BindingSourceList([
+								new ObservablePath(this, "Mortgage"),
+								new ObservablePath(this, "Taxes"),
+								new ObservablePath(this, "OtherHousing")
+							]);
+							new Chart("chart")
+							 .setTheme(blue)
+							 .addPlot("default", {type: "Pie"})
+							 .addSeries("default", new BindingSourceSeries(source)).render();
 						}
-					};
-					template.model = model;
-				}
-
-				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
-			});
-		</script>
+					}));
+				});
+			</script>
+		</polymer-element>
 	</head>
 	<body>
 		<div id="chart" style="position:absolute;left:400px;width:150px;height:150px;"></div>
-		<template id="main-template" bind>
-			<h2>Borrower information</h2>
-			<div><span class="cell">Name:</span> <input type="text" value="{{Name}}"></div>
-			<h2>Expenses</h2>
-			<div><span class="cell">Mortgage:</span> <input type="text" value="{{number:Mortgage}}"></div>
-			<div><span class="cell">Real Estate Taxes:</span> <input type="text" value="{{number:Taxes}}"></div>
-			<div><span class="cell">Other Housing:</span> <input type="text" value="{{number:OtherHousing}}"></div>
-			<div><span class="cell">Total Housing:</span> <input type="text" value="{{number:TotalHousing}}"></div>
-			<h2>Income</h2>
-			<div><span class="cell">Base Income:</span> <input type="text" value="{{number:BaseIncome}}"></div>
-			<div><span class="cell">Bonus Income:</span> <input type="text" value="{{number:BonusIncome}}"></div>
-			<div><span class="cell">Total Income:</span> <input type="text" value="{{number:TotalIncome}}"></div>
-			<h2>Analysis</h2>
-			<div><span class="cell">Percent Housing (Under 33%):</span> <input type="text" disabled="{{HousingPercentDisabled}}" value="{{number:HousingPercent}}"> <span class="error-message">{{HousingPercentError}}</span></div>
-		</template>
+		<liaison-sample-loan></liaison-sample-loan>
 	</body>
 </html>

@@ -1,0 +1,19 @@
+<polymer-element name="liaison-test-collection">
+	<script type="text/javascript">
+		require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
+			Polymer("liaison-test-collection", wrapperProto.wrap({
+				items: [
+					{Name: "Anne Ackerman"},
+					{Name: "Ben Beckham"},
+					{Name: "Chad Chapman"},
+					{Name: "Irene Ira"}
+				],
+				totalNameLength: wrapperProto.computedArray(function (a) {
+					return a.reduce(function (length, entry) {
+						return length + entry.Name.length;
+					}, 0);
+				}, "items")
+			}));
+		});
+	</script>
+</polymer-element>

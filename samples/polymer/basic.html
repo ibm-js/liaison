@@ -4,27 +4,27 @@
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
-		<script type="text/javascript">
-			require(["liaison/wrapper"], function (wrapper) {
-				function startup() {
-					var o = wrapper.wrap({
+		<link rel="import" href="../../../polymer/polymer.html">
+		<polymer-element name="liaison-sample-basic">
+			<template>
+				<input type="text" placeholder="Type your first name" value="{{first}}">
+				<input type="text" placeholder="Type your last name" value="{{last}}">
+				<div>Hello, {{name}}! Length of your name is: {{name.length}}</div>
+			</template>
+			<script type="text/javascript">
+				require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
+					Polymer("liaison-sample-basic", wrapperProto.wrap({
 						first: "John",
 						last: "Doe",
-						name: wrapper.computed(function (first, last) {
+						name: wrapperProto.computed(function (first, last) {
 							return first + " " + last;
 						}, "first", "last")
-					});
-					document.getElementById("main-template").model = o;
-				}
-				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
-			});
-		</script>
+					}));
+				});
+			</script>
+		</polymer-element>
 	</head>
 	<body>
-		<template id="main-template" bind>
-			<input type="text" placeholder="Type your first name" value="{{first}}">
-			<input type="text" placeholder="Type your last name" value="{{last}}">
-			<div>Hello, {{name}}! Length of your name is: {{name.length}}</div>
-		</template>
+		<liaison-sample-basic></liaison-sample-basic>
 	</body>
 </html>

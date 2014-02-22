@@ -4,12 +4,22 @@
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
-		<script type="text/javascript">
-			var ctrl;
-
-			require(["liaison/wrapper"], function (wrapper) {
-				function startup(){
-					ctrl = document.getElementById("main-template").model = wrapper.wrap({
+		<link rel="import" href="../../../polymer/polymer.html">
+		<polymer-element name="liaison-sample-swap">
+			<template>
+				<div>
+					<template repeat="{{data}}">
+						<input type="button" value="{{title}}" on-click="{{select}}">
+					</template>
+				</div>
+				<template repeat="{{current}}">
+					<div>First: <input type="text" value="{{First}}"></div>
+					<div>Last: <input type="text" value="{{Last}}"></div>
+				</template>
+			</template>
+			<script type="text/javascript">
+				require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
+					Polymer("liaison-sample-swap", {
 						data: [
 							{
 								title: "Model1",
@@ -51,31 +61,20 @@
 								]
 							}
 						],
-						select: function (title) {
-							ctrl.set("current", ctrl.data.filter(function(entry){
-								return entry.title == title;
-							})[0].names);
+						select: function (event, detail, sender) {
+							this.current = this.data.filter(function (entry) {
+								return entry.title == sender.value;
+							})[0].names;
+						},
+						createdCallback: function () {
+							this.current = this.data[0].names;
 						}
 					});
-
-					ctrl.set("current", ctrl.data[0].names);
-				}
-
-				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
-			});
-		</script>
+				});
+			</script>
+		</polymer-element>
 	</head>
 	<body>
-		<template id="main-template" bind>
-			<div>
-				<template repeat="{{data}}">
-					<input type="button" value="{{title}}" onclick="ctrl.select('{{title}}');">
-				</template>
-			</div>
-			<template repeat="{{current}}">
-				<div>First: <input type="text" value="{{First}}"></div>
-				<div>Last: <input type="text" value="{{Last}}"></div>
-			</template>
-		</template>
+		<liaison-sample-swap></liaison-sample-swap>
 	</body>
 </html>
