@@ -15,7 +15,7 @@ define([
 				});
 				suites.forEach(function (suite) {
 					it("Test " + suite, function () {
-						var dfd = this.async();
+						var dfd = this.async(60000);
 						iframe = document.createElement("iframe");
 						iframe.addEventListener("load", dfd.rejectOnError(function () {
 							iframe.contentWindow.addEventListener("message", dfd.rejectOnError(function (event) {
