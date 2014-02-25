@@ -23,12 +23,16 @@ define([
 				})));
 				observable.set("foo", "Foo1");
 			});
-			it("Observing null", function () {
+			it("Observing non-object", function () {
 				// Check if below line will ends up with an exception
 				/* jshint nonew: false */
 				var caught;
 				try {
-					new ObservablePath(null, "foo");
+					handles.push(new ObservablePath(undefined, "foo").observe(function () {}));
+					handles.push(new ObservablePath(null, "foo").observe(function () {}));
+					handles.push(new ObservablePath(true, "foo").observe(function () {}));
+					handles.push(new ObservablePath(1, "foo").observe(function () {}));
+					handles.push(new ObservablePath("a", "foo").observe(function () {}));
 				} catch (e) {
 					caught = true;
 				}

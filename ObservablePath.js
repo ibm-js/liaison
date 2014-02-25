@@ -116,7 +116,7 @@
 				},
 				boundObserveCallback = observeCallback.bind(o, context);
 
-			if (typeof o === "object") {
+			if (typeof o === "object" && o) {
 				context.hProp = Object.create(Observable.observe(o, boundObserveCallback));
 				context.hProp.deliver = Observable.deliverChangeRecords.bind(Observable, boundObserveCallback);
 				context.hProp.discardChanges = discardChangeRecordsFromCallback.bind(context, boundObserveCallback);
