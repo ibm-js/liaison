@@ -4,12 +4,37 @@
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
-		<script type="text/javascript">
-			var ctrl;
-
-			require(["liaison/wrapper"], function (wrapper) {
-				function startup(){
-					ctrl = document.getElementById("main-template").model = wrapper.wrap({
+		<link rel="import" href="../../../polymer/polymer.html">
+		<polymer-element name="liaison-sample-select">
+			<template>
+				<link rel="stylesheet" type="text/css" href="../css/examples.css">
+				<div><span class="cell">Order#:</span> <input type="text" value="{{Serial}}"></div>
+				<div><span class="cell">Last name:</span> <input type="text" value="{{Last}}"></div>
+				<div><span class="cell">Email:</span> <input type="text" value="{{Email}}"></div>
+				<div>
+					<input type="button" value="Ship To" on-click="{{select}}" data-item="ShipTo">
+					<input type="button" value="Bill To" on-click="{{select}}" data-item="BillTo">
+				</div>
+				<div><span class="cell">Selected Address:</span> <input type="text" value="{{Selected}}"></div>
+				<template bind="{{current}}">
+					<div><span class="cell">Type:</span> <input type="text" value="{{Type}}"></div>
+					<template bind="{{Address}}">
+						<div><span class="cell">Street:</span> <input type="text" value="{{Street}}"></div>
+						<div><span class="cell">City:</span> <input type="text" value="{{City}}"></div>
+						<div><span class="cell">State:</span> <input type="text" value="{{State}}"></div>
+						<div><span class="cell">Zipcode:</span> <input type="text" value="{{Zip}}"></div>
+					</template>
+					<template bind="{{Telephone}}">
+						<div><span class="cell">Area code:</span> <input type="text" value="{{AreaCode}}"></div>
+						<div><span class="cell">Landline Number:</span> <input type="text" value="{{Landline.Number}}"></div>
+						<div><span class="cell">Extension:</span> <input type="text" value="{{Landline.Extension}}"></div>
+						<div><span class="cell">Cell Number:</span> <input type="text" value="{{Cell.Number}}"></div>
+					</template>
+				</template>
+			</template>
+			<script type="text/javascript">
+				require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
+					Polymer("liaison-sample-select", wrapperProto.wrap({
 						Serial: "360324",
 						First: "John",
 						Last: "Doe",
@@ -52,42 +77,17 @@
 								}
 							}
 						},
-						select: function (item) {
-							ctrl.set("current", ctrl[item]);
-							ctrl.set("Selected", item);
+						select: function (event, detail, sender) {
+							var item = sender.getAttribute("data-item");
+							this.current = this[item];
+							this.Selected = item;
 						}
-					});
-				}
-
-				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
-			});
-		</script>
+					}));
+				});
+			</script>
+		</polymer-element>
 	</head>
 	<body>
-		<template id="main-template" bind>
-			<div><span class="cell">Order#:</span> <input type="text" value="{{Serial}}"></div>
-			<div><span class="cell">Last name:</span> <input type="text" value="{{Last}}"></div>
-			<div><span class="cell">Email:</span> <input type="text" value="{{Email}}"></div>
-			<div>
-				<input type="button" value="Ship To" onclick="ctrl.select('ShipTo');">
-				<input type="button" value="Bill To" onclick="ctrl.select('BillTo');">
-			</div>
-			<div><span class="cell">Selected Address:</span> <input type="text" value="{{Selected}}"></div>
-			<template bind="{{current}}">
-				<div><span class="cell">Type:</span> <input type="text" value="{{Type}}"></div>
-				<template bind="{{Address}}">
-					<div><span class="cell">Street:</span> <input type="text" value="{{Street}}"></div>
-					<div><span class="cell">City:</span> <input type="text" value="{{City}}"></div>
-					<div><span class="cell">State:</span> <input type="text" value="{{State}}"></div>
-					<div><span class="cell">Zipcode:</span> <input type="text" value="{{Zip}}"></div>
-				</template>
-				<template bind="{{Telephone}}">
-					<div><span class="cell">Area code:</span> <input type="text" value="{{AreaCode}}"></div>
-					<div><span class="cell">Landline Number:</span> <input type="text" value="{{Landline.Number}}"></div>
-					<div><span class="cell">Extension:</span> <input type="text" value="{{Landline.Extension}}"></div>
-					<div><span class="cell">Cell Number:</span> <input type="text" value="{{Cell.Number}}"></div>
-				</template>
-			</template>
-		</template>
+		<liaison-sample-select></liaison-sample-select>
 	</body>
 </html>

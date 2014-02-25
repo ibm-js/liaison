@@ -4,16 +4,47 @@
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
-		<script type="text/javascript">
-			var ctrl;
-
-			require(["liaison/wrapper"], function (wrapper) {
-				function startup() {
-					var seq = 0;
-					ctrl = document.getElementById("main-template").model = wrapper.wrap({
+		<link rel="import" href="../../../polymer/polymer.html">
+		<polymer-element name="liaison-sample-masterdetail-item" attributes="item">
+			<link rel="stylesheet" type="text/css" href="../css/examples.css">
+			<template>
+				<div>
+					Name:
+					<input type="text" value="{{item.First}}">
+					<input type="button" value="Details" on-click="{{select}}">
+				</div>
+			</template>
+			<script type="text/javascript">
+				Polymer("liaison-sample-masterdetail-item", {
+					item: {},
+					select: function(){
+						this.fire("liaison-sample-masterdetail-item-selected", {item: this.item});
+					}
+				});
+			</script>
+		</polymer-element>
+		<polymer-element name="liaison-sample-masterdetail">
+			<template>
+				<link rel="stylesheet" type="text/css" href="../css/examples.css">
+				<div on-liaison-sample-masterdetail-item-selected="{{selectItem}}">
+					<template repeat="{{items}}">
+						<liaison-sample-masterdetail-item item="{{}}"></liaison-sample-masterdetail-item>
+					</template>
+				</div>
+				<div>
+					<div><span class="cell">First name:</span> <input type="text" value="{{current.First}}"></div>
+					<div><span class="cell">Last name:</span> <input type="text" value="{{current.Last}}"></div>
+					<div><span class="cell">Office:</span> <input type="text" value="{{current.Office}}"></div>
+					<div><span class="cell">Email:</span> <input type="text" value="{{current.Email}}"></div>
+					<div><span class="cell">Telephone:</span> <input type="text" value="{{current.Tel}}"></div>
+					<div><span class="cell">Fax:</span> <input type="text" value="{{current.Fax}}"></div>
+				</div>
+			</template>
+			<script type="text/javascript">
+				require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
+					Polymer("liaison-sample-masterdetail", wrapperProto.wrap({
 						items: [
 							{
-								id: seq++,
 								First: "Anne",
 								Last: "Ackerman",
 								Location: "NY",
@@ -23,7 +54,6 @@
 								Fax: "123-764-8228"
 							},
 							{
-								id: seq++,
 								First: "Ben",
 								Last: "Beckham",
 								Location: "NY",
@@ -33,7 +63,6 @@
 								Fax: "123-764-8600"
 							},
 							{
-								id: seq++,
 								First: "Chad",
 								Last: "Chapman",
 								Location: "CA",
@@ -43,7 +72,6 @@
 								Fax: "408-764-8228"
 							},
 							{
-								id: seq++,
 								First: "Irene",
 								Last: "Ira",
 								Location: "NJ",
@@ -53,7 +81,6 @@
 								Fax: "514-764-7300"
 							},
 							{
-								id: seq++,
 								First: "John",
 								Last: "Jacklin",
 								Location: "CA",
@@ -63,35 +90,15 @@
 								Fax: "408-764-4321"
 							}
 						],
-						selectItem: function (id) {
-							ctrl.set("current", ctrl.items.filter(function(item){
-								return item.id == id;
-							})[0]);
+						selectItem: function (event, detail) {
+							this.current = detail.item;
 						}
-					});
-				}
-
-				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
-			});
-		</script>
+					}));
+				});
+			</script>
+		</polymer-element>
 	</head>
 	<body>
-		<template id="main-template" bind>
-			<template repeat="{{items}}">
-				<div>
-					Name:
-					<input type="text" value="{{First}}">
-					<input type="button" value="Details" onclick="ctrl.selectItem({{id}});">
-				</div>
-			</template>
-			<div>
-				<div><span class="cell">First name:</span> <input type="text" value="{{current.First}}"></div>
-				<div><span class="cell">Last name:</span> <input type="text" value="{{current.Last}}"></div>
-				<div><span class="cell">Office:</span> <input type="text" value="{{current.Office}}"></div>
-				<div><span class="cell">Email:</span> <input type="text" value="{{current.Email}}"></div>
-				<div><span class="cell">Telephone:</span> <input type="text" value="{{current.Tel}}"></div>
-				<div><span class="cell">Fax:</span> <input type="text" value="{{current.Fax}}"></div>
-			</div>
-		</template>
+		<liaison-sample-masterdetail></<liaison-sample-masterdetail>
 	</body>
 </html>

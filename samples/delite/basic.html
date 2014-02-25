@@ -13,17 +13,16 @@
 		<script type="text/javascript">
 			require([
 				"delite/register",
-				"liaison/wrapper",
 				"liaison/delite/createRenderer",
 				"liaison/delite/widgets/Widget"
-			], function (register, wrapper, createRenderer, Widget) {
+			], function (register, createRenderer, Widget) {
 				function startup() {
 					register("liaison-example-basic", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("basic-template").innerHTML),
 						baseClass: "liaison-example-basic",
 						first: "John",
 						last: "Doe",
-						name: wrapper.computed(function (first, last) {
+						name: Widget.computed(function (first, last) {
 							return first + " " + last;
 						}, "first", "last")
 					}));

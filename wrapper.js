@@ -83,27 +83,35 @@
 	Computed.prototype = {
 		_computedMarker: "_computed",
 		clone: function () {
-			if (this.source) {
-				throw new Error("This computed property has been activated already. Cannot be cloned.");
-			}
-			return new Computed(this.callback, this.paths);
+			// Returns an inactive state of clone
+			return new Computed(this.callback, this.paths).init(this.o, this.name);
+		},
+		init: function (o, name) {
+			this.remove();
+			o !== undefined && (this.o = o);
+			name !== undefined && (this.name = name);
+			return this;
 		},
 		activate: (function () {
 			function callComputedCallback(callback, a) {
 				return callback.apply(this, a);
 			}
-			return function (o, name) {
-				this.o = o;
-				this.name = name;
-				(this.source = new BindingSourceList(this.paths.map(function (path) {
-					return new ObservablePathClass(o, path);
-				}), callComputedCallback.bind(this, this.callback))).open((typeof o.set === "function" ? o.set : set).bind(o, name));
-				set.call(o, name, this.source.getFrom());
+			function mapPath(path) {
+				return new ObservablePathClass(this, path);
+			}
+			return function () {
+				var o = this.o;
+				this.source = new BindingSourceList(this.paths.map(mapPath, o), callComputedCallback.bind(this, this.callback));
+				this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name));
+				set.call(o, this.name, this.source.getFrom());
 				return this;
 			};
 		})(),
 		remove: function () {
-			this.source && this.source.remove();
+			if (this.source) {
+				this.source.remove();
+				this.source = null;
+			}
 		}
 	};
 
@@ -112,25 +120,19 @@
 		this.path = path;
 	}
 
-	ComputedArray.prototype = {
-		_computedMarker: "_computedArray",
-		clone: function () {
-			if (this.source) {
-				throw new Error("This computed property has been activated already. Cannot be cloned.");
-			}
-			return new ComputedArray(this.callback, this.path);
-		},
-		activate: function (o, name) {
-			this.o = o;
-			this.name = name;
-			this.source = new Each(new ObservablePathClass(o, this.path), this.callback);
-			this.source.open((typeof o.set === "function" ? o.set : set).bind(o, name));
-			set.call(o, name, this.source.getFrom());
-			return this;
-		},
-		remove: function () {
-			this.source && this.source.remove();
-		}
+	ComputedArray.prototype = Object.create(Computed.prototype);
+	ComputedArray.prototype._computedMarker = "_computedArray";
+
+	ComputedArray.prototype.clone = function () {
+		return new ComputedArray(this.callback, this.path).init(this.o, this.name);
+	};
+
+	ComputedArray.prototype.activate = function () {
+		var o = this.o;
+		this.source = new Each(new ObservablePathClass(o, this.path), this.callback);
+		this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name));
+		set.call(o, this.name, this.source.getFrom());
+		return this;
 	};
 
 	/**
@@ -140,21 +142,21 @@
 	 */
 	function wrap(o) {
 		var wrapped;
-		if (typeof (o || {}).splice === "function") {
+		if (typeof (o || EMPTY_OBJECT).splice === "function") {
 			return ObservableArray.apply(undefined, o.map(wrap));
 		} else if (Observable.test(o) || o && REGEXP_OBJECT_CONSTRUCTOR.test(o.constructor + "")) {
 			var handles = [];
 			wrapped = new Observable();
 			for (var s in o) {
 				if (isComputed(o[s])) {
-					handles.push(o[s].activate(wrapped, s));
+					handles.push(o[s].init(wrapped, s).activate());
 				} else {
 					wrapped[s] = wrap(o[s]);
 				}
 			}
 			if (handles.length > 0) {
-				// Make computed property's handles list not enumeable or writable
-				Object.defineProperty(wrapped, "_computedHandles", {value: handles, configurable: true});
+				// Make computed properties list not enumeable
+				Object.defineProperty(wrapped, "_computed", {value: handles, configurable: true, writable: true});
 			}
 			return wrapped;
 		}
@@ -168,16 +170,16 @@
 	 */
 	function unwrap(o) {
 		var unwrapped;
-		if (typeof (o || {}).splice === "function") {
+		if (typeof (o || EMPTY_OBJECT).splice === "function") {
 			return o.map(unwrap);
 		} else if (Observable.test(o) || REGEXP_OBJECT_CONSTRUCTOR.test(o.constructor + "")) {
 			unwrapped = {};
 			for (var s in o) {
 				unwrapped[s] = unwrap(o[s]);
 			}
-			if (o._computedHandles) {
-				for (var i = 0, l = o._computedHandles.length; i < l; ++i) {
-					var h = o._computedHandles[i];
+			if (o._computed) {
+				for (var i = 0, l = o._computed.length; i < l; ++i) {
+					var h = o._computed[i];
 					unwrapped[h.name] = h;
 				}
 			}
@@ -192,13 +194,13 @@
 	 * @param {module:liaison/Observable} o A {@link module:liaison/Observable Observable}.
 	 */
 	function remove(o) {
-		if (Array.isArray(o._computedHandles)) {
-			for (var h; (h = o._computedHandles.shift());) {
+		if (Array.isArray(o._computed)) {
+			for (var h; (h = o._computed.shift());) {
 				h.remove();
 			}
-			delete o._computedHandles;
+			delete o._computed;
 		}
-		if (typeof (o || {}).splice === "function") {
+		if (typeof (o || EMPTY_OBJECT).splice === "function") {
 			o.forEach(remove);
 		} else if (Observable.test(o) || REGEXP_OBJECT_CONSTRUCTOR.test(o.constructor + "")) {
 			for (var s in o) {

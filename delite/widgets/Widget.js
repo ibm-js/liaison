@@ -3,20 +3,21 @@ define([
 	"dcl/dcl",
 	"delite/Stateful",
 	"delite/Widget",
-	"../../wrapper",
+	"../../wrapperProto",
 	"../../wrapStateful",
-	"../../Observable",
 	"../../ObservablePath",
 	"../TemplateBinderExtension"
-], function (dcl, Stateful, Widget, wrapper, wrapStateful, Observable, ObservablePath) {
-	var REGEXP_CHAGED_CALLBACK = /^(.+)Changed$/,
-		REGEXP_OBJECT_CONSTRUCTOR = /^\s*function Object\s*\(/,
-		REGEXP_COMPUTED_PROPERTIES_IN_WIDGET = /^__(.+)__Computed$/;
+], function (dcl, Stateful, Widget, wrapperProto, wrapStateful, ObservablePath) {
+	var REGEXP_CHAGED_CALLBACK = /^(.+)Changed$/;
 
 	/**
 	 * The base widget class for Liaison.
 	 * @class module:liaison/delite/widgets/Widget
 	 * @augments {external:Widget}
+	 * @borrows module:liaison/wrapperProto.wrap as wrap
+	 * @borrows module:liaison/wrapper.computed as computed
+	 * @borrows module:liaison/wrapper.computedArray as computedArray
+	 * @borrows module:liaison/wrapper.isComputed as isComputed
 	 */
 	var LiaisonWidget = dcl(Widget, /** @lends module:liaison/delite/widgets/Widget# */ {
 		/**
@@ -31,36 +32,19 @@ define([
 			this.watch = Stateful.prototype.watch; // From delite/Widget#preCreate
 			wrapStateful(this);
 			for (var s in this) {
-				if ((tokens = REGEXP_COMPUTED_PROPERTIES_IN_WIDGET.exec(s)) && wrapper.isComputed(this[s])) {
-					this.own(this[s].clone().activate(this, tokens[1]));
-				} else if ((tokens = REGEXP_CHAGED_CALLBACK.exec(s)) && typeof this[s] === "function") {
+				if ((tokens = REGEXP_CHAGED_CALLBACK.exec(s)) && typeof this[s] === "function") {
 					this.own(new ObservablePath(this, tokens[1]).observe(this[s].bind(this)));
 				}
+			}
+			if (this._applyInstanceToComputed) {
+				this.own(this._applyInstanceToComputed());
 			}
 		})
 	});
 
-	/**
-	 * Set up delite widget prototype object for data binding.
-	 * @function module:liaison/delite/widgets/Widget.wrap
-	 * @param {Object} o A plain object.
-	 * @returns {Object} A converted version of the given object.
-	 */
-	LiaisonWidget.wrap = function (o) {
-		if (Observable.test(o) || o && REGEXP_OBJECT_CONSTRUCTOR.test(o.constructor + "")) {
-			var wrapped = {};
-			for (var s in o) {
-				if (wrapper.isComputed(o[s])) {
-					wrapped["__" + s + "__Computed"] = o[s];
-					wrapped[s] = undefined; // Let delite/Stateful#_introspect handle this property
-				} else {
-					wrapped[s] = wrapper.wrap(o[s]);
-				}
-			}
-			return wrapped;
-		}
-		return o;
-	};
-
+	LiaisonWidget.wrap = wrapperProto.wrap;
+	LiaisonWidget.computed = wrapperProto.computed;
+	LiaisonWidget.computedArray = wrapperProto.computedArray;
+	LiaisonWidget.isComputed = wrapperProto.isComputed;
 	return LiaisonWidget;
 });
