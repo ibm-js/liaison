@@ -12,6 +12,7 @@ define([
 	"use strict";
 
 	var REGEXP_TEMPLATE_TYPE = /template$/i,
+		REGEXP_DECLARATIVE_EVENT = /^on\-(.+)$/i,
 		ATTRIBUTE_IF = "if",
 		ATTRIBUTE_BIND = "bind",
 		ATTRIBUTE_REPEAT = "repeat",
@@ -19,10 +20,54 @@ define([
 		MUSTACHE_BEGIN_LENGTH = 2,
 		MUSTACHE_END = "}}",
 		MUSTACHES_LENGTH = 4,
-		PARSED_ENTRY_LENGTH = 3,
+		PARSED_ENTRY_LENGTH = 4,
 		PARSED_ENTRY_NODE = 0,
 		PARSED_ENTRY_ATTRIBUTENAME = 1,
-		PARSED_ENTRY_ATTRIBUTEVALUE = 2;
+		PARSED_ENTRY_ATTRIBUTEVALUE = 2,
+		PARSED_ENTRY_SOURCE = 3;
+
+	function EventBindingTarget() {
+		BindingTarget.apply(this, arguments);
+		var tokens = REGEXP_DECLARATIVE_EVENT.exec(this.property);
+		if (!tokens) {
+			throw new Error("Property name " + this.property + " is not suitable for EventBindingTarget.");
+		}
+		this.eventName = tokens[1];
+	}
+
+	EventBindingTarget.prototype = Object.create(BindingTarget.prototype);
+
+	EventBindingTarget.prototype.remove = function () {
+		if (this.handler) {
+			this.object.removeEventListener(this.eventName, this.handler);
+		}
+		BindingTarget.prototype.remove.apply(this, arguments);
+	};
+
+	Object.defineProperty(EventBindingTarget.prototype, "value", {
+		get: function () {
+			return this.handler;
+		},
+		set: (function () {
+			function decoratedHandler(handler, event) {
+				handler(event, event.detail, this);
+			}
+			return function (value) {
+				if (this.handler) {
+					this.object.removeEventListener(this.eventName, this.handler);
+				}
+				if (value != null) {
+					if (typeof value === "function") {
+						this.object.addEventListener(this.eventName, this.handler = decoratedHandler.bind(this.object, value));
+					} else {
+						console.warn("A non-function (" + value + ") is assigned to EventBindingTarget's value. Ignoring.");
+					}
+				}
+			};
+		})(),
+		enumeable: true,
+		configurable: true
+	});
 
 	function tokenize(text) {
 		var index = 0,
@@ -44,13 +89,31 @@ define([
 		return tokens;
 	}
 
-	function tokensFormatter(texts, values) {
+	function tokensFormatter(values) {
 		var tokens = [];
-		for (var i = 0, l = texts.length; i < l; ++i) {
-			tokens.push(texts[i], values[i] != null ? values[i] : "");
+		for (var i = 0, l = this.length; i < l; ++i) {
+			tokens.push(this[i], values[i] != null ? values[i] : "");
 		}
 		return tokens.join("");
 	}
+
+	(function () {
+		function declarativeEventFormatter(fn) {
+			return fn.bind(this);
+		}
+		var origCreateBindingSourceFactory = BindingTarget.createBindingSourceFactory;
+		BindingTarget.createBindingSourceFactory = function (path, name) {
+			var factory = origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
+			if (!factory) {
+				var tokens = REGEXP_DECLARATIVE_EVENT.exec(name);
+				if (tokens) {
+					return function (model, node) {
+						return new EventBindingTarget(node, name).bind(new ObservablePath(model, path, declarativeEventFormatter.bind(model)));
+					};
+				}
+			}
+		};
+	})();
 
 	/**
 	 * A class working as an internal logic of {external:HTMLTemplateElement#bind HTMLTemplateElement.bind()}
@@ -107,7 +170,7 @@ define([
 					for (var i = 0, l = currentNode.attributes.length; i < l; ++i) {
 						var attribute = currentNode.attributes[i];
 						if (attribute.value.indexOf(MUSTACHE_BEGIN) >= 0) {
-							this.parsed.push(currentNode, attribute.name, attribute.value);
+							this.parsed.push(currentNode, attribute.name, attribute.value, undefined);
 							var isTemplate = currentNode.tagName === "TEMPLATE"
 								|| currentNode.hasAttribute("template")
 								|| currentNode.tagName === "SCRIPT"
@@ -117,13 +180,13 @@ define([
 								&& attribute.name.toLowerCase() === ATTRIBUTE_IF
 								&& !currentNode.getAttribute(ATTRIBUTE_BIND)
 								&& !currentNode.getAttribute(ATTRIBUTE_REPEAT)) {
-								this.parsed.push(currentNode, ATTRIBUTE_BIND, "{{}}");
+								this.parsed.push(currentNode, ATTRIBUTE_BIND, "{{}}", undefined);
 							}
 						}
 					}
 				} else if (currentNode.nodeType === Node.TEXT_NODE) {
 					if (currentNode.nodeValue.indexOf(MUSTACHE_BEGIN) >= 0) {
-						this.parsed.push(currentNode, "nodeValue", currentNode.nodeValue);
+						this.parsed.push(currentNode, "nodeValue", currentNode.nodeValue, undefined);
 					}
 				}
 			}
@@ -141,29 +204,21 @@ define([
 			// it preferes regular loop over array extras,
 			// which makes cyclomatic complexity higher.
 			/* jshint maxcomplexity: 15 */
-			/**
-			 * The hash table, keyed by attribute value with data binding syntax,
-			 * of {@link BindingSource} associated with it.
-			 * @type {Object}
-			 */
-			this.sources = {};
-			for (var factories = {}, parsedIndex = 0, parsedLength = this.parsed.length;
+			for (var parsedIndex = 0, parsedLength = this.parsed.length;
 					parsedIndex < parsedLength;
 					parsedIndex += PARSED_ENTRY_LENGTH) {
 				var path,
 					factory,
+					node = this.parsed[parsedIndex + PARSED_ENTRY_NODE],
+					name = this.parsed[parsedIndex + PARSED_ENTRY_ATTRIBUTENAME],
 					value = this.parsed[parsedIndex + PARSED_ENTRY_ATTRIBUTEVALUE],
 					tokens = tokenize(value),
 					createBindingSourceFactory
 						= this.template.createBindingSourceFactory || BindingTarget.createBindingSourceFactory;
 				if (tokens.length === 3 && !tokens[0] && !tokens[2]) {
 					path = tokens[1].substr(MUSTACHE_BEGIN_LENGTH, tokens[1].length - MUSTACHES_LENGTH).trim();
-					if (!this.sources[value]) {
-						factory = !createBindingSourceFactory ? undefined :
-							path in factories ? factories[path] :
-							(factories[path] = createBindingSourceFactory(path));
-						this.sources[value] = factory ? factory(model) : new ObservablePath(model, path);
-					}
+					factory = createBindingSourceFactory && createBindingSourceFactory(path, name);
+					this.parsed[parsedIndex + PARSED_ENTRY_SOURCE] = factory ? factory(model, node) : new ObservablePath(model, path);
 				} else {
 					var list = [],
 						texts = [];
@@ -174,15 +229,11 @@ define([
 							path = tokens[tokenIndex].substr(
 								MUSTACHE_BEGIN_LENGTH,
 								tokens[tokenIndex].length - MUSTACHES_LENGTH).trim();
-							factory = !createBindingSourceFactory ? undefined :
-								path in factories ? factories[path] :
-								(factories[path] = createBindingSourceFactory(path));
-							list.push(factory ? factory(model) : new ObservablePath(model, path));
+							factory = createBindingSourceFactory && createBindingSourceFactory(path, name);
+							list.push(factory ? factory(model, node) : new ObservablePath(model, path));
 						}
 					}
-					if (!this.sources[value]) {
-						this.sources[value] = new BindingSourceList(list, tokensFormatter.bind(undefined, texts));
-					}
+					this.parsed[parsedIndex + PARSED_ENTRY_SOURCE] = new BindingSourceList(list, tokensFormatter.bind(texts));
 				}
 			}
 			return this.sources;
@@ -237,12 +288,15 @@ define([
 			 */
 			this.bound = [];
 			for (var i = 0, l = this.parsed.length; i < l; i += PARSED_ENTRY_LENGTH) {
-				var source = this.sources[this.parsed[i + PARSED_ENTRY_ATTRIBUTEVALUE]];
+				var name = this.parsed[i + PARSED_ENTRY_ATTRIBUTENAME],
+					source = this.parsed[i + PARSED_ENTRY_SOURCE];
 				if (source) {
-					this.bound.push(
-						this.parsed[i + PARSED_ENTRY_NODE].bind(
-							this.parsed[i + PARSED_ENTRY_ATTRIBUTENAME],
-							source));
+					if (typeof source.observe === "function") {
+						this.bound.push(this.parsed[i + PARSED_ENTRY_NODE].bind(name, source));
+					} else if (typeof source.remove === "function") {
+						// source is just a handle, may come from createBindingSourceFactory()
+						this.bound.push(source);
+					}
 				}
 			}
 			return this.bound;

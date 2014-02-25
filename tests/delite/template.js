@@ -18,6 +18,7 @@ define([
 	"../../delite/createRenderer!./templates/nestedWidgetTemplate.html",
 	"../../delite/createRenderer!./templates/complexAttributeTemplate.html",
 	"../../delite/createRenderer!./templates/simpleWithAlternateBindingTemplate.html",
+	"../../delite/createRenderer!../templates/eventTemplate.html",
 	"deliteful/StarRating",
 	"../../delite/TemplateBinderExtension"
 ], function (
@@ -39,7 +40,8 @@ define([
 	widgetWithNestedRepeatingTemplate,
 	renderNestedWidgetTemplate,
 	renderComplexAttributeTemplate,
-	renderAlternateBindingTemplate
+	renderAlternateBindingTemplate,
+	renderEventsTemplate
 ) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
@@ -72,30 +74,33 @@ define([
 					baseClass: "liaison-test-nestedwidget",
 					name: undefined
 				}),
-				ComplexAttributeTemplateWidget
-					= register("liaison-test-complexattribute", [HTMLElement, Widget], {
-						buildRendering: renderComplexAttributeTemplate,
-						baseClass: "liaison-test-complexattribute",
-						name: undefined
-					}),
-				AlternateBindingTemplateWidget
-					= register("liaison-test-alternatebinding", [HTMLElement, Widget], {
-						buildRendering: renderAlternateBindingTemplate,
-						baseClass: "liaison-test-alternatebinding",
-						createBindingSourceFactory: function (descriptor) {
-							var match = /(\w+):(.*)/.exec(descriptor),
-								key = (match || [])[1],
-								path = (match || [])[2];
-							if (key === "decorated") {
-								return function (model) {
-									return new ObservablePath(model, path, function (value) {
-										return "*" + value + "*";
-									});
-								};
-							}
-						},
-						first: undefined
-					});
+				ComplexAttributeTemplateWidget = register("liaison-test-complexattribute", [HTMLElement, Widget], {
+					buildRendering: renderComplexAttributeTemplate,
+					baseClass: "liaison-test-complexattribute",
+					name: undefined
+				}),
+				AlternateBindingTemplateWidget = register("liaison-test-alternatebinding", [HTMLElement, Widget], {
+					buildRendering: renderAlternateBindingTemplate,
+					baseClass: "liaison-test-alternatebinding",
+					createBindingSourceFactory: function (descriptor) {
+						var match = /(\w+):(.*)/.exec(descriptor),
+							key = (match || [])[1],
+							path = (match || [])[2];
+						if (key === "decorated") {
+							return function (model) {
+								return new ObservablePath(model, path, function (value) {
+									return "*" + value + "*";
+								});
+							};
+						}
+					},
+					first: undefined
+				}),
+				EventTemplateWidget = register("liaison-test-events", [HTMLElement, Widget], {
+					buildRendering: renderEventsTemplate,
+					baseClass: "liaison-test-events",
+					handleClick: undefined
+				});
 			afterEach(function () {
 				for (var handle = null; (handle = handles.shift());) {
 					handle.remove();
@@ -408,6 +413,39 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("change", false, true);
 					input.dispatchEvent(event);
+				}), 500);
+			});
+			it("Declarative events", function () {
+				var event,
+					senderDiv,
+					targetDiv,
+					dfd = this.async(2000),
+					w = new EventTemplateWidget({
+						handleClick: dfd.rejectOnError(function (event, detail, sender) {
+							expect(event.type).to.equal("click");
+							expect(sender).to.equal(senderDiv);
+							w.set("handleClick", dfd.callback(function (event, detail, sender) {
+								expect(event.type).to.equal("click");
+								expect(sender).to.equal(senderDiv);
+							}));
+							setTimeout(dfd.rejectOnError(function () {
+								event = document.createEvent("MouseEvents");
+								event.initEvent("click", true, true);
+								targetDiv.dispatchEvent(event);
+							}), 500);
+						})
+					}).placeAt(document.body);
+				handles.push({
+					remove: function () {
+						w.destroy();
+					}
+				});
+				setTimeout(dfd.rejectOnError(function () {
+					senderDiv = w.firstChild;
+					targetDiv = senderDiv.firstChild;
+					event = document.createEvent("MouseEvents");
+					event.initEvent("click", true, true);
+					targetDiv.dispatchEvent(event);
 				}), 500);
 			});
 		});

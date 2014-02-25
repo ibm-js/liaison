@@ -17,9 +17,9 @@
 				"liaison/delite/widgets/Widget"
 			], function (register, createRenderer, Widget) {
 				function startup() {
-					register("liaison-example-basic", [HTMLElement, Widget], Widget.wrap({
+					register("liaison-sample-basic", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("basic-template").innerHTML),
-						baseClass: "liaison-example-basic",
+						baseClass: "liaison-sample-basic",
 						first: "John",
 						last: "Doe",
 						name: Widget.computed(function (first, last) {
@@ -33,6 +33,6 @@
 		</script>
 	</head>
 	<body>
-		<liaison-example-basic></liaison-example-basic>
+		<liaison-sample-basic></liaison-sample-basic>
 	</body>
 </html>

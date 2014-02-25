@@ -3,11 +3,14 @@
 	<head>
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
+		<script id="swap-item-template" type="text/x-template">
+			<input type="button" value="{{itemtitle}}" on-click="{{select}}">
+		</script>
 		<script id="swap-template" type="text/x-template">
 			<div>
-				<div>
+				<div on-liaison-sample-swap-item-selected="{{select}}">
 					<template repeat="{{data}}">
-						<input type="button" value="{{title}}" onclick="ctrl.select('{{title}}');">
+						<liaison-sample-swap-item itemtitle="{{title}}"></liaison-sample-swap-item>
 					</template>
 				</div>
 				<template repeat="{{current}}">
@@ -17,8 +20,6 @@
 			</div>
 		</script>
 		<script type="text/javascript">
-			var ctrl;
-
 			require([
 				"dcl/dcl",
 				"delite/register",
@@ -26,9 +27,19 @@
 				"liaison/delite/widgets/Widget"
 			], function (dcl, register, createRenderer, Widget) {
 				function startup () {
-					register("liaison-example-swap", [HTMLElement, Widget], Widget.wrap({
+					register("liaison-sample-swap-item", [HTMLElement, Widget], Widget.wrap({
+						buildRendering: createRenderer(document.getElementById("swap-item-template").innerHTML),
+						baseClass: "liaison-sample-swap-item",
+						itemtitle: undefined, // IE9 throws an error if we use "title" here
+						select: function () {
+							var event = document.createEvent("CustomEvent");
+							event.initCustomEvent("liaison-sample-swap-item-selected", true, true, {title: this.itemtitle});
+							this.dispatchEvent(event);
+						}
+					}));
+					register("liaison-sample-swap", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("swap-template").innerHTML),
-						baseClass: "liaison-example-swap",
+						baseClass: "liaison-sample-swap",
 						data: [
 							{
 								title: "Model1",
@@ -71,9 +82,9 @@
 							}
 						],
 						current: undefined,
-						select: function (title) {
+						select: function (event, detail) {
 							this.set("current", this.data.filter(function (entry) {
-								return entry.title == title;
+								return entry.title == detail.title;
 							})[0].names);
 						},
 						createdCallback: dcl.superCall(function (sup) {
@@ -84,7 +95,6 @@
 						})
 					}));
 					register.parse();
-					ctrl = document.querySelector("liaison-example-swap");
 				}
 
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
@@ -92,6 +102,6 @@
 		</script>
 	</head>
 	<body>
-		<liaison-example-swap></liaison-example-swap>
+		<liaison-sample-swap></liaison-sample-swap>
 	</body>
 </html>

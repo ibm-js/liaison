@@ -7,17 +7,17 @@
 			<div>
 				Name:
 				<input type="text" value="{{First}}"></input>
-				<input type="button" value="Details" onclick="ctrl.selectItem({{id}});"></input>
+				<input type="button" value="Details" on-click="{{selectItem}}"></input>
 			</div>
 		</script>
 		<script id="masterdetail-template" type="text/x-template">
 			<div>
-				<template repeat="{{items}}">
-					<div>
-						<liaison-example-masterdetail-item First="{{First}}" id="{{id}}"></liaison-example-masterdetail-item>
-					</div>
-				</template>
-				<div>
+				<div on-liaison-sample-masterdetail-item-selected="{{selectItem}}">
+					<template repeat="{{items}}">
+						<div>
+							<liaison-sample-masterdetail-item First="{{First}}" itemid="{{id}}"></liaison-sample-masterdetail-item>
+						</div>
+					</template>
 					<div><span class="cell">First name:</span> <input type="text" value="{{current.First}}"></div>
 					<div><span class="cell">Last name:</span> <input type="text" value="{{current.Last}}"></div>
 					<div><span class="cell">Office:</span> <input type="text" value="{{current.Office}}"></div>
@@ -28,8 +28,6 @@
 			</div>
 		</script>
 		<script type="text/javascript">
-			var ctrl;
-
 			require([
 				"delite/register",
 				"liaison/delite/createRenderer",
@@ -38,15 +36,20 @@
 			], function (register, createRenderer, Widget) {
 				function startup() {
 					var seq = 0;
-					register("liaison-example-masterdetail-item", [HTMLElement, Widget], {
+					register("liaison-sample-masterdetail-item", [HTMLElement, Widget], {
 						buildRendering: createRenderer(document.getElementById("masterdetail-item-template").innerHTML),
-						baseClass: "liaison-example-masterdetail-item",
-						id: undefined,
-						First: undefined						
+						baseClass: "liaison-sample-masterdetail-item",
+						itemid: undefined, // IE9 throws an error if we use "id" here
+						First: undefined,
+						selectItem: function () {
+							var event = document.createEvent("CustomEvent");
+							event.initCustomEvent("liaison-sample-masterdetail-item-selected", true, true, {id: this.itemid});
+							this.dispatchEvent(event);
+						}
 					});
-					register("liaison-example-masterdetail", [HTMLElement, Widget], Widget.wrap({
+					register("liaison-sample-masterdetail", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("masterdetail-template").innerHTML),
-						baseClass: "liaison-example-masterdetail",
+						baseClass: "liaison-sample-masterdetail",
 						items: [
 							{
 								id: seq++,
@@ -100,14 +103,13 @@
 							}
 						],
 						current: undefined,
-						selectItem: function (id) {
+						selectItem: function (event, detail) {
 							this.set("current", this.items.filter(function (item) {
-								return item.id == id;
+								return item.id == detail.id;
 							})[0]);
 						}
 					}));
 					register.parse();
-					ctrl = document.querySelector("liaison-example-masterdetail");
 				}
 
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
@@ -115,6 +117,6 @@
 		</script>
 	</head>
 	<body>
-		<liaison-example-masterdetail></liaison-example-masterdetail>
+		<liaison-sample-masterdetail></liaison-sample-masterdetail>
 	</body>
 </html>
