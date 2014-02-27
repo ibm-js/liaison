@@ -64,7 +64,7 @@ define([
 				}
 			}
 			it("Simple binding: <template>", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(2000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = basicTemplate;
@@ -87,10 +87,10 @@ define([
 					setTimeout(dfd.callback(function () {
 						expect(text.nodeValue).to.equal("Anne ");
 					}), 500);
-				}), 100);
+				}), 500);
 			});
 			it("Simple binding: <script type=\"text/x-template\">", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(2000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("script"));
 				template.setAttribute("type", "text/x-template");
@@ -114,10 +114,10 @@ define([
 					setTimeout(dfd.callback(function () {
 						expect(text.nodeValue).to.equal("Anne ");
 					}), 500);
-				}), 100);
+				}), 500);
 			});
 			it("Simple object path binding", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(2000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = objectPathTemplate;
@@ -140,10 +140,10 @@ define([
 					setTimeout(dfd.callback(function () {
 						expect(text.nodeValue).to.equal("Anne ");
 					}), 500);
-				}), 100);
+				}), 500);
 			});
 			it("Simple binding with alternate binding factory", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(2000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = alternateBindingTemplate;
@@ -178,7 +178,7 @@ define([
 					setTimeout(dfd.callback(function () {
 						expect(text.nodeValue).to.equal("*Anne* ");
 					}), 500);
-				}), 100);
+				}), 500);
 			});
 			it("Simple binding with default alternate binding factory", function () {
 				var originalCreateBindingSourceFactory = BindingTarget.createBindingSourceFactory;
@@ -199,7 +199,7 @@ define([
 						BindingTarget.createBindingSourceFactory = originalCreateBindingSourceFactory;
 					}
 				});
-				var dfd = this.async(1000),
+				var dfd = this.async(2000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = alternateBindingTemplate;
@@ -222,10 +222,10 @@ define([
 					setTimeout(dfd.callback(function () {
 						expect(text.nodeValue).to.equal("*Anne* ");
 					}), 500);
-				}), 100);
+				}), 500);
 			});
 			it("Binding with nested template: Basic", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(3000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({first: "John"});
@@ -255,9 +255,9 @@ define([
 								expect(innerSpan.firstChild.nodeValue).to.equal("Anne ");
 								expect(innerInput.value).to.equal("Anne");
 							}), 500);
-						}), 100);
+						}), 500);
 					}), 500);
-				}), 100);
+				}), 500);
 			});
 			it("Binding with nested template: Change in source", function () {
 				var dfd = this.async(2000),
@@ -301,7 +301,7 @@ define([
 						expect(innerInput.value).to.equal("John");
 						expect(innerInput.nextElementSibling).to.be.null;
 					}), 500);
-				}), 100);
+				}), 500);
 			});
 			it("Binding with deep nested template", function () {
 				var dfd = this.async(1000),
@@ -321,10 +321,10 @@ define([
 						expect(iterator.nextNode().nodeValue).to.equal(values[i] + " ");
 						expect(inputs[i].value).to.equal(values[i]);
 					}
-				}), 100);
+				}), 500);
 			});
 			it("Simple repeat: <template>", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(2000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray = ObservableArray.apply(undefined, [
@@ -345,10 +345,10 @@ define([
 					testRepeatValuesWithBasicTemplate(div, observableArray);
 					observableArray.splice(1, 2, {first: "Chad"}, {first: "Ben"}, {first: "John"});
 					setTimeout(dfd.callback(testRepeatValuesWithBasicTemplate.bind(undefined, div, observableArray)), 500);
-				}), 100);
+				}), 500);
 			});
 			it("Repeat with nested template", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(2000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray = ObservableArray.apply(undefined, [
@@ -369,10 +369,10 @@ define([
 					testRepeatValuesWithNestedTemplate(div, observableArray);
 					observableArray.splice(1, 2, {first: "Chad", name: {first: "John"}});
 					setTimeout(dfd.callback(testRepeatValuesWithNestedTemplate.bind(undefined, div, observableArray)), 500);
-				}), 100);
+				}), 500);
 			});
 			it("Repeat with swapping model", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(4000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray0 = ObservableArray.apply(undefined, [
@@ -406,14 +406,14 @@ define([
 									var boundCallback
 										= testRepeatValuesWithBasicTemplate.bind(undefined, div, observable.a);
 									setTimeout(dfd.callback(boundCallback), 500);
-								}), 100);
+								}), 500);
 							}), 500);
-						}), 100);
+						}), 500);
 					}), 500);
-				}), 100);
+				}), 500);
 			});
 			it("disabled attribute reflecting model", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(2000),
 					div = document.createElement("div"),
 					observable = new Observable({disabled: false}),
 					template = div.appendChild(document.createElement("template"));
@@ -432,7 +432,7 @@ define([
 					setTimeout(dfd.callback(function () {
 						expect(input.disabled).to.be.true;
 					}), 500);
-				}), 100);
+				}), 500);
 			});
 			it("Simple conditional template", function () {
 				var dfd = this.async(2000),
@@ -496,7 +496,7 @@ define([
 						expect(iterator.nextNode().nodeValue).to.equal(observableArray[i] + " ");
 						expect(inputs[i].value).to.equal(observableArray[i]);
 					}
-				}), 100);
+				}), 500);
 			});
 			it("Declarative events", function () {
 				var event,
@@ -534,7 +534,7 @@ define([
 					event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
-				}), 100);
+				}), 500);
 			});
 		});
 	}
