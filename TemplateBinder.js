@@ -162,7 +162,7 @@ define([
 	})();
 
 	/**
-	 * A class working as an internal logic of {external:HTMLTemplateElement#bind HTMLTemplateElement.bind()}
+	 * A class working as an internal logic of {HTMLTemplateElement#bind HTMLTemplateElement.bind()}
 	 * to stamp out a template with data binding.
 	 * @class module:liaison/TemplateBinder
 	 * @private
@@ -178,22 +178,9 @@ define([
 
 	TemplateBinder.prototype = /** @lends module:liaison/TemplateBinder# */ {
 		/**
-		 * Creates a clone of the content of this {@link module:liaison/TemplateBinder#template template}.
-		 */
-		createContent: function () {
-			/**
-			 * Cloned content of this {@link module:liaison/TemplateBinder#template template}.
-			 * @type {external:Node}
-			 * @returns {HTMLElement} The cloned template content.
-			 */
-			this.content = templateElement.upgradeChildren(this.template.content.cloneNode(true));
-			return this.content;
-		},
-
-		/**
 		 * Finds attributes with data binding syntax.
 		 * @param {Node} node The root node to parse from.
-		 * @returns {Array} The parsed list of (node, attribute name, attribute value) with data binding syntax.
+		 * @returns {Array} The parsed list of (node, attribute name, attribute value, empty) with data binding syntax.
 		 */
 		parseNode: function (node) {
 			// Given this function works as a low-level one,
@@ -204,8 +191,8 @@ define([
 			 * The list of (node, attribute name, attribute value) with data binding syntax.
 			 * @type {Array}
 			 */
-			this.parsed = this.parsed || [];
 			var currentNode,
+				parsed = [],
 				iterator = node.ownerDocument.createNodeIterator(
 					node,
 					NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
@@ -216,7 +203,7 @@ define([
 					for (var i = 0, l = currentNode.attributes.length; i < l; ++i) {
 						var attribute = currentNode.attributes[i];
 						if (attribute.value.indexOf(MUSTACHE_BEGIN) >= 0) {
-							this.parsed.push(currentNode, attribute.name, attribute.value, undefined);
+							parsed.push(currentNode, attribute.name, attribute.value, undefined);
 							var isTemplate = currentNode.tagName === "TEMPLATE"
 								|| currentNode.hasAttribute("template")
 								|| currentNode.tagName === "SCRIPT"
@@ -226,67 +213,108 @@ define([
 								&& attribute.name.toLowerCase() === ATTRIBUTE_IF
 								&& !currentNode.getAttribute(ATTRIBUTE_BIND)
 								&& !currentNode.getAttribute(ATTRIBUTE_REPEAT)) {
-								this.parsed.push(currentNode, ATTRIBUTE_BIND, "{{}}", undefined);
+								parsed.push(currentNode, ATTRIBUTE_BIND, "{{}}", undefined);
 							}
 						}
 					}
 				} else if (currentNode.nodeType === Node.TEXT_NODE) {
 					if (currentNode.nodeValue.indexOf(MUSTACHE_BEGIN) >= 0) {
-						this.parsed.push(currentNode, "nodeValue", currentNode.nodeValue, undefined);
+						parsed.push(currentNode, "nodeValue", currentNode.nodeValue, undefined);
 					}
 				}
 			}
-			return this.parsed;
+			return parsed;
 		},
 
 		/**
-		 * Creates a hash table, keyed by attribute value with data binding syntax,
-		 * of {@link BindingSource} associated with it.
-		 * @param {Object} model The data model for the template.
-		 * @returns {Object} The hash table created.
+		 * Instantiate a node in template content, and create a version of parsed data binding syntax adjusted for the instantiated node.
+		 * @param {Document} doc The document that the instantiated node should belong to.
+		 * @param {Node} node The node to instantiate.
+		 * @param {Array} parsed
+		 *     The parsed list of (node in template, attribute name, attribute value, empty) with data binding syntax.
+		 * @param {Array} toBeBound
+		 *     The parsed list of (node in instantiated template, attribute name, attribute value, empty) with data binding syntax.
+		 * @returns {DocumentFragment} The instantiated node.
 		 */
-		createSources: function (model) {
+		importNode: function (doc, node, parsed, toBeBound) {
+			var imported = doc.importNode(node, false);
+
+			for (var parsedIndex = 0; (parsedIndex = parsed.indexOf(node, parsedIndex)) >= 0; parsedIndex += PARSED_ENTRY_LENGTH) {
+				toBeBound.push(
+					imported,
+					parsed[parsedIndex + PARSED_ENTRY_ATTRIBUTENAME],
+					parsed[parsedIndex + PARSED_ENTRY_ATTRIBUTEVALUE],
+					parsed[parsedIndex + PARSED_ENTRY_SOURCE]);
+			}
+
+			if (node.tagName === "TEMPLATE") {
+				imported.innerHTML = node.innerHTML;
+				templateElement.upgrade(imported); // To prevent parsed -> toBeBound copy for template contents
+			} else {
+				for (var child = node.firstChild; child; child = child.nextSibling) {
+					imported.appendChild(this.importNode(doc, child, parsed, toBeBound));
+				}
+			}
+
+			return imported;
+		},
+
+		/**
+		 * Creates a clone of the content of this {@link module:liaison/TemplateBinder#template template}.
+		 * @param {Array} parsed
+		 *     The parsed list of (node in template, attribute name, attribute value, empty) with data binding syntax.
+		 * @param {Array} toBeBound
+		 *     The parsed list of (node in instantiated template, attribute name, attribute value, empty) with data binding syntax.
+		 * @returns {DocumentFragment} The instantiated content of template.
+		 */
+		createContent: function (parsed, toBeBound) {
+			return this.importNode(this.template.ownerDocument, this.template.content, parsed, toBeBound);
+		},
+
+		/**
+		 * Go through parsed data binding syntax and assign {@link BindingSource} to each entries.
+		 * @param {Object} model The data model for the template.
+		 * @param {Array} toBeBound
+		 *     The parsed list of (node in instantiated template, attribute name, attribute value, assinged {@link BindingSource})
+		 *     with data binding syntax.
+		 */
+		assignSources: function (model, toBeBound) {
 			// Given this function works as a low-level one,
 			// it preferes regular loop over array extras,
 			// which makes cyclomatic complexity higher.
 			/* jshint maxcomplexity: 15 */
-			for (var parsedIndex = 0, parsedLength = this.parsed.length;
-					parsedIndex < parsedLength;
-					parsedIndex += PARSED_ENTRY_LENGTH) {
+			for (var iToBeBound = 0, lToBeBound = toBeBound.length; iToBeBound < lToBeBound; iToBeBound += PARSED_ENTRY_LENGTH) {
 				var path,
 					factory,
-					node = this.parsed[parsedIndex + PARSED_ENTRY_NODE],
-					name = this.parsed[parsedIndex + PARSED_ENTRY_ATTRIBUTENAME],
-					value = this.parsed[parsedIndex + PARSED_ENTRY_ATTRIBUTEVALUE],
+					node = toBeBound[iToBeBound + PARSED_ENTRY_NODE],
+					name = toBeBound[iToBeBound + PARSED_ENTRY_ATTRIBUTENAME],
+					value = toBeBound[iToBeBound + PARSED_ENTRY_ATTRIBUTEVALUE],
 					tokens = tokenize(value),
-					createBindingSourceFactory
-						= this.template.createBindingSourceFactory || BindingTarget.createBindingSourceFactory;
+					createBindingSourceFactory = this.template.createBindingSourceFactory || BindingTarget.createBindingSourceFactory;
 				if (tokens.length === 3 && !tokens[0] && !tokens[2]) {
 					path = tokens[1].substr(MUSTACHE_BEGIN_LENGTH, tokens[1].length - MUSTACHES_LENGTH).trim();
 					factory = createBindingSourceFactory && createBindingSourceFactory(path, name);
-					this.parsed[parsedIndex + PARSED_ENTRY_SOURCE] = factory ? factory(model, node) : new ObservablePath(model, path);
+					toBeBound[iToBeBound + PARSED_ENTRY_SOURCE] = factory ? factory(model, node) : new ObservablePath(model, path);
 				} else {
 					var list = [],
 						texts = [];
-					for (var tokenIndex = 0, tokenLength = tokens.length; tokenIndex < tokenLength; ++tokenIndex) {
-						if (tokenIndex % 2 === 0) {
-							texts.push(tokens[tokenIndex]);
+					for (var iToken = 0, lToken = tokens.length; iToken < lToken; ++iToken) {
+						if (iToken % 2 === 0) {
+							texts.push(tokens[iToken]);
 						} else {
-							path = tokens[tokenIndex].substr(
-								MUSTACHE_BEGIN_LENGTH,
-								tokens[tokenIndex].length - MUSTACHES_LENGTH).trim();
+							path = tokens[iToken].substr(MUSTACHE_BEGIN_LENGTH, tokens[iToken].length - MUSTACHES_LENGTH).trim();
 							factory = createBindingSourceFactory && createBindingSourceFactory(path, name);
 							list.push(factory ? factory(model, node) : new ObservablePath(model, path));
 						}
 					}
-					this.parsed[parsedIndex + PARSED_ENTRY_SOURCE] = new BindingSourceList(list, tokensFormatter.bind(texts));
+					toBeBound[iToBeBound + PARSED_ENTRY_SOURCE] = new BindingSourceList(list, tokensFormatter.bind(texts));
 				}
 			}
-			return this.sources;
 		},
 
 		/**
 		 * Inserts the cloned content into the specified position.
+		 * @param {DocumentFragment} content The instantiated template content to insert.
 		 * @param referenceNode {HTMLElement} referenceNode The element position refers to.
 		 * @param {string} position
 		 *     The position relative to referenceNode, and must be one of the following strings:
@@ -294,57 +322,62 @@ define([
 		 *     "afterBegin" inserts the cloned content inside referenceNode before its first child.
 		 *     "beforeEnd" inserts the cloned content inside referenceNode after its last child.
 		 *     "afterEnd" inserts the cloned content after referenceNode.
-		 * @returns {Array.<external:Node>} Child nodes of the cloned content.
+		 * @returns {Array.<Node>} Child nodes of the cloned content.
 		 * @throws {SyntaxError} If the position is not one of "beforeBegin", "afterBegin", "beforeEnd", "afterEnd".
 		 */
-		insert: function (referenceNode, position) {
+		insert: function (content, referenceNode, position) {
 			/**
 			 * Child nodes of the cloned content.
-			 * @type {Array.<external:Node>}
+			 * @type {Array.<Node>}
 			 */
-			this.childNodes = [].slice.call(this.content.childNodes);
+			var childNodes = [].slice.call(content.childNodes);
 			switch (position) {
 			case "beforeBegin":
-				referenceNode.parentNode.insertBefore(this.content, referenceNode);
+				referenceNode.parentNode.insertBefore(content, referenceNode);
 				break;
 			case "afterBegin":
-				referenceNode.insertBefore(this.content, referenceNode.firstChild);
+				referenceNode.insertBefore(content, referenceNode.firstChild);
 				break;
 			case "beforeEnd":
-				referenceNode.appendChild(this.content);
+				referenceNode.appendChild(content);
 				break;
 			case "afterEnd":
-				referenceNode.parentNode.insertBefore(this.content, referenceNode.nextSibling);
+				referenceNode.parentNode.insertBefore(content, referenceNode.nextSibling);
 				break;
 			default:
 				throw new SyntaxError("Invalid value for insertion position: " + position);
 			}
-			return this.childNodes;
+			return childNodes;
 		},
 
 		/**
 		 * Binds parsed node conents and element attributes to the corresponding {@link BindingSource}.
+		 * @param {Array} toBeBound
+		 *     The parsed list of (node in instantiated template, attribute name, attribute value, {@link BindingSource}) with data binding syntax.
 		 * @returns {Array.<module:liaison/BindingTarget>}
 		 *     The list of data bindings for the parsed node contents and element attributes.
 		 */
-		bind: function () {
+		bind: function (toBeBound) {
 			/**
 			 * The list of data bindings for the parsed node contents and element attributes.
 			 * @type {Array.<module:liaison/BindingTarget>}
 			 */
-			this.bound = [];
-			for (var i = 0, l = this.parsed.length; i < l; i += PARSED_ENTRY_LENGTH) {
-				var name = this.parsed[i + PARSED_ENTRY_ATTRIBUTENAME],
-					source = this.parsed[i + PARSED_ENTRY_SOURCE];
+			var bound = [];
+			for (var i = 0, l = toBeBound.length; i < l; i += PARSED_ENTRY_LENGTH) {
+				var name = toBeBound[i + PARSED_ENTRY_ATTRIBUTENAME],
+					source = toBeBound[i + PARSED_ENTRY_SOURCE];
 				if (typeof (source || EMPTY_OBJECT).observe === "function") {
-					this.bound.push(this.parsed[i + PARSED_ENTRY_NODE].bind(name, source));
+					bound.push(toBeBound[i + PARSED_ENTRY_NODE].bind(name, source));
+				} else {
+					console.warn("The specified binding source " + source + " does not have BindingSource interface. Ignoring.");
 				}
 			}
-			return this.bound;
+			return bound;
 		},
 
 		/**
 		 * Stamp out template content with data binding.
+		 * @method
 		 * @param {Object} model The data model for the template.
 		 * @param {HTMLElement} referenceNode
 		 *     The element position refers to, that determines where the stamped out template content is inserted into.
@@ -358,32 +391,29 @@ define([
 		 *     "afterEnd" inserts the cloned content after referenceNode.
 		 * @returns {TemplateBinder} This object.
 		 */
-		create: function (model, referenceNode, position) {
-			this.createContent();
-			this.parseNode(this.content);
-			this.createSources(model);
-			this.insert(referenceNode, position);
-			this.bind();
-			return this;
-		},
-
-		/**
-		 * Stops data binding, and removes stamped out template content from DOM.
-		 */
-		remove: function () {
-			if (this.bound) {
-				for (var target = null; (target = this.bound.shift());) {
+		create: (function () {
+			function remove(bound) {
+				for (var target = null; (target = bound.shift());) {
 					target.remove();
 				}
-			}
-			if (this.childNodes) {
 				for (var node; (node = this.childNodes.pop());) {
 					if (node.parentNode) {
 						node.parentNode.removeChild(node);
 					}
 				}
 			}
-		}
+			return function (model, referenceNode, position) {
+				this.parsed = this.parsed || this.parseNode(this.template.content);
+				var toBeBound = [],
+					content = this.createContent(this.parsed, toBeBound);
+				this.assignSources(model, toBeBound);
+				var instantiated = {
+					childNodes: this.insert(content, referenceNode, position)
+				};
+				instantiated.remove = remove.bind(instantiated, this.bind(toBeBound));
+				return instantiated;
+			};
+		})()
 	};
 
 	return TemplateBinder;
