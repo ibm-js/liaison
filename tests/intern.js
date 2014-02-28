@@ -7,7 +7,15 @@
 define({
 	loader: {
 		baseUrl: typeof window !== "undefined" ? "../../.." : undefined,
-		packages: ["liaison"]
+		packages: ["liaison"],
+		map: {
+			liaison: {
+				"intern/lib/reporters/webdriver": "intern/lib/reporters/webdriver"
+			},
+			"*": {
+				"intern/lib/reporters/webdriver": "liaison/tests/reporters/webdriver"
+			}
+		}
 	},
 	useLoader: {
 		"host-node": "dojo/dojo",
