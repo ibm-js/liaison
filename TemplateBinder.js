@@ -27,97 +27,6 @@ define([
 		PARSED_ENTRY_ATTRIBUTEVALUE = 2,
 		PARSED_ENTRY_SOURCE = 3;
 
-	function EventBindingTarget(object, property) {
-		this.object = object;
-		var tokens = REGEXP_DECLARATIVE_EVENT.exec(this.property = property);
-		if (!tokens) {
-			throw new Error("Property name " + this.property + " is not suitable for EventBindingTarget.");
-		}
-		this.eventName = tokens[1];
-	}
-
-	// Not inherting the entire BindingTarget, just BindingTarget#bind for observation
-	EventBindingTarget.prototype = {
-		bind: BindingTarget.prototype.bind,
-		remove: function () {
-			if (this.handler) {
-				this.object.removeEventListener(this.eventName, this.handler);
-			}
-			if (this.h) {
-				this.h.remove();
-				this.h = null;
-			}
-		}
-	};
-
-	Object.defineProperty(EventBindingTarget.prototype, "value", {
-		get: function () {
-			return this.handler;
-		},
-		set: (function () {
-			function decoratedHandler(handler, event) {
-				handler(event, event.detail, this);
-			}
-			return function (value) {
-				if (this.handler) {
-					this.object.removeEventListener(this.eventName, this.handler);
-				}
-				if (value != null) {
-					if (typeof value === "function") {
-						this.object.addEventListener(this.eventName, this.handler = decoratedHandler.bind(this.object, value));
-					} else {
-						console.warn("A non-function (" + value + ") is assigned to EventBindingTarget's value. Ignoring.");
-					}
-				}
-			};
-		})(),
-		enumeable: true,
-		configurable: true
-	});
-
-	var EventBindingSource = (function () {
-		function declarativeEventFormatter(fn) {
-			return fn.bind(this);
-		}
-		return function (o, path, node, name) {
-			this.source = new ObservablePath(o, path, declarativeEventFormatter.bind(o));
-			this.node = node;
-			this.name = name;
-			this.handles = [];
-		};
-	})();
-
-	EventBindingSource.prototype = {
-		observe: function () {
-			var h = new EventBindingTarget(this.node, this.name).bind(this.source);
-			this.handles.push(h);
-			return h;
-		},
-		open: function (callback, thisObject) {
-			this.callbacks.splice(0, this.callbacks.length);
-			this.observe(callback.bind(thisObject));
-			return this.getFrom();
-		},
-		deliver: function () {
-			this.source.deliver();
-		},
-		discardChanges: function () {
-			this.source.discardChanges();
-			return this.getFrom();
-		},
-		getFrom: function () {
-			return this.node.getAttribute(this.name);
-		},
-		setTo: function () {},
-		setValue: function () {}
-	};
-
-	EventBindingSource.prototype.remove = EventBindingSource.prototype.close = function () {
-		for (var h; (h = this.handles.shift());) {
-			h.remove();
-		}
-	};
-
 	function tokenize(text) {
 		var index = 0,
 			tokens = [];
@@ -145,21 +54,6 @@ define([
 		}
 		return tokens.join("");
 	}
-
-	(function () {
-		var origCreateBindingSourceFactory = BindingTarget.createBindingSourceFactory;
-		BindingTarget.createBindingSourceFactory = function (path, name) {
-			var factory = origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
-			if (!factory) {
-				var tokens = REGEXP_DECLARATIVE_EVENT.exec(name);
-				if (tokens) {
-					return function (model, node) {
-						return new EventBindingSource(model, path, node, name);
-					};
-				}
-			}
-		};
-	})();
 
 	/**
 	 * A class working as an internal logic of {HTMLTemplateElement#bind HTMLTemplateElement.bind()}
@@ -415,6 +309,114 @@ define([
 			};
 		})()
 	};
+
+	(function () {
+		function EventBindingTarget(object, property) {
+			this.object = object;
+			var tokens = REGEXP_DECLARATIVE_EVENT.exec(this.property = property);
+			if (!tokens) {
+				throw new Error("Property name " + this.property + " is not suitable for EventBindingTarget.");
+			}
+			this.eventName = tokens[1];
+		}
+
+		// Not inherting the entire BindingTarget, just BindingTarget#bind for observation
+		EventBindingTarget.prototype = {
+			bind: BindingTarget.prototype.bind,
+			remove: function () {
+				if (this.handler) {
+					this.object.removeEventListener(this.eventName, this.handler);
+				}
+				if (this.h) {
+					this.h.remove();
+					this.h = null;
+				}
+			}
+		};
+
+		Object.defineProperty(EventBindingTarget.prototype, "value", {
+			get: function () {
+				return this.handler;
+			},
+			set: (function () {
+				function decoratedHandler(handler, event) {
+					handler(event, event.detail, this);
+				}
+				return function (value) {
+					if (this.handler) {
+						this.object.removeEventListener(this.eventName, this.handler);
+					}
+					if (value != null) {
+						if (typeof value === "function") {
+							this.object.addEventListener(this.eventName, this.handler = decoratedHandler.bind(this.object, value));
+						} else {
+							console.warn("A non-function (" + value + ") is assigned to EventBindingTarget's value. Ignoring.");
+						}
+					}
+				};
+			})(),
+			enumeable: true,
+			configurable: true
+		});
+
+		var EventBindingSource = (function () {
+			function declarativeEventFormatter(fn) {
+				return fn.bind(this);
+			}
+			return function (o, path, node, name) {
+				this.source = new ObservablePath(o, path, declarativeEventFormatter.bind(o));
+				this.node = node;
+				this.name = name;
+				this.handles = [];
+			};
+		})();
+
+		EventBindingSource.prototype = {
+			observe: function () {
+				var h = new EventBindingTarget(this.node, this.name).bind(this.source);
+				this.handles.push(h);
+				return h;
+			},
+			open: function (callback, thisObject) {
+				this.callbacks.splice(0, this.callbacks.length);
+				this.observe(callback.bind(thisObject));
+				return this.getFrom();
+			},
+			deliver: function () {
+				this.source.deliver();
+			},
+			discardChanges: function () {
+				this.source.discardChanges();
+				return this.getFrom();
+			},
+			getFrom: function () {
+				return this.node.getAttribute(this.name);
+			},
+			setTo: function () {},
+			setValue: function () {}
+		};
+
+		EventBindingSource.prototype.remove = EventBindingSource.prototype.close = function () {
+			for (var h; (h = this.handles.shift());) {
+				h.remove();
+			}
+		};
+
+		var origCreateBindingSourceFactory = BindingTarget.createBindingSourceFactory;
+		BindingTarget.createBindingSourceFactory = function (path, name) {
+			var factory = origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
+			if (!factory) {
+				var tokens = REGEXP_DECLARATIVE_EVENT.exec(name);
+				if (tokens) {
+					return function (model, node) {
+						return new EventBindingSource(model, path, node, name);
+					};
+				}
+			} else {
+				return factory;
+			}
+		};
+	})();
 
 	return TemplateBinder;
 });
