@@ -10,7 +10,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 	/**
 	 * Binding target for a DOM attribute.
-	 * Created with {@link external:HTMLElement#bind HTMLElement.bind()}.
+	 * Created with {@link HTMLElement#bind HTMLElement.bind()}.
 	 * @class module:liaison/DOMBindingTarget
 	 * @augments module:liaison/BindingTarget
 	 * @param {Object} object The DOM element.
@@ -41,7 +41,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 	/**
 	 * Binding target for a conditional DOM attribute.
-	 * Created with {@link external:HTMLElement#bind HTMLElement.bind()} when the last character of the name is "?".
+	 * Created with {@link HTMLElement#bind HTMLElement.bind()} when the last character of the name is "?".
 	 * @class module:liaison/DOMBindingTarget~ConditionalDOMBindingTarget
 	 * @augments module:liaison/BindingTarget
 	 * @param {Object} object The DOM element.
@@ -79,10 +79,10 @@ define(["./BindingTarget"], function (BindingTarget) {
 			throw new TypeError("Cannot bind/unbind to/from this node type: " + this.nodeType);
 		};
 
-		/** @class external:HTMLElement */
+		/** @class HTMLElement */
 		/**
 		 * Establishes data binding between element property/attribute and {@link BindingSource}.
-		 * @method external:HTMLElement#bind
+		 * @method HTMLElement#bind
 		 * @param {string} property Property/attribute name in element.
 		 * @param {BindingSource} source The {@link BindingSource} to bind the element property/attribute to.
 		 * @return {module:liaison/BindingTarget}
@@ -99,7 +99,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 		/**
 		 * Stops data binding between element property/attribute and {@link BindingSource}.
-		 * @method external:HTMLElement#unbind
+		 * @method HTMLElement#unbind
 		 * @param {string} property Property/attribute name in element
 		 */
 		HTMLElement.prototype.unbind = function (property) {
@@ -165,7 +165,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 	/**
 	 * Two-way binding target for input elements value attribute.
-	 * Created with {@link external:HTMLInputElement#bind HTMLInputElement.bind()}.
+	 * Created with {@link HTMLInputElement#bind HTMLInputElement.bind()}.
 	 * @class module:liaison/DOMBindingTarget~InputValueBindingTarget
 	 * @augments module:liaison/DOMBindingTarget~ChangeableValueBindingTarget
 	 * @param {Object} object The DOM element.
@@ -184,7 +184,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 	/**
 	 * Two-way binding target for input element's checked attribute.
-	 * Created with {@link external:HTMLInputElement#bind HTMLInputElement.bind()}.
+	 * Created with {@link HTMLInputElement#bind HTMLInputElement.bind()}.
 	 * @class module:liaison/DOMBindingTarget~CheckedValueBindingTarget
 	 * @augments module:liaison/DOMBindingTarget~ChangeableValueBindingTarget
 	 * @param {Object} object The DOM element.
@@ -203,12 +203,12 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 	if (!useExisting) {
 		/**
-		 * @class external:HTMLInputElement
-		 * @augments external:HTMLElement
+		 * @class HTMLInputElement
+		 * @augments HTMLElement
 		 */
 		/**
 		 * Establishes two-way data binding between input element property/attribute and {@link BindingSource}.
-		 * @method external:HTMLInputElement#bind
+		 * @method HTMLInputElement#bind
 		 * @param {string} property Property/attribute name in input element.
 		 * @param {BindingSource} source The {@link BindingSource} to bind the input element property/attribute to.
 		 * @return {module:liaison/BindingTarget}
@@ -239,10 +239,10 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 	if (!useExisting) {
 		/* global Text */
-		/** @class external:Text */
+		/** @class Text */
 		/**
 		 * Establishes data binding between text node value and {@link BindingSource}.
-		 * @method external:Text#bind
+		 * @method Text#bind
 		 * @param {string} property Not used.
 		 * @param {BindingSource} source The {@link BindingSource} to bind the text node value to.
 		 * @return {module:liaison/BindingTarget}

@@ -25,8 +25,8 @@ define([
 
 	/**
 	 * Binding target for declarative data binding.
-	 * Created with {@link external:HTMLTemplateElement#bind HTMLTemplateElement.bind()}.
-	 * or {@link external:HTMLScriptElement#bind HTMLScriptElement.bind()}
+	 * Created with {@link HTMLTemplateElement#bind HTMLTemplateElement.bind()}.
+	 * or {@link HTMLScriptElement#bind HTMLScriptElement.bind()}
 	 * (if the script element has type="x-template")
 	 * with "bind" attribute.
 	 * @class module:liaison/DOMTreeBindingTarget
@@ -70,8 +70,8 @@ define([
 				}
 				var condition = this.object._targets[ATTRIBUTE_IF];
 				if (this.model && (!condition || condition.value)) {
-					var upgraded = templateElement.upgrade(this.object);
-					this.content = new TemplateBinder(upgraded).create(this.model, upgraded, "afterEnd");
+					this.binder = this.binder || new TemplateBinder(templateElement.upgrade(this.object));
+					this.content = this.binder.create(this.model, this.object, "afterEnd");
 				}
 			}
 			return function (value) {
@@ -85,8 +85,8 @@ define([
 
 	/**
 	 * Binding target for declarative repeating data binding.
-	 * Created with {@link external:HTMLTemplateElement#bind HTMLTemplateElement.bind()}.
-	 * or {@link external:HTMLScriptElement#bind HTMLScriptElement.bind()}
+	 * Created with {@link HTMLTemplateElement#bind HTMLTemplateElement.bind()}.
+	 * or {@link HTMLScriptElement#bind HTMLScriptElement.bind()}
 	 * (if the script element has type="x-template")
 	 * with "repeat" attribute.
 	 * @class module:liaison/DOMTreeBindingTarget~RepeatingDOMTreeBindingTarget
@@ -134,7 +134,8 @@ define([
 				// it preferes regular loop over array extras,
 				// which makes cyclomatic complexity higher.
 				/* jshint maxcomplexity: 15, validthis: true */
-				for (var upgraded = templateElement.upgrade(this.object), i = 0, l = splices.length; i < l; ++i) {
+				this.binder = this.binder || new TemplateBinder(templateElement.upgrade(this.object));
+				for (var i = 0, l = splices.length; i < l; ++i) {
 					var spliceIndex = splices[i].index,
 						contentsToBeRemoved = this.contents.splice(spliceIndex, splices[i].removed.length);
 					for (var content; (content = contentsToBeRemoved.shift());) {
@@ -143,7 +144,7 @@ define([
 					var child,
 						referenceNode = this.object.nextSibling;
 					if (spliceIndex < this.contents.length) {
-						// TemplateBinder does not have firstChild, using childNodes here therefore
+						// TemplateBinder's instantiation context does not have firstChild, using childNodes here therefore
 						for (child = this.contents[spliceIndex].childNodes[0]; child; child = child.nextSibling) {
 							if (child.parentNode === this.object.parentNode) {
 								referenceNode = child;
@@ -151,7 +152,7 @@ define([
 							}
 						}
 					} else if (spliceIndex >= 1 && spliceIndex - 1 < this.contents.length) {
-						// TemplateBinder does not have lastChild, using childNodes here therefore
+						// TemplateBinder's instantiation context does not have lastChild, using childNodes here therefore
 						var childNodes = this.contents[spliceIndex - 1].childNodes;
 						for (child = childNodes[childNodes.length - 1]; child; child = child.previousSibling) {
 							if (child.parentNode === this.object.parentNode) {
@@ -166,7 +167,7 @@ define([
 						this.contents.splice(
 							spliceIndex + iAddition,
 							0,
-							new TemplateBinder(upgraded).create(this.model[spliceIndex + iAddition], referenceNode, position));
+							this.binder.create(this.model[spliceIndex + iAddition], referenceNode, position));
 					}
 				}
 			}
@@ -204,8 +205,8 @@ define([
 
 	/**
 	 * Binding target for conditional declarative data binding.
-	 * Created with {@link external:HTMLTemplateElement#bind HTMLTemplateElement.bind()}.
-	 * or {@link external:HTMLScriptElement#bind HTMLScriptElement.bind()}
+	 * Created with {@link HTMLTemplateElement#bind HTMLTemplateElement.bind()}.
+	 * or {@link HTMLScriptElement#bind HTMLScriptElement.bind()}
 	 * (if the script element has type="x-template")
 	 * with "if" attribute.
 	 * @class module:liaison/DOMTreeBindingTarget~ConditionalDOMTreeBindingTarget
@@ -243,14 +244,6 @@ define([
 		/* global HTMLTemplateElement, HTMLUnknownElement */
 		var templateElementClass
 			= typeof HTMLTemplateElement !== "undefined" ? HTMLTemplateElement : HTMLUnknownElement;
-		/**
-		 * @class external:HTMLScriptElement
-		 * @augments external:HTMLElement
-		 */
-		/**
-		 * @class external:HTMLTemplateElement
-		 * @augments external:HTMLElement
-		 */
 
 		/**
 		 * Establishes data binding between script element property/attribute and {@link BindingSource}.
@@ -262,7 +255,7 @@ define([
 		 * with the array the given {@link BindingSource} has.
 		 * If the script element has type="x-template" attribute and  the given property is "if",
 		 * stamps out a template or not based on the boolean the given {@link BindingSource} has.
-		 * @method external:HTMLScriptElement#bind
+		 * @method HTMLScriptElement#bind
 		 * @param {string} property Property/attribute name in element.
 		 * @param {BindingSource} source The {@link BindingSource} to bind the element property/attribute to.
 		 * @return {module:liaison/BindingTarget}
@@ -280,7 +273,7 @@ define([
 		 * with the array the given {@link BindingSource} has.
 		 * If the given property is "if",
 		 * stamps out a template or not based on the boolean the given {@link BindingSource} has.
-		 * @method external:HTMLTemplateElement#bind
+		 * @method HTMLTemplateElement#bind
 		 * @param {string} property Property/attribute name in element.
 		 * @param {BindingSource} source The {@link BindingSource} to bind the element property/attribute to.
 		 * @return {module:liaison/BindingTarget}

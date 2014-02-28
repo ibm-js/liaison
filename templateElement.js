@@ -50,30 +50,7 @@ define(function () {
 				}
 				return element;
 			};
-		})(),
-
-		/**
-		 * Find template elements and script elements (with type="x-template") under the given element
-		 * and call {@link module:liaison/templateElement.upgrade templateElement.upgrade()} for them,
-		 * but do so only in one level.
-		 * @param {Node} node The node to search template elements and script elements from.
-		 * @returns {Node} The given node.
-		 */
-		upgradeChildren: function (node) {
-			if (node.nodeType === Node.ELEMENT_NODE || node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-				if (node.nodeType === Node.ELEMENT_NODE
-					&& (node.tagName === "TEMPLATE"
-						|| node.hasAttribute("template")
-						|| node.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(node.getAttribute("type")))) {
-					templateElement.upgrade(node);
-				} else {
-					for (var child = node.firstChild; child; child = child.nextSibling) {
-						templateElement.upgradeChildren(child);
-					}
-				}
-			}
-			return node;
-		}
+		})()
 	};
 
 	return templateElement;

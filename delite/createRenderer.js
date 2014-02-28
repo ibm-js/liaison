@@ -40,24 +40,22 @@ define([
 			if (!this._observable) {
 				wrapStateful(this);
 			}
-			if (!this._template) {
-				var prefix = "";
-				if (document.all && template[0] === "{") {
-					// Template string beginning with '{' seems to hang IE9/10 when the widget gets into another element (with appendChild(), etc.).
-					// Adding "<!---->" to template string seems to work around that.
-					var ieVer = parseFloat(navigator.appVersion.split("MSIE ")[1]) || undefined,
-						mode = document.documentMode;
-					if (mode && mode !== 5 && Math.floor(ieVer) !== mode) {
-						ieVer = mode;
-					}
-					if (ieVer < 11) {
-						prefix = "<!---->";
-					}
+			var prefix = "";
+			if (document.all && template[0] === "{") {
+				// Template string beginning with '{' seems to hang IE9/10 when the widget gets into another element (with appendChild(), etc.).
+				// Adding "<!---->" to template string seems to work around that.
+				var ieVer = parseFloat(navigator.appVersion.split("MSIE ")[1]) || undefined,
+					mode = document.documentMode;
+				if (mode && mode !== 5 && Math.floor(ieVer) !== mode) {
+					ieVer = mode;
 				}
-				this._template = templateElement.create(prefix + template, this.ownerDocument);
-				this._template.createBindingSourceFactory = this.createBindingSourceFactory;
+				if (ieVer < 11) {
+					prefix = "<!---->";
+				}
 			}
-			this.own(new TemplateBinder(this._template))[0].create(this, this, "beforeEnd");
+			this.binder = new TemplateBinder(templateElement.create(prefix + template, this.ownerDocument));
+			this.binder.template.createBindingSourceFactory = this.createBindingSourceFactory;
+			this.own(this.binder.create(this, this, "beforeEnd"));
 		};
 	};
 
