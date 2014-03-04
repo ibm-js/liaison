@@ -3,6 +3,7 @@ define([
 	"./ObservableArray",
 	"./ObservablePath",
 	"./BindingSourceList",
+	"./BindingTarget",
 	"./Each",
 	"./wrapper"
 ], 1);
