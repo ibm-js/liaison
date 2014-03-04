@@ -245,6 +245,8 @@
 				deliverHandle = null;
 
 			function deliverAllByTimeout() {
+				/* global Platform */
+				typeof Platform !== "undefined" && Platform.performMicrotaskCheckpoint(); // For Polymer watching for Observable
 				deliverHandle = null;
 				for (var anyWorkDone = true; anyWorkDone;) {
 					anyWorkDone = false;

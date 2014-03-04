@@ -71,6 +71,9 @@
 				if (source && source.observe) {
 					this.h = source.observe(set.bind(this));
 					this.value = source.getFrom();
+				} else if (source && source.open) {
+					this.h = {remove: source.close.bind(source)};
+					this.value = source.open(set, this);
 				} else {
 					this.value = source;
 				}
