@@ -1,6 +1,6 @@
 /**
  * A module to make {@link HTMLTemplateElement#bind}, etc. upgrade delite widgets in stamped out template content,
- * and to support data binding between widget property/attribute and {@link BindingSource}.
+ * and to support data binding between widget property/attribute and {@link module:liaison/BindingSource BindingSource}.
  * @module liaison/delite/TemplateBinderExtemsion
  * @private
  */

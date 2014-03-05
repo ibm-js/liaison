@@ -4,13 +4,13 @@
 (function (root, factory) {
 	// Module definition to support AMD, node.js and browser globals
 	if (typeof exports === "object") {
-		module.exports = factory(require("./Observable"), require("./ObservableArray"));
+		module.exports = factory(require("./Observable"), require("./ObservableArray"), require("./BindingSource"), require("./ObservablePath"));
 	} else if (typeof define === "function" && define.amd) {
-		define(["./Observable", "./ObservableArray"], factory);
+		define(["./Observable", "./ObservableArray", "./BindingSource", "./ObservablePath"], factory);
 	} else {
-		root.Each = factory(root.Observable, root.ObservableArray);
+		root.Each = factory(root.Observable, root.ObservableArray, root.BindingSource, root.ObservablePath);
 	}
-})(this, function (Observable, ObservableArray) {
+})(this, function (Observable, ObservableArray, BindingSource, ObservablePath) {
 	"use strict";
 
 	/* global ArrayObserver */
@@ -18,10 +18,10 @@
 	var EMPTY_OBJECT = {};
 
 	/**
-	 * A {@link BindingSource} to observe changes in array elements.
+	 * A {@link module:liaison/BindingSource BindingSource} to observe changes in array elements.
 	 * @class module:liaison/Each
-	 * @augments BindingSource
-	 * @param {BindingSource} source The {@link BindingSource},
+	 * @augments module:liaison/BindingSource
+	 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource},
 	 *     having {@link module:liaison/ObservableArray ObservableArray} as its value,
 	 *     to observe changes in each elements of.
 	 *     This parameter can optionally be an {@link module:liaison/ObservableArray ObservableArray} instance.
@@ -34,199 +34,145 @@
 	 *     before being sent to source.
 	 */
 	function Each(source, formatter, parser) {
-		if (typeof (source || EMPTY_OBJECT).observe === "function") {
-			this.a = (this.source = source).getFrom();
-		} else if (typeof (source || EMPTY_OBJECT).splice === "function") {
-			this.a = source;
-		}
+		this.source = typeof (source || EMPTY_OBJECT).observe === "function" ? source : new ObservablePath(new Observable({a: source}), "a");
 		this.formatter = formatter;
 		this.parser = parser;
-		this.callbacks = [];
+		this.observers = [];
 	}
 
-	Each.prototype = /** @lends module:liaison/Each# */ {
-		/**
-		 * Observes a change in a path of {@link module:liaison/Observable Observable}.
-		 * @method
-		 * @param {BindingSource~ChangeCallback} callback The change callback.
-		 * @returns {Handle} The handle to stop observing.
-		 */
-		observe: (function () {
-			function observeSourceCallback(newValue) {
+	Each.prototype = Object.create(BindingSource);
+
+	/**
+	 * Observes a change in a path of {@link module:liaison/Observable Observable}.
+	 * @method module:liaison/Each#observe
+	 * @param {module:liaison/BindingSource~ChangeCallback} callback The change callback.
+	 * @returns {Handle} The handle to stop observing.
+	 */
+	Each.prototype.observe = function (callback) {
+		if (this.removed) {
+			console.warn("Trying to start observing Each that has been removed already.");
+		} else {
+			var observer = new MiniEach(this.source);
+			observer.parent = this;
+			this.observers.push(observer);
+			observer.open(BindingSource.changeCallback.bind(this, callback));
+			return observer;
+		}
+	};
+
+	/**
+	 * @method module:liaison/Each#getFrom
+	 * @returns The current value of {@link module:liaison/Each Each}.
+	 */
+	Each.prototype.getFrom = function () {
+		return this.boundFormatter(this.source.getFrom());
+	};
+
+	/**
+	 * Sets a value to {@link module:liaison/Each Each}.
+	 * @method module:liaison/Each#setTo
+	 * @param value The value to set.
+	 */
+	Each.prototype.setTo = Each.prototype.setValue = function (value) {
+		this.source.setTo(this.boundParser(value));
+	};
+
+	/**
+	 * A synonym for {@link module:liaison/Each#setTo Each#setTo}.
+	 * @method module:liaison/Each#setValue
+	 */
+
+	function MiniEach(source) {
+		this.source = source;
+		this.remove = this.close;
+	}
+
+	MiniEach.prototype = {
+		open: (function () {
+			function observeSourceCallback(boundObserveArrayCallback, newValue) {
 				/* jshint validthis: true */
 				if (this.ha) {
 					this.ha.remove();
 					this.ha = null;
 				}
 				this.a = newValue;
-				observeArrayCallback.call(this);
+				this.opened && boundObserveArrayCallback();
 				if (ObservableArray.canObserve(newValue)) {
-					var boundCallback = observeArrayCallback.bind(this);
 					if (typeof ArrayObserver !== "undefined") {
 						this.ha = Object.create(new ArrayObserver(newValue));
-						this.ha.open(boundCallback);
+						this.ha.open(boundObserveArrayCallback);
 						this.ha.remove = this.ha.close;
 					} else {
-						this.ha = Object.create(ObservableArray.observe(newValue, boundCallback));
-						this.ha.deliver = Observable.deliverChangeRecords.bind(Observable, boundCallback);
+						this.ha = Object.create(ObservableArray.observe(newValue, boundObserveArrayCallback));
+						this.ha.discardChanges = discardChangeRecordsFromCallback.bind(this);
 					}
 				} else {
-					console.warn("The array from data source is not an instance of ObservableArray."
-						+ " Observation not happening.");
+					console.warn("The array from data source is not an instance of ObservableArray. Observation not happening.");
 				}
 			}
-			function discardChangeRecordsFromCallback(callback) {
+			function observeArrayCallback(callback) {
 				/* jshint validthis: true */
-				this.discardChangeRecords = true;
-				Observable.deliverChangeRecords(callback);
-				this.discardChangeRecords = false;
+				if (!this.beingDiscarded && !this.closed) {
+					var newValue = this.a;
+					try {
+						callback(newValue, this.oldValue);
+					} catch (e) {
+						console.error("Error occured in Each callback: " + (e.stack || e));
+					}
+					this.oldValue = Array.isArray(newValue) ? newValue.slice() : newValue;
+				}
 			}
-			function observeArrayCallback() {
+			function discardChangeRecordsFromCallback() {
 				/* jshint validthis: true */
-				if (!this.discardChangeRecords) {
-					var newValue = this.getFrom();
-					for (var callbacks = this.callbacks.slice(), i = 0, l = callbacks.length; i < l; ++i) {
-						try {
-							callbacks[i].call(this, newValue, this.oldValue);
-						} catch (e) {
-							console.error("Error occured in Each callback: " + (e.stack || e));
-						}
-					}
-					this.oldValue = newValue;
-				}
+				this.beingDiscarded = true;
+				this.ha.deliver();
+				this.beingDiscarded = false;
 			}
-			function remove(callback) {
-				for (var index; (index = this.callbacks.indexOf(callback)) >= 0;) {
-					this.callbacks.splice(index, 1);
-				}
-				if (this.callbacks.length === 0) {
-					if (this.ha) {
-						this.ha.remove();
-						this.ha = null;
-					}
-					if (this.hSource) {
-						this.hSource.remove();
-						this.hSource = null;
-					}
-				}
-			}
-			return function (callback) {
-				if (this.removed) {
-					console.warn("Trying to start observing Each that has been removed already.");
-				} else {
-					var callbacks = this.callbacks;
-					callbacks.push(callback);
-					if (this.source && !this.hSource) {
-						this.hSource = this.source.observe(observeSourceCallback.bind(this));
-					}
-					if (ObservableArray.canObserve(this.a)) {
-						if (!this.ha) {
-							var boundCallback = observeArrayCallback.bind(this);
-							if (typeof ArrayObserver !== "undefined") {
-								this.ha = Object.create(new ArrayObserver(this.a));
-								this.ha.open(boundCallback);
-								this.oldValue = this.ha.value;
-							} else {
-								this.ha = Object.create(ObservableArray.observe(this.a, boundCallback));
-								this.ha.deliver = Observable.deliverChangeRecords.bind(Observable, boundCallback);
-								this.ha.discardChanges = discardChangeRecordsFromCallback.bind(this, boundCallback);
-								this.oldValue = this.getFrom();
-							}
-						}
-					} else {
-						console.warn(
-							"The array from data source is not an instance of ObservableArray."
-							+ " Observation not happening.");
-					}
-					return {
-						remove: remove.bind(this, callback)
-					};
-				}
+			return function (callback, thisObject) {
+				var boundObserveSourceCallback = observeSourceCallback.bind(this, observeArrayCallback.bind(this, callback.bind(thisObject)));
+				this.hSource = this.source.observe(boundObserveSourceCallback);
+				var value = this.source.getFrom();
+				boundObserveSourceCallback(value);
+				this.oldValue = Array.isArray(value) ? value.slice() : value;
+				this.opened = true;
+				return value;
 			};
 		})(),
 
-		/**
-		 * Makes the given callback the only change callback.
-		 * @param {function} callback The change callback.
-		 * @param {Object} thisObject The object that should works as "this" object for callback.
-		 * @returns The current value of this {@link module:liaison/Each Each}.
-		 */
-		open: function (callback, thisObject) {
-			this.callbacks.splice(0, this.callbacks.length);
-			this.observe(callback.bind(thisObject));
-			return this.getFrom();
-		},
-
-		/**
-		 * Synchronously delivers pending change records.
-		 */
 		deliver: function () {
-			if (this.source) {
-				this.source.deliver();
-			}
-			if (this.ha) {
-				this.ha.deliver();
-			}
+			this.hSource && this.hSource.deliver();
+			this.ha && this.ha.deliver();
 		},
 
-		/**
-		 * Discards pending change records.
-		 * @returns The current value of this {@link module:liaison/Each Each}.
-		 */
 		discardChanges: function () {
-			if (this.source) {
-				this.source.discardChanges();
-			}
-			if (this.ha) {
-				this.ha.discardChanges();
-			}
-			return this.getFrom();
+			this.beingDiscarded = true;
+			this.hSource && this.hSource.deliver();
+			this.ha && this.ha.deliver();
+			this.beingDiscarded = false;
+			return this.a;
 		},
 
-		/**
-		 * @returns The current value of {@link module:liaison/Each Each}.
-		 */
-		getFrom: function () {
-			return this.formatter(this.source ? this.source.getFrom() : this.a);
+		setValue: function (value) {
+			this.source.setTo(value);
 		},
 
-		/**
-		 * Sets a value to {@link module:liaison/Each Each}.
-		 * @param value The value to set.
-		 */
-		setTo: function (value) {
-			var a = this.parser(value);
-			this.source ? this.source.setTo(a) : (this.a = a);
-		},
-
-		/**
-		 * Stops all observations.
-		 */
-		remove: function () {
-			if (this.ha) {
-				this.ha.remove();
-				this.ha = null;
-			}
+		close: function () {
 			if (this.hSource) {
 				this.hSource.remove();
 				this.hSource = null;
 			}
-			this.callbacks.splice(0, this.callbacks.length);
-			this.removed = true;
+			if (this.ha) {
+				this.ha.remove();
+				this.ha = null;
+			}
+			if (this.parent) {
+				for (var index; (index = this.parent.observers.indexOf(this)) >= 0;) {
+					this.parent.observers.splice(index, 1);
+				}
+			}
+			this.closed = true;
 		}
 	};
-
-	/**
-	 * A synonym for {@link module:liaison/Each#setTo setTo() method}.
-	 * @method module:liaison/Each#setValue
-	 */
-	Each.prototype.setValue = Each.prototype.setTo;
-
-	/**
-	 * A synonym for {@link module:liaison/Each#remove remove() method}.
-	 * @method module:liaison/Each#close
-	 */
-	Each.prototype.close = Each.prototype.remove;
 
 	return Each;
 });

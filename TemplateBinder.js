@@ -166,11 +166,11 @@ define([
 		},
 
 		/**
-		 * Go through parsed data binding syntax and assign {@link BindingSource} to each entries.
+		 * Go through parsed data binding syntax and assign {@link module:liaison/BindingSource BindingSource} to each entries.
 		 * @param {Object} model The data model for the template.
 		 * @param {Array} toBeBound
-		 *     The parsed list of (node in instantiated template, attribute name, attribute value, assinged {@link BindingSource})
-		 *     with data binding syntax.
+		 *     The parsed list of (node in instantiated template, attribute name, attribute value,
+		 *     assinged {@link module:liaison/BindingSource BindingSource}) with data binding syntax.
 		 */
 		assignSources: function (model, toBeBound) {
 			// Given this function works as a low-level one,
@@ -245,9 +245,10 @@ define([
 		},
 
 		/**
-		 * Binds parsed node conents and element attributes to the corresponding {@link BindingSource}.
+		 * Binds parsed node conents and element attributes to the corresponding {@link module:liaison/BindingSource BindingSource}.
 		 * @param {Array} toBeBound
-		 *     The parsed list of (node in instantiated template, attribute name, attribute value, {@link BindingSource}) with data binding syntax.
+		 *     The parsed list of (node in instantiated template, attribute name, attribute value,
+		 *     {@link module:liaison/BindingSource BindingSource}) with data binding syntax.
 		 * @returns {Array.<module:liaison/BindingTarget>}
 		 *     The list of data bindings for the parsed node contents and element attributes.
 		 */

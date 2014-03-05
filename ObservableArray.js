@@ -375,17 +375,20 @@
 			return function (observableArray, callback) {
 				Array.observe(observableArray, callback = observeSpliceCallback.bind(observableArray, callback));
 				return {
+					deliver: Object.deliverChangeRecords.bind(Object, callback),
 					remove: Array.unobserve.bind(Array, observableArray, callback)
 				};
 			};
 		} else {
 			return function (observableArray, callback) {
-				return Observable.observe(observableArray, observeSpliceCallback.bind(observableArray, callback), [
+				var h = Object.create(Observable.observe(observableArray, callback = observeSpliceCallback.bind(observableArray, callback), [
 					Observable.CHANGETYPE_ADD,
 					Observable.CHANGETYPE_UPDATE,
 					Observable.CHANGETYPE_DELETE,
 					Observable.CHANGETYPE_SPLICE
-				]);
+				]));
+				h.deliver = Observable.deliverChangeRecords.bind(Observable, callback);
+				return h;
 			};
 		}
 	})();

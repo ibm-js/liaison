@@ -15,7 +15,7 @@
 
 	/**
 	 * A base class which abstracts a property (or an attribute) in different types of UI components,
-	 * and for two-way binding between those and {@link BindingSource} implementation.
+	 * and for two-way binding between those and {@link module:liaison/BindingSource BindingSource} implementation.
 	 * Points to something like an attribute of DOM element, a widget attribute, etc.
 	 * @class module:liaison/BindingTarget
 	 * @param {Object} object
@@ -52,10 +52,10 @@
 		 * Establishes two-way binding
 		 * between this {@link module:liaison/BindingTarget BindingTarget} and source.
 		 * this {@link module:liaison/BindingTarget BindingTarget}’s initial value becomes the value of source.
-		 * If source does not have {@link BindingSource} interface,
+		 * If source does not have {@link module:liaison/BindingSource BindingSource} interface,
 		 * updates in source won’t be reflected to target, or vise versa.
 		 * @param {BindingSource} source
-		 *     The {@link BindingSource} to bind this {@link module:liaison/BindingTarget BindingTarget} to.
+		 *     The {@link module:liaison/BindingSource BindingSource} to bind this {@link module:liaison/BindingTarget BindingTarget} to.
 		 */
 		bind: (function () {
 			function set(value) {
