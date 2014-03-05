@@ -8,7 +8,8 @@ define([
 	/* global describe, afterEach, it */
 	with (bdd) {
 		describe("Test liaison/ObservablePath", function () {
-			var handles = [];
+			var handles = [],
+				pseudoError = new Error("Error thrown on purpose. This error does not mean bad result of test case.");
 			afterEach(function () {
 				for (var handle = null; (handle = handles.shift());) {
 					handle.remove();
@@ -114,9 +115,9 @@ define([
 					dfd = this.async(1000),
 					observable = new Observable({foo: "Foo0"});
 				handles.push(binding = new ObservablePath(observable, "foo", function () {
-					throw new Error();
+					throw pseudoError;
 				}, function () {
-					throw new Error();
+					throw pseudoError;
 				}));
 				binding.observe(dfd.callback(function (newValue, oldValue) {
 					expect(newValue).to.equal("Foo1");

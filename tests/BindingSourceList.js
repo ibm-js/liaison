@@ -9,7 +9,8 @@ define([
 	/* global describe, afterEach, it */
 	with (bdd) {
 		describe("Test liaison/BindingSourceList", function () {
-			var handles = [];
+			var handles = [],
+				pseudoError = new Error("Error thrown on purpose. This error does not mean bad result of test case.");
 			afterEach(function () {
 				for (var handle = null; (handle = handles.shift());) {
 					handle.remove();
@@ -200,9 +201,9 @@ define([
 					new ObservablePath(observable, "bar"),
 					new ObservablePath(observable, "baz")
 				], function () {
-					throw new Error();
+					throw pseudoError;
 				}, function () {
-					throw new Error();
+					throw pseudoError;
 				}));
 				binding.observe(dfd.rejectOnError(function (newValue, oldValue) {
 					callbacks[count++](newValue, oldValue);
