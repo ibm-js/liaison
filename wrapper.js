@@ -189,7 +189,8 @@
 	}
 
 	/**
-	 * Removes {@link BindingSource} for computed properties defined in the given {@link module:liaison/Observable Observable}.
+	 * Removes {@link module:liaison/BindingSource BindingSource} for computed properties
+	 * defined in the given {@link module:liaison/Observable Observable}.
 	 * @function module:liaison/wrapper.remove
 	 * @param {module:liaison/Observable} o A {@link module:liaison/Observable Observable}.
 	 */

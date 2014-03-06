@@ -246,36 +246,36 @@ define([
 			= typeof HTMLTemplateElement !== "undefined" ? HTMLTemplateElement : HTMLUnknownElement;
 
 		/**
-		 * Establishes data binding between script element property/attribute and {@link BindingSource}.
+		 * Establishes data binding between script element property/attribute and {@link module:liaison/BindingSource BindingSource}.
 		 * If the script element has type="x-template" attribute and the given property is "bind",
 		 * stamps out a template with declarative data binding activated
-		 * with the object the given {@link BindingSource} has.
+		 * with the object the given {@link module:liaison/BindingSource BindingSource} has.
 		 * If the script element has type="x-template" attribute and  the given property is "repeat",
 		 * repeatedly stamps out a template with declarative data binding activated
-		 * with the array the given {@link BindingSource} has.
+		 * with the array the given {@link module:liaison/BindingSource BindingSource} has.
 		 * If the script element has type="x-template" attribute and  the given property is "if",
-		 * stamps out a template or not based on the boolean the given {@link BindingSource} has.
+		 * stamps out a template or not based on the boolean the given {@link module:liaison/BindingSource BindingSource} has.
 		 * @method HTMLScriptElement#bind
 		 * @param {string} property Property/attribute name in element.
-		 * @param {BindingSource} source The {@link BindingSource} to bind the element property/attribute to.
+		 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the element property/attribute to.
 		 * @return {module:liaison/BindingTarget}
 		 *     The {@link module:liaison/BindingTarget BindingTarget} instance
 		 *     representing the element property/attribute.
 		 */
 
 		/**
-		 * Establishes data binding between template element property/attribute and {@link BindingSource}.
+		 * Establishes data binding between template element property/attribute and {@link module:liaison/BindingSource BindingSource}.
 		 * If the given property is "bind",
 		 * stamps out a template with declarative data binding activated
-		 * with the object the given {@link BindingSource} has.
+		 * with the object the given {@link module:liaison/BindingSource BindingSource} has.
 		 * If the given property is "repeat",
 		 * repeatedly stamps out a template with declarative data binding activated
-		 * with the array the given {@link BindingSource} has.
+		 * with the array the given {@link module:liaison/BindingSource BindingSource} has.
 		 * If the given property is "if",
-		 * stamps out a template or not based on the boolean the given {@link BindingSource} has.
+		 * stamps out a template or not based on the boolean the given {@link module:liaison/BindingSource BindingSource} has.
 		 * @method HTMLTemplateElement#bind
 		 * @param {string} property Property/attribute name in element.
-		 * @param {BindingSource} source The {@link BindingSource} to bind the element property/attribute to.
+		 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the element property/attribute to.
 		 * @return {module:liaison/BindingTarget}
 		 *     The {@link module:liaison/BindingTarget BindingTarget} instance
 		 *     representing the element property/attribute.

@@ -81,10 +81,10 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 		/** @class HTMLElement */
 		/**
-		 * Establishes data binding between element property/attribute and {@link BindingSource}.
+		 * Establishes data binding between element property/attribute and {@link module:liaison/BindingSource BindingSource}.
 		 * @method HTMLElement#bind
 		 * @param {string} property Property/attribute name in element.
-		 * @param {BindingSource} source The {@link BindingSource} to bind the element property/attribute to.
+		 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the element property/attribute to.
 		 * @return {module:liaison/BindingTarget}
 		 *     The {@link module:liaison/BindingTarget BindingTarget} instance
 		 *     representing the element property/attribute.
@@ -98,7 +98,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		};
 
 		/**
-		 * Stops data binding between element property/attribute and {@link BindingSource}.
+		 * Stops data binding between element property/attribute and {@link module:liaison/BindingSource BindingSource}.
 		 * @method HTMLElement#unbind
 		 * @param {string} property Property/attribute name in element
 		 */
@@ -207,10 +207,10 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 * @augments HTMLElement
 		 */
 		/**
-		 * Establishes two-way data binding between input element property/attribute and {@link BindingSource}.
+		 * Establishes two-way data binding between input element property/attribute and {@link module:liaison/BindingSource BindingSource}.
 		 * @method HTMLInputElement#bind
 		 * @param {string} property Property/attribute name in input element.
-		 * @param {BindingSource} source The {@link BindingSource} to bind the input element property/attribute to.
+		 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the input element property/attribute to.
 		 * @return {module:liaison/BindingTarget}
 		 *     The {@link module:liaison/BindingTarget BindingTarget} instance
 		 *     representing the input element property/attribute.
@@ -241,10 +241,10 @@ define(["./BindingTarget"], function (BindingTarget) {
 		/* global Text */
 		/** @class Text */
 		/**
-		 * Establishes data binding between text node value and {@link BindingSource}.
+		 * Establishes data binding between text node value and {@link module:liaison/BindingSource BindingSource}.
 		 * @method Text#bind
 		 * @param {string} property Not used.
-		 * @param {BindingSource} source The {@link BindingSource} to bind the text node value to.
+		 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the text node value to.
 		 * @return {module:liaison/BindingTarget}
 		 *     The {@link module:liaison/BindingTarget BindingTarget} instance representing the text node value.
 		 */

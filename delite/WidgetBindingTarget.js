@@ -57,10 +57,10 @@ define([
 	if (!DOMBindingTarget.useExisting) {
 		/** @class external:Widget */
 		/**
-		 * Establishes data binding between widget property/attribute and {@link BindingSource}.
+		 * Establishes data binding between widget property/attribute and {@link module:liaison/BindingSource BindingSource}.
 		 * @method external:Widget#bind
 		 * @param {string} property Property/attribute name in widget.
-		 * @param {BindingSource} source The {@link BindingSource} to bind the widget property/attribute to.
+		 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the widget property/attribute to.
 		 * @returns {module:liaison/BindingTarget}
 		 *     The {@link module:liaison/BindingTarget BindingTarget} instance
 		 *     representing the widget property/attribute.
