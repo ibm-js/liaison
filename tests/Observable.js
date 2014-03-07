@@ -8,7 +8,8 @@ define([
 	with (bdd) {
 		// TODO(asudoh): Look more at Object.observe() spec and add more tests
 		describe("Test liaison/Observable", function () {
-			var handles = [];
+			var handles = [],
+				pseudoError = new Error("Error thrown on purpose. This error does not mean bad result of test case.");
 			afterEach(function () {
 				for (var handle = null; (handle = handles.shift());) {
 					handle.remove();
@@ -186,6 +187,37 @@ define([
 				})));
 				observable1.set("foo1", "Foo1");
 				observable0.set("foo0", "Foo0");
+			});
+			it("Observing with the same callback", function () {
+				var dfd = this.async(1000),
+					count = 0,
+					observable = new Observable(),
+					callback = dfd.rejectOnError(function () {
+						expect(++count < 2).to.be.true;
+					});
+				handles.push(Observable.observe(observable, callback, [Observable.CHANGETYPE_UPDATE]));
+				handles.push(Observable.observe(observable, callback, [Observable.CHANGETYPE_ADD]));
+				observable.set("foo", "Foo0");
+				setTimeout(dfd.callback(function () {
+					expect(count).to.equal(1);
+				}), 100);
+			});
+			it("Error in observer callback", function () {
+				var dfd = this.async(1000),
+					observable = new Observable();
+				handles.push(Observable.observe(observable, function () {
+					throw pseudoError;
+				}));
+				handles.push(Observable.observe(observable, dfd.callback(function (records) {
+					expect(records).to.deep.equal([
+						{
+							type: Observable.CHANGETYPE_ADD,
+							object: observable,
+							name: "foo"
+						}
+					]);
+				})));
+				observable.set("foo", "Foo0");
 			});
 			it("Unobserve", function () {
 				var h0, h1,

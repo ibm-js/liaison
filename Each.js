@@ -65,7 +65,8 @@
 	 * @returns The current value of {@link module:liaison/Each Each}.
 	 */
 	Each.prototype.getFrom = function () {
-		return this.boundFormatter(this.source.getFrom());
+		var value = this.source.getFrom();
+		return this.boundFormatter ? this.boundFormatter(value) : value;
 	};
 
 	/**
@@ -74,7 +75,7 @@
 	 * @param value The value to set.
 	 */
 	Each.prototype.setTo = Each.prototype.setValue = function (value) {
-		this.source.setTo(this.boundParser(value));
+		this.source.setTo(this.boundParser ? this.boundParser(value) : value);
 	};
 
 	/**
@@ -96,7 +97,6 @@
 					this.ha = null;
 				}
 				this.a = newValue;
-				this.opened && boundObserveArrayCallback();
 				if (ObservableArray.canObserve(newValue)) {
 					if (typeof ArrayObserver !== "undefined") {
 						this.ha = Object.create(new ArrayObserver(newValue));
@@ -104,29 +104,20 @@
 						this.ha.remove = this.ha.close;
 					} else {
 						this.ha = Object.create(ObservableArray.observe(newValue, boundObserveArrayCallback));
-						this.ha.discardChanges = discardChangeRecordsFromCallback.bind(this);
 					}
 				} else {
 					console.warn("The array from data source is not an instance of ObservableArray. Observation not happening.");
 				}
+				this.opened && boundObserveArrayCallback();
 			}
 			function observeArrayCallback(callback) {
 				/* jshint validthis: true */
 				if (!this.beingDiscarded && !this.closed) {
-					var newValue = this.a;
-					try {
-						callback(newValue, this.oldValue);
-					} catch (e) {
-						console.error("Error occured in Each callback: " + (e.stack || e));
-					}
-					this.oldValue = Array.isArray(newValue) ? newValue.slice() : newValue;
+					var newValue = this.a,
+						oldValue = Array.isArray(newValue) ? newValue.slice() : newValue;
+					callback(newValue, this.oldValue);
+					this.oldValue = oldValue;
 				}
-			}
-			function discardChangeRecordsFromCallback() {
-				/* jshint validthis: true */
-				this.beingDiscarded = true;
-				this.ha.deliver();
-				this.beingDiscarded = false;
 			}
 			return function (callback, thisObject) {
 				var boundObserveSourceCallback = observeSourceCallback.bind(this, observeArrayCallback.bind(this, callback.bind(thisObject)));

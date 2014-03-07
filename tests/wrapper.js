@@ -21,6 +21,8 @@ define([
 				},
 				custom = new CustomClz(),
 				o = {
+					undef: undefined,
+					null: null,
 					foo: "Foo",
 					bar: "Bar",
 					date: date,
@@ -36,6 +38,8 @@ define([
 					}]
 				},
 				observableTree = new Observable({
+					undef: undefined,
+					null: null,
 					foo: "Foo",
 					bar: "Bar",
 					date: date,
@@ -51,6 +55,8 @@ define([
 					}))
 				}),
 				withComputed = {
+					undef: undefined,
+					null: null,
 					foo: "Foo",
 					bar: "Bar",
 					foobar: wrapper.computed(function (foo, bar) {
@@ -78,11 +84,27 @@ define([
 				}
 			});
 			it("Wrap non-object", function () {
+				expect(wrapper.wrap(undefined)).to.equal(undefined);
+				expect(wrapper.wrap(null)).to.equal(null);
 				expect(wrapper.wrap(bool)).to.equal(bool);
 				expect(wrapper.wrap(num)).to.equal(num);
 				expect(wrapper.wrap(str)).to.equal(str);
 				expect(wrapper.wrap(date)).to.equal(date);
 				expect(wrapper.wrap(func)).to.equal(func);
+				expect(wrapper.unwrap(undefined)).to.equal(undefined);
+				expect(wrapper.unwrap(null)).to.equal(null);
+				expect(wrapper.unwrap(bool)).to.equal(bool);
+				expect(wrapper.unwrap(num)).to.equal(num);
+				expect(wrapper.unwrap(str)).to.equal(str);
+				expect(wrapper.unwrap(date)).to.equal(date);
+				expect(wrapper.unwrap(func)).to.equal(func);
+				wrapper.remove(undefined); // Should be no-op without exception
+				wrapper.remove(null); // Should be no-op without exception
+				wrapper.remove(bool); // Should be no-op without exception
+				wrapper.remove(num); // Should be no-op without exception
+				wrapper.remove(str); // Should be no-op without exception
+				wrapper.remove(date); // Should be no-op without exception
+				wrapper.remove(func); // Should be no-op without exception
 			});
 			it("Wrap an object", function () {
 				var wrapped = wrapper.wrap(o);
@@ -189,6 +211,36 @@ define([
 					expect(oldLength).to.equal(45);
 				}));
 				o.items.push({Name: "John Jacklin"});
+			});
+			it("Cleaning up computed properties/arrays", function () {
+				var computed = wrapper.computed(function (first, last) {
+						return first + " " + last;
+					}, "first", "last"),
+					computedArray = wrapper.computedArray(function (a) {
+						return a.reduce(function (length, entry) {
+							return length + entry.Name.length;
+						}, 0);
+					}, "items"),
+					o = wrapper.wrap({
+						first: "John",
+						last: "Doe",
+						name: computed,
+						sub: [{
+							items: [
+								{Name: "Anne Ackerman"},
+								{Name: "Ben Beckham"},
+								{Name: "Chad Chapman"},
+								{Name: "Irene Ira"}
+							],
+							totalNameLength: computedArray
+						}]
+					});
+				handles.push(computed, computedArray);
+				expect(computed.source).not.to.be.null;
+				expect(computedArray.source).not.to.be.null;
+				wrapper.remove(o);
+				expect(computed.source).to.be.null;
+				expect(computedArray.source).to.be.null;
 			});
 		});
 	}
