@@ -186,7 +186,7 @@
 
 		setValue: function (value) {
 			if (this.remainder.length > 0) {
-				setObjectPath(this.o[this.prop], value);
+				setObjectPath(this.o[this.prop], this.remainder, value);
 			} else if (typeof this.o.set === "function") {
 				this.o.set(this.prop, value);
 			} else {

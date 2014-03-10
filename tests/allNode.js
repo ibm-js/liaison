@@ -5,5 +5,6 @@ define([
 	"./BindingSourceList",
 	"./BindingTarget",
 	"./Each",
+	"./assignObservable",
 	"./wrapper"
 ], 1);

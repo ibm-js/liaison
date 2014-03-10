@@ -74,6 +74,105 @@ define([
 				observableArray.unshift("0", "1");
 				observableArray.shift();
 			});
+			it("Observable.observe() with reverse() to ObservableArray instance", function () {
+				var dfd = this.async(1000),
+					observableArray = ObservableArray.apply(undefined, baseData);
+				handles.push(Observable.observe(observableArray, dfd.callback(function (records) {
+					if (Observable.useNative) {
+						expect(records.sort(function (dst, src) { return dst.name - src.name; })).to.deep.equal([
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "0",
+								oldValue: "a"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "1",
+								oldValue: "b"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "2",
+								oldValue: "c"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "3",
+								oldValue: "d"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "4",
+								oldValue: "e"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "5",
+								oldValue: "f"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "6",
+								oldValue: "g"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "7",
+								oldValue: "h"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "8",
+								oldValue: "i"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "9",
+								oldValue: "j"
+							}
+						]);
+					} else {
+						expect(records).to.deep.equal([
+							{
+								type: Observable.CHANGETYPE_SPLICE,
+								object: observableArray,
+								index: 0,
+								removed: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"],
+								addedCount: 10
+							}
+						]);
+					}
+				}), [Observable.CHANGETYPE_UPDATE, Observable.CHANGETYPE_SPLICE]));
+				observableArray.reverse();
+			});
+			// ECMAScript Object.observe() emits change records for every internal change in sort().
+			// Let ObservableArray.observe() squash it for this test case.
+			it("ObservableArray.observe() with sort() to ObservableArray instance", function () {
+				var dfd = this.async(1000),
+					observableArray = ObservableArray.apply(undefined, baseData);
+				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (records) {
+					expect(records).to.deep.equal([
+						{
+							type: Observable.CHANGETYPE_SPLICE,
+							object: observableArray,
+							index: 0,
+							removed: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"],
+							addedCount: 10
+						}
+					]);
+				})));
+				observableArray.sort(function (dst, src) { return src.charCodeAt(0) - dst.charCodeAt(0); });
+			});
 			it("Observable.observe() with setting entries to ObservableArray instance: Basic", function () {
 				var dfd = this.async(1000),
 					observableArray = new ObservableArray();

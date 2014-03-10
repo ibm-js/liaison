@@ -177,6 +177,33 @@ define([
 				})));
 				observable.set("foo", "Foo1");
 			});
+			it("Setting value to BindingSourceList", function () {
+				var dfd = this.async(1000),
+					count = 0,
+					observablePath0 = new ObservablePath(new Observable({foo: "Foo0"}), "foo"),
+					observablePath1 = new ObservablePath(new Observable({bar: "Bar0"}), "bar"),
+					observablePath2 = new ObservablePath(new Observable({baz: "Baz0"}), "baz"),
+					list = new BindingSourceList([observablePath0, observablePath1, observablePath2]),
+					callbacks = [
+						dfd.rejectOnError(function (newValue, oldValue) {
+							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
+							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
+						}),
+						dfd.rejectOnError(function (newValue, oldValue) {
+							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
+							expect(oldValue).to.deep.equal(["Foo1", "Bar0", "Baz0"]);
+						}),
+						dfd.callback(function (newValue, oldValue) {
+							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
+							expect(oldValue).to.deep.equal(["Foo1", "Bar1", "Baz0"]);
+						})
+					];
+				handles.push(observablePath0, observablePath1, observablePath2, list);
+				var h = list.observe(dfd.rejectOnError(function (newValue, oldValue) {
+					callbacks[count++](newValue, oldValue);
+				}));
+				h.setValue(["Foo1", "Bar1", "Baz1"]);
+			});
 			it("Exception in formatter/parser", function () {
 				var binding,
 					dfd = this.async(1000),
@@ -260,6 +287,13 @@ define([
 				observable.set("foo", "Foo1");
 				h1.discardChanges();
 				finishedMicrotask = true;
+			});
+			it("Round-trip of formatter/parser", function () {
+				var formatter = function () {},
+					parser = function () {},
+					list = new BindingSourceList([new ObservablePath({}, "foo")], formatter, parser);
+				expect(list.formatter).to.equal(formatter);
+				expect(list.parser).to.equal(parser);
 			});
 			it("Cleaning up observe() handle", function () {
 				var list,

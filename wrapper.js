@@ -172,7 +172,7 @@
 		var unwrapped;
 		if (typeof (o || EMPTY_OBJECT).splice === "function") {
 			return o.map(unwrap);
-		} else if (Observable.test(o) || REGEXP_OBJECT_CONSTRUCTOR.test(o.constructor + "")) {
+		} else if (Observable.test(o) || o && REGEXP_OBJECT_CONSTRUCTOR.test(o.constructor + "")) {
 			unwrapped = {};
 			for (var s in o) {
 				unwrapped[s] = unwrap(o[s]);
@@ -195,7 +195,7 @@
 	 * @param {module:liaison/Observable} o A {@link module:liaison/Observable Observable}.
 	 */
 	function remove(o) {
-		if (Array.isArray(o._computed)) {
+		if (Array.isArray((o || EMPTY_OBJECT)._computed)) {
 			for (var h; (h = o._computed.shift());) {
 				h.remove();
 			}
@@ -203,7 +203,7 @@
 		}
 		if (typeof (o || EMPTY_OBJECT).splice === "function") {
 			o.forEach(remove);
-		} else if (Observable.test(o) || REGEXP_OBJECT_CONSTRUCTOR.test(o.constructor + "")) {
+		} else if (Observable.test(o) || o && REGEXP_OBJECT_CONSTRUCTOR.test(o.constructor + "")) {
 			for (var s in o) {
 				remove(o[s]);
 			}

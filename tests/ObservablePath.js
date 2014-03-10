@@ -26,19 +26,13 @@ define([
 			});
 			it("Observing non-object", function () {
 				// Check if below line will ends up with an exception
-				/* jshint nonew: false */
-				var caught;
-				try {
-					handles.push(new ObservablePath(undefined, "foo").observe(function () {}));
-					handles.push(new ObservablePath(null, "foo").observe(function () {}));
-					handles.push(new ObservablePath(true, "foo").observe(function () {}));
-					handles.push(new ObservablePath(1, "foo").observe(function () {}));
-					handles.push(new ObservablePath("a", "foo").observe(function () {}));
-				} catch (e) {
-					caught = true;
-				}
-				expect(caught).not.to.be.true;
+				handles.push(new ObservablePath(undefined, "foo.bar").observe(function () {}));
+				handles.push(new ObservablePath(null, "foo.bar").observe(function () {}));
+				handles.push(new ObservablePath(true, "foo.bar").observe(function () {}));
+				handles.push(new ObservablePath(1, "foo.bar").observe(function () {}));
+				handles.push(new ObservablePath("a", "foo.bar").observe(function () {}));
 			});
+			// TODO(asudoh): Test wrong path
 			it("Observing primitive object's property", function () {
 				var dfd = this.async(1000),
 					observableWithNumber = new Observable({foo: 1}),
@@ -99,16 +93,54 @@ define([
 				})));
 				observable.set("plain", undefined);
 			});
-			it("Setting value to ObservablePath with object having property with ObservablePath", function () {
-				var binding,
-					dfd = this.async(1000),
-					o = {observable: new Observable({foo: "Foo0"})};
-				handles.push(binding = new ObservablePath(o, "observable.foo"));
-				binding.observe(dfd.callback(function (newValue, oldValue) {
-					expect(newValue).to.equal("Foo1");
-					expect(oldValue).to.equal("Foo0");
-				}));
-				binding.setTo("Foo1");
+			it("Setting value to ObservablePath", function () {
+				var dfd = this.async(1000),
+					o = {foo: {bar: "Bar0"}},
+					observable = new Observable(o.foo),
+					observableShallow = new Observable(o),
+					observableDeep = new Observable({foo: new Observable(o.foo)}),
+					observablePath = new ObservablePath(observable, "bar"),
+					observablePathShallow = new ObservablePath(observableShallow, "foo.bar"),
+					observablePathInner = new ObservablePath({foo: new Observable(o.foo)}, "foo.bar"),
+					observablePathDeep = new ObservablePath(observableDeep, "foo.bar"),
+					observablePathPlain1 = new ObservablePath(o.foo, "bar"),
+					observablePathPlain2 = new ObservablePath(o, "foo.bar"),
+					count = 0,
+					h = observablePath.observe(dfd.rejectOnError(function (newValue, oldValue) {
+						expect(newValue).to.equal("Bar1");
+						expect(oldValue).to.equal("Bar0");
+						count++;
+					})),
+					hShallow = observablePathShallow.observe(dfd.rejectOnError(function () {
+						throw new Error("ObservablePath should't respond to setValue() with shallow Observable tree.");
+					})),
+					hInner = observablePathInner.observe(dfd.rejectOnError(function (newValue, oldValue) {
+						expect(newValue).to.equal("Bar1");
+						expect(oldValue).to.equal("Bar0");
+						count++;
+					})),
+					hDeep = observablePathDeep.observe(dfd.rejectOnError(function (newValue, oldValue) {
+						expect(newValue).to.equal("Bar1");
+						expect(oldValue).to.equal("Bar0");
+						count++;
+					})),
+					hPlain1 = observablePathPlain1.observe(dfd.rejectOnError(function () {
+						throw new Error("ObservablePath should't respond to setValue() with plain object.");
+					})),
+					hPlain2 = observablePathPlain2.observe(dfd.rejectOnError(function () {
+						throw new Error("ObservablePath should't respond to setValue() with plain object.");
+					}));
+				handles.push(observablePath, observablePathShallow, observablePathInner, observablePathDeep);
+				handles.push(observablePathPlain1, observablePathPlain2);
+				h.setValue("Bar1");
+				hShallow.setValue("Bar1");
+				hInner.setValue("Bar1");
+				hDeep.setValue("Bar1");
+				hPlain1.setValue("Bar1");
+				hPlain2.setValue("Bar1");
+				setTimeout(dfd.callback(function () {
+					expect(count).to.equal(3);
+				}), 100);
 			});
 			it("Synchronous change delivery, change in top-level property", function () {
 				var h0, h1, binding, h1Delivered, finishedMicrotask,
@@ -182,6 +214,33 @@ define([
 				observable.foo.set("bar", "Bar1");
 				h1.discardChanges();
 			});
+			it("Exception in observer callback", function () {
+				var dfd = this.async(1000),
+					count = 0,
+					observable = new Observable({foo: new Observable({bar: "Bar0"})}),
+					callbacks = [
+						dfd.rejectOnError(function (newValue, oldValue) {
+							expect(newValue).to.equal("Bar1");
+							expect(oldValue).to.equal("Bar0");
+							observable.set("foo", new Observable({bar: "Bar2"}));
+						}),
+						dfd.callback(function (newValue, oldValue) {
+							expect(newValue).to.equal("Bar2");
+							expect(oldValue).to.equal("Bar1");
+						})
+					];
+				handles.push(new ObservablePath(observable, "foo.bar").observe(function (newValue, oldValue) {
+					try {
+						callbacks[count](newValue, oldValue);
+					} catch (e) {
+						dfd.reject(e);
+					}
+					if (count++ === 0) {
+						throw pseudoError;
+					}
+				}));
+				observable.foo.set("bar", "Bar1");
+			});
 			it("Exception in formatter/parser", function () {
 				var binding,
 					dfd = this.async(1000),
@@ -247,6 +306,13 @@ define([
 				observable.set("foo", "Foo1");
 				h1.discardChanges();
 				finishedMicrotask = true;
+			});
+			it("Round-trip of formatter/parser", function () {
+				var formatter = function () {},
+					parser = function () {},
+					observablePath = new ObservablePath({}, "foo", formatter, parser);
+				expect(observablePath.formatter).to.equal(formatter);
+				expect(observablePath.parser).to.equal(parser);
 			});
 			it("Cleaning up observe() handle", function () {
 				var observablePath,
