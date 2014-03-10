@@ -22,5 +22,5 @@ define({
 		"host-browser": "../../../requirejs/require.js"
 	},
 	suites: ["liaison/tests/all"],
-	excludeInstrumentation: /^((liaison(\/|\\)(node_modules|tests))|requirejs|dojo|dcl)/
+	excludeInstrumentation: /^((liaison(\/|\\)(node_modules|tests))|delite(|ful)|dpointer|requirejs|dojo|dcl)/
 });

@@ -26,7 +26,7 @@
 		 */
 		wrap: (function () {
 			function removeComputed() {
-				for (var computed; (computed = this.shift());) {
+				for (var computed; (computed = this && this.shift());) {
 					computed.remove();
 				}
 			}

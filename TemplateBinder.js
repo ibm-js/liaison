@@ -261,7 +261,7 @@ define([
 			for (var i = 0, l = toBeBound.length; i < l; i += PARSED_ENTRY_LENGTH) {
 				var name = toBeBound[i + PARSED_ENTRY_ATTRIBUTENAME],
 					source = toBeBound[i + PARSED_ENTRY_SOURCE];
-				if (typeof (source || EMPTY_OBJECT).observe === "function") {
+				if (typeof (source || EMPTY_OBJECT).observe === "function" || typeof (source || EMPTY_OBJECT).open === "function") {
 					bound.push(toBeBound[i + PARSED_ENTRY_NODE].bind(name, source));
 				} else {
 					console.warn("The specified binding source " + source + " does not have BindingSource interface. Ignoring.");
@@ -314,11 +314,7 @@ define([
 	(function () {
 		function EventBindingTarget(object, property) {
 			this.object = object;
-			var tokens = REGEXP_DECLARATIVE_EVENT.exec(this.property = property);
-			if (!tokens) {
-				throw new Error("Property name " + this.property + " is not suitable for EventBindingTarget.");
-			}
-			this.eventName = tokens[1];
+			this.eventName = REGEXP_DECLARATIVE_EVENT.exec(this.property = property)[1];
 		}
 
 		// Not inherting the entire BindingTarget, just BindingTarget#bind for observation
@@ -362,44 +358,33 @@ define([
 
 		var EventBindingSource = (function () {
 			function declarativeEventFormatter(fn) {
-				return fn.bind(this);
+				return typeof fn === "function" && fn.bind(this);
 			}
 			return function (o, path, node, name) {
 				this.source = new ObservablePath(o, path, declarativeEventFormatter.bind(o));
 				this.node = node;
 				this.name = name;
-				this.handles = [];
 			};
 		})();
 
 		EventBindingSource.prototype = {
-			observe: function () {
-				var h = new EventBindingTarget(this.node, this.name).bind(this.source);
-				this.handles.push(h);
-				return h;
-			},
-			open: function (callback, thisObject) {
-				this.callbacks.splice(0, this.callbacks.length);
-				this.observe(callback.bind(thisObject));
-				return this.getFrom();
+			open: function () {
+				this.h = new EventBindingTarget(this.node, this.name).bind(this.source);
+				return this.node.getAttribute(this.name);
 			},
 			deliver: function () {
 				this.source.deliver();
 			},
 			discardChanges: function () {
 				this.source.discardChanges();
-				return this.getFrom();
-			},
-			getFrom: function () {
 				return this.node.getAttribute(this.name);
 			},
-			setTo: function () {},
-			setValue: function () {}
-		};
-
-		EventBindingSource.prototype.remove = EventBindingSource.prototype.close = function () {
-			for (var h; (h = this.handles.shift());) {
-				h.remove();
+			setValue: function () {},
+			close: function () {
+				if (this.h) {
+					this.h.remove();
+					this.h = null;
+				}
 			}
 		};
 

@@ -1,9 +1,12 @@
 define((function () {
 	var list = ["./allNode"];
 	if (typeof window !== "undefined") {
-		list.push("./DOMBindingTarget",
+		list.push("./templateElement",
+			"./DOMBindingTarget",
 			"./DOMTreeBindingTarget",
-			"./delite/sandbox");
+			"./delite/template",
+			"./delite/TemplateBinderExtension",
+			"./delite/widgets/Widget");
 	}
 	return list;
 })(), 1);

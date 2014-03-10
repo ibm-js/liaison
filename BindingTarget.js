@@ -68,10 +68,10 @@
 					this.h = null;
 				}
 				this.source = source;
-				if (source && source.observe) {
+				if (typeof (source || EMPTY_OBJECT).observe === "function") {
 					this.h = source.observe(set.bind(this));
 					this.value = source.getFrom();
-				} else if (source && source.open) {
+				} else if (typeof (source || EMPTY_OBJECT).open === "function") {
 					this.h = {remove: source.close.bind(source)};
 					this.value = source.open(set, this);
 				} else {

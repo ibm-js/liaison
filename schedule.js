@@ -23,7 +23,7 @@
 			return {
 				remove: clearImmediate.bind(undefined, h)
 			};
-		} : typeof document !== undefined ? (function () {
+		} : (function () {
 			var uniqueId = Math.random() + "",
 				// Avoid polyfill version of MutationObserver
 				shouldUseMutationObserver
@@ -60,11 +60,5 @@
 					remove: remove.bind(undefined, callback)
 				};
 			};
-		})() :
-		function (callback) {
-			var h = setTimeout(callback, 0);
-			return {
-				remove: clearTimeout.bind(undefined, h)
-			};
-		};
+		})();
 });
