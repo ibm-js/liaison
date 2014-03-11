@@ -2,7 +2,8 @@
 define(["./BindingTarget"], function (BindingTarget) {
 	"use strict";
 
-	var EMPTY_ARRAY = [],
+	var EMPTY_OBJECT = {},
+		EMPTY_ARRAY = [],
 		REGEXP_TYPE_CHECKBOX = /^checkbox/i,
 		REGEXP_ATTRIBUTE_VALUE = /^value$/i,
 		REGEXP_ATTRIBUTE_CHECKED = /^checked$/i,
@@ -90,7 +91,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 *     representing the element property/attribute.
 		 */
 		HTMLElement.prototype.bind = function (property, source) {
-			var target = this._targets && this._targets[property];
+			var target = (this._targets || EMPTY_OBJECT)[property];
 			target = target || (property.lastIndexOf("?") === property.length - 1 ?
 				new ConditionalDOMBindingTarget(this, property) :
 				new DOMBindingTarget(this, property));
@@ -103,7 +104,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 * @param {string} property Property/attribute name in element
 		 */
 		HTMLElement.prototype.unbind = function (property) {
-			if (this._targets && this._targets[property]) {
+			if ((this._targets || EMPTY_OBJECT)[property]) {
 				this._targets[property].remove();
 			}
 		};
@@ -216,7 +217,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 *     representing the input element property/attribute.
 		 */
 		HTMLInputElement.prototype.bind = function (property, source) {
-			var target = this._targets && this._targets[property];
+			var target = (this._targets || EMPTY_OBJECT)[property];
 			if (!target) {
 				var isCheckbox = REGEXP_TYPE_CHECKBOX.test(this.type);
 				target = !isCheckbox && REGEXP_ATTRIBUTE_VALUE.test(property) ?

@@ -53,6 +53,11 @@ define([
 				var changeCount = 0,
 					dfd = this.async(1000),
 					elem = register.createElement("liaison-test-computed");
+				handles.push({
+					remove: function () {
+						elem.destroy();
+					}
+				});
 				handles.push(new ObservablePath(elem, "name").observe(dfd.rejectOnError(function (name, oldName) {
 					expect(name).to.equal("Ben Doe");
 					expect(oldName).to.equal("John Doe");
@@ -89,8 +94,13 @@ define([
 						expect(oldLength).to.equal(45);
 					})
 				}));
-				var element = register.createElement("liaison-test-computedarray");
-				element.items.push({Name: "John Jacklin"});
+				var elem = register.createElement("liaison-test-computedarray");
+				handles.push({
+					remove: function () {
+						elem.destroy();
+					}
+				});
+				elem.items.push({Name: "John Jacklin"});
 			});
 		});
 	}
