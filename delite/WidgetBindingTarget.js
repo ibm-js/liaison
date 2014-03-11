@@ -6,8 +6,7 @@ define([
 ], function (register, BindingTarget, DOMBindingTarget) {
 	"use strict";
 
-	var EMPTY_OBJECT = {},
-		REGEXP_DIJIT_ATTRIBUTE_ACCESSOR_CONVERSION = /^[a-z]|-[a-zA-Z]/g;
+	var EMPTY_OBJECT = {};
 
 	/**
 	 * Binding target for a widget property/attribute.
