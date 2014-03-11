@@ -8,7 +8,7 @@ install:
   - npm -g install bower
   - npm -g install jshint
   - npm install intern
-  - bower install
+  - yes | bower install
   - cd node_modules/intern
   - npm install --production
   - cd ../../..
