@@ -56,7 +56,8 @@ define([
 				StarRatingTemplateWidget = register("liaison-test-starrating", [HTMLElement, Widget], {
 					buildRendering: createRenderer(starRatingTemplate),
 					baseClass: "liaison-test-starrating",
-					rating: 0
+					rating: 0,
+					zeroAreaWidth: 8
 				}),
 				NestedTemplateWidget = register("liaison-test-nested", [HTMLElement, Widget], {
 					buildRendering: renderNestedTemplate,
@@ -162,6 +163,7 @@ define([
 				setTimeout(dfd.callback(function () {
 					// Mixin properties are applied after template is instantiated
 					expect(star.value).to.equal(2);
+					expect(star.zeroAreaWidth).to.equal(8);
 					star.value = 4;
 					expect(w.rating).to.equal(4);
 				}), 500);
@@ -169,7 +171,7 @@ define([
 			it("Template with <d-star-rating>: Declarative", function () {
 				var dfd = this.async(1000),
 					div = document.createElement("div"),
-					observable = new Observable({rating: 2}),
+					observable = new Observable({rating: 2, zeroAreaWidth: 8}),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = widgetWithStarRatingTemplate;
 				handles.push(template.bind("bind", observable));
@@ -183,6 +185,7 @@ define([
 					var star = div.querySelector("liaison-test-starrating").querySelector("d-star-rating");
 					setTimeout(dfd.callback(function () {
 						expect(star.value).to.equal(2);
+						expect(star.zeroAreaWidth).to.equal(8);
 						star.value = 4;
 						expect(observable.rating).to.equal(4);
 					}), 500);

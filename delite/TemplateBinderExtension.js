@@ -28,7 +28,6 @@ define([
 		var origCreate = TemplateBinder.prototype.create;
 		TemplateBinder.prototype.create = (function () {
 			function remove(origRemove) {
-				origRemove.apply(this, slice.call(arguments, 1));
 				this.childNodes.forEach(function (node) {
 					var currentNode,
 						iterator = node.ownerDocument.createNodeIterator(node, NodeFilter.SHOW_ELEMENT, null, false);
@@ -38,6 +37,7 @@ define([
 						}
 					}
 				});
+				origRemove.apply(this, slice.call(arguments, 1));
 			}
 			return function () {
 				var instantiated = origCreate.apply(this, arguments);
