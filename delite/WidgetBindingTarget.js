@@ -81,18 +81,12 @@ define([
 				register.upgrade(this);
 				var target = this._targets && this._targets[property];
 				if (!target) {
-					var accessorName,
-						convertedProperty,
+					var convertedProperty,
 						useWidgetAttribute = typeof this.buildRendering === "function"
 							&& (this.alwaysUseWidgetAttribute
 								|| (this._invalidatingProperties || EMPTY_OBJECT)[property]
 								|| property in this
-								|| (convertedProperty = findProperty.call(this, property))
-								|| "_get" + (accessorName = property.replace(REGEXP_DIJIT_ATTRIBUTE_ACCESSOR_CONVERSION,
-									function (token) {
-										return token.charAt(token.length - 1).toUpperCase();
-									}) + "Attr") in this
-								|| "_set" + accessorName in this);
+								|| (convertedProperty = findProperty.call(this, property)));
 					if (useWidgetAttribute) {
 						target = new WidgetBindingTarget(this,
 							convertedProperty && !(property in this) && convertedProperty in this ?
