@@ -186,7 +186,7 @@ define([
 				expect(input.value).to.equal("Foo0");
 				input.value = "Foo1";
 				var event = document.createEvent("HTMLEvents");
-				event.initEvent("change", false, true);
+				event.initEvent("input", false, true);
 				input.dispatchEvent(event);
 				expect(observable.foo).to.equal("Foo1");
 			});

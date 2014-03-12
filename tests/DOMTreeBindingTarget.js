@@ -108,7 +108,7 @@ define([
 					expect(input.value).to.equal("John");
 					input.value = "Anne";
 					var event = document.createEvent("HTMLEvents");
-					event.initEvent("change", false, true);
+					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
 					setTimeout(dfd.callback(function () {
 						expect(text.nodeValue).to.equal("Anne ");
@@ -138,7 +138,7 @@ define([
 					expect(input.value).to.equal("John");
 					input.value = "Anne";
 					var event = document.createEvent("HTMLEvents");
-					event.initEvent("change", false, true);
+					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
 					setTimeout(dfd.callback(function () {
 						expect(text.nodeValue).to.equal("Anne ");
@@ -164,7 +164,7 @@ define([
 					expect(input.value).to.equal("John");
 					input.value = "Anne";
 					var event = document.createEvent("HTMLEvents");
-					event.initEvent("change", false, true);
+					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
 					setTimeout(dfd.callback(function () {
 						expect(text.nodeValue).to.equal("Anne ");
@@ -202,7 +202,7 @@ define([
 					expect(input.value).to.equal("John");
 					input.value = "Anne";
 					var event = document.createEvent("HTMLEvents");
-					event.initEvent("change", false, true);
+					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
 					setTimeout(dfd.callback(function () {
 						expect(text.nodeValue).to.equal("*Anne* ");
@@ -246,7 +246,7 @@ define([
 					expect(input.value).to.equal("John");
 					input.value = "Anne";
 					var event = document.createEvent("HTMLEvents");
-					event.initEvent("change", false, true);
+					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
 					setTimeout(dfd.callback(function () {
 						expect(text.nodeValue).to.equal("*Anne* ");
@@ -495,7 +495,7 @@ define([
 						expect(input.value).to.equal("John");
 						input.value = "Anne";
 						var event = document.createEvent("HTMLEvents");
-						event.initEvent("change", false, true);
+						event.initEvent("input", false, true);
 						input.dispatchEvent(event);
 						setTimeout(dfd.callback(function () {
 							expect(text.nodeValue).to.equal("Anne ");

@@ -121,7 +121,7 @@ define([
 					expect(input.value).to.equal("Foo");
 					input.value = "Bar";
 					var event = document.createEvent("HTMLEvents");
-					event.initEvent("change", false, true);
+					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
 					expect(w.object.value).to.equal("Bar");
 				}), 500);
@@ -145,7 +145,7 @@ define([
 						expect(input.value).to.equal("Foo");
 						input.value = "Bar";
 						var event = document.createEvent("HTMLEvents");
-						event.initEvent("change", false, true);
+						event.initEvent("input", false, true);
 						input.dispatchEvent(event);
 						expect(observable.object.value).to.equal("Bar");
 					}), 500);
@@ -213,7 +213,7 @@ define([
 					expect(w.childNodes[3].textContent).to.equal("Ben ");
 					expect(w.childNodes[4].value).to.equal("Ben");
 					var event = document.createEvent("HTMLEvents");
-					event.initEvent("change", false, true);
+					event.initEvent("input", false, true);
 					handles.push(new ObservablePath(w, "first").observe(dfd.rejectOnError(function () {
 						setTimeout(dfd.callback(function () {
 							expect(w.childNodes[0].nodeValue).to.equal("Anne ");
@@ -250,7 +250,7 @@ define([
 						expect(w.childNodes[3].textContent).to.equal("Ben ");
 						expect(w.childNodes[4].value).to.equal("Ben");
 						var event = document.createEvent("HTMLEvents");
-						event.initEvent("change", false, true);
+						event.initEvent("input", false, true);
 						handles.push(new ObservablePath(w, "first").observe(dfd.rejectOnError(function () {
 							setTimeout(dfd.callback(function () {
 								expect(w.childNodes[0].nodeValue).to.equal("Anne ");
@@ -414,7 +414,7 @@ define([
 						}), 0);
 					})));
 					var event = document.createEvent("HTMLEvents");
-					event.initEvent("change", false, true);
+					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
 				}), 500);
 			});
