@@ -138,7 +138,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 	});
 
 	/**
-	 * A base class for two-way binding target for a DOM property with which onchange event is fired when it's changed.
+	 * A base class for two-way binding target for a DOM property with which oninput/onchange event is fired when it's changed.
 	 * @class module:liaison/DOMBindingTarget~ChangeableValueBindingTarget
 	 * @augments module:liaison/DOMBindingTarget~DOMPropertyBindingTarget
 	 * @param {Object} object The DOM element.
@@ -149,17 +149,18 @@ define(["./BindingTarget"], function (BindingTarget) {
 	 */
 	function ChangeableValueBindingTarget() {
 		DOMPropertyBindingTarget.apply(this, arguments);
-		this.object.addEventListener("change", this.boundEventListenerCallback = this.eventListenerCallback.bind(this));
+		this.object.addEventListener(this.eventName, this.boundEventListenerCallback = this.eventListenerCallback.bind(this));
 	}
 
 	ChangeableValueBindingTarget.prototype = Object.create(DOMPropertyBindingTarget.prototype);
+	ChangeableValueBindingTarget.prototype.eventName = "change";
 
 	ChangeableValueBindingTarget.prototype.eventListenerCallback = ChangeableValueBindingTarget.prototype.updateSource;
 
 	ChangeableValueBindingTarget.prototype.remove = function () {
 		BindingTarget.prototype.remove.call(this);
 		if (this.boundEventListenerCallback) {
-			this.object.removeEventListener("change", this.boundEventListenerCallback);
+			this.object.removeEventListener(this.eventName, this.boundEventListenerCallback);
 			this.boundEventListenerCallback = null;
 		}
 	};
@@ -175,13 +176,59 @@ define(["./BindingTarget"], function (BindingTarget) {
 	 *     The parameters governing
 	 *     this {@link module:liaison/DOMBindingTarget~InputValueBindingTarget InputValueBindingTarget}'s behavior.
 	 */
-	function InputValueBindingTarget() {
-		var args = EMPTY_ARRAY.slice.call(arguments);
-		args[1] = "value";
-		ChangeableValueBindingTarget.apply(this, args);
-	}
+	var InputValueBindingTarget = (function () {
+		var ieVer;
+		return function () {
+			var args = EMPTY_ARRAY.slice.call(arguments);
+			args[1] = "value";
+			ChangeableValueBindingTarget.apply(this, args);
+			if (ieVer === undefined) {
+				var mode = document.documentMode;
+				ieVer = parseFloat(navigator.appVersion.split("MSIE ")[1]) || undefined;
+				if (mode && mode !== 5 && Math.floor(ieVer) !== mode) {
+					ieVer = mode;
+				}
+			}
+			if (ieVer < 10) {
+				if (!InputValueBindingTarget.all) {
+					InputValueBindingTarget.all = [];
+				}
+				InputValueBindingTarget.all.push(this);
+				var doc = this.object.ownerDocument;
+				if (InputValueBindingTarget.docs.indexOf(doc) < 0) {
+					InputValueBindingTarget.docs.push(doc);
+					doc.addEventListener("selectionchange", InputValueBindingTarget.updateSourceForActiveElement);
+				}
+			}
+		};
+	})();
 
 	InputValueBindingTarget.prototype = Object.create(ChangeableValueBindingTarget.prototype);
+	InputValueBindingTarget.prototype.eventName = "input";
+
+	InputValueBindingTarget.prototype.remove = function () {
+		ChangeableValueBindingTarget.prototype.remove.apply(this, arguments);
+		for (var index; (index = (InputValueBindingTarget.all || EMPTY_ARRAY).indexOf(this)) >= 0;) {
+			InputValueBindingTarget.all.splice(index, 1);
+		}
+		if ((InputValueBindingTarget.all || EMPTY_ARRAY).length === 0) {
+			for (var doc; (doc = InputValueBindingTarget.docs.shift());) {
+				doc.removeEventListener("selectionchange", InputValueBindingTarget.updateSourceForActiveElement);
+			}
+			delete InputValueBindingTarget.all;
+		}
+	};
+
+	InputValueBindingTarget.docs = [];
+
+	/**
+	 * Update the data source of InputValueBindingTarget associated with the active element.
+	 * Used for IE9 where backspace/delete keystrokes don't fire oninput event.
+	 */
+	InputValueBindingTarget.updateSourceForActiveElement = function () {
+		var target = ((document.activeElement || EMPTY_OBJECT)._targets || EMPTY_OBJECT).value;
+		target && target.object.tagName === "INPUT" && target.updateSource && target.updateSource();
+	};
 
 	/**
 	 * Two-way binding target for input element's checked attribute.
