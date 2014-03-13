@@ -141,7 +141,7 @@ define([
 					parsed[parsedIndex + PARSED_ENTRY_SOURCE]);
 			}
 
-			if (node.tagName === "TEMPLATE") {
+			if (node.tagName === "TEMPLATE" || node.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(node.type)) {
 				imported.innerHTML = node.innerHTML;
 				templateElement.upgrade(imported); // To prevent parsed -> toBeBound copy for template contents
 			} else {
