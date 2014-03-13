@@ -10,6 +10,7 @@ define([
 	"dojo/text!../tests/templates/simpleObjectPathBindingTemplate.html",
 	"dojo/text!../tests/templates/simpleWithAlternateBindingTemplate.html",
 	"dojo/text!../tests/templates/nestedTemplate.html",
+	"dojo/text!../tests/templates/nestedScriptTemplate.html",
 	"dojo/text!../tests/templates/deepNestedTemplate.html",
 	"dojo/text!../tests/templates/simpleWithConditionalAttributeBindingTemplate.html",
 	"dojo/text!../tests/templates/simpleConditionalBindingTemplate.html",
@@ -29,6 +30,7 @@ define([
 	objectPathTemplate,
 	alternateBindingTemplate,
 	nestedTemplate,
+	nestedScriptTemplate,
 	deepNestedTemplate,
 	simpleWithConditionalAttributeBindingTemplate,
 	simpleConditionalBindingTemplate,
@@ -259,6 +261,41 @@ define([
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({first: "John"});
 				template.innerHTML = nestedTemplate;
+				handles.push(template.bind("bind", observable));
+				setTimeout(dfd.rejectOnError(function () {
+					var text = template.nextSibling,
+						input = text.nextSibling;
+					expect(text.nodeValue).to.equal("John ");
+					expect(input.value).to.equal("John");
+					var innerTemplate = input.nextSibling,
+						innerSpan = innerTemplate.firstChild,
+						innerInput = innerTemplate.lastChild;
+					expect(((innerSpan || {}).firstChild || {}).nodeValue).to.not.equal("John ");
+					expect((innerInput || {}).value).to.not.equal("John");
+					observable.set("name", new Observable({first: "John"}));
+					setTimeout(dfd.rejectOnError(function () {
+						var innerSpan = innerTemplate.nextSibling,
+							innerInput = innerSpan.nextSibling;
+						expect(innerSpan.firstChild.nodeValue).to.equal("John ");
+						expect(innerInput.value).to.equal("John");
+						setTimeout(dfd.rejectOnError(function () {
+							observable.set("name", new Observable({first: "Anne"}));
+							setTimeout(dfd.callback(function () {
+								var innerSpan = innerTemplate.nextSibling,
+									innerInput = innerSpan.nextSibling;
+								expect(innerSpan.firstChild.nodeValue).to.equal("Anne ");
+								expect(innerInput.value).to.equal("Anne");
+							}), 500);
+						}), 500);
+					}), 500);
+				}), 500);
+			});
+			it("Binding with nested template: <script type=\"text/x-template\">", function () {
+				var dfd = this.async(3000),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template")),
+					observable = new Observable({first: "John"});
+				template.innerHTML = nestedScriptTemplate;
 				handles.push(template.bind("bind", observable));
 				setTimeout(dfd.rejectOnError(function () {
 					var text = template.nextSibling,
