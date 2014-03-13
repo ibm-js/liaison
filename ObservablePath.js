@@ -116,6 +116,9 @@
 			observer.remove = observer.close;
 			return observer;
 		} else {
+			if (!Array.isArray(path) && typeof path !== "string") {
+				throw new Error("Wrong path specified: " + path);
+			}
 			var comps = getPathComps(path, true);
 			this.o = o;
 			this.prop = comps.shift();

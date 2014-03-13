@@ -4,9 +4,11 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 	var EMPTY_OBJECT = {},
 		EMPTY_ARRAY = [],
-		REGEXP_TYPE_CHECKBOX = /^checkbox/i,
+		REGEXP_TYPE_RADIO = /^radio$/i,
+		REGEXP_TYPES_CHECKBOX = /^(checkbox|radio)$/i,
 		REGEXP_ATTRIBUTE_VALUE = /^value$/i,
 		REGEXP_ATTRIBUTE_CHECKED = /^checked$/i,
+		REGEXP_ATTRIBUTES_SELECT = /^(value|selectedIndex)$/i,
 		useExisting = typeof HTMLElement.prototype.bind === "function";
 
 	/**
@@ -230,6 +232,28 @@ define(["./BindingTarget"], function (BindingTarget) {
 		target && target.object.tagName === "INPUT" && target.updateSource && target.updateSource();
 	};
 
+	// From: http://www.whatwg.org/specs/web-apps/current-work/multipage/states-of-the-type-attribute.html#radio-button-group
+	function getOtherRadioButtonsInTheSameGroup(elem) {
+		var list = [],
+			root = elem.form;
+		if (!elem.form) {
+			root = elem;
+			while (root.parentNode) {
+				root = root.parentNode;
+			}
+		}
+		for (var elems = root.querySelectorAll("input[type=\"radio\"][name=\"" + elem.name + "\"]"), i = 0, l = elems.length; i < l; ++i) {
+			if (elems[i] !== elem
+				&& elems[i].tagName === "INPUT"
+				&& REGEXP_TYPE_RADIO.test(elems[i].type)
+				&& elems[i].name.toLowerCase() === elem.name.toLowerCase()
+				&& (elem.form || !elems[i].form)) {
+				list.push(elems[i]);
+			}
+		}
+		return list;
+	}
+
 	/**
 	 * Two-way binding target for input element's checked attribute.
 	 * Created with {@link HTMLInputElement#bind HTMLInputElement.bind()}.
@@ -249,6 +273,30 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 	CheckedValueBindingTarget.prototype = Object.create(ChangeableValueBindingTarget.prototype);
 
+	CheckedValueBindingTarget.prototype.eventListenerCallback = function () {
+		this.updateSource();
+		if (REGEXP_TYPE_RADIO.test(this.object.type)) {
+			for (var elems = getOtherRadioButtonsInTheSameGroup(this.object), i = 0, l = elems.length; i < l; ++i) {
+				var target = (elems[i]._targets || EMPTY_OBJECT).checked;
+				target && target.updateSource();
+			}
+		}
+	};
+
+	Object.defineProperty(CheckedValueBindingTarget.prototype, "value", {
+		get: function () {
+			return this.object[this.property];
+		},
+		set: function (value) {
+			if ((this.object[this.property] = value) && REGEXP_TYPE_RADIO.test(this.object.type)) {
+				for (var elems = getOtherRadioButtonsInTheSameGroup(this.object), i = 0, l = elems.length; i < l; ++i) {
+					var target = (elems[i]._targets || EMPTY_OBJECT).checked;
+					target && target.updateSource();
+				}
+			}
+		}
+	});
+
 	if (!useExisting) {
 		/**
 		 * @class HTMLInputElement
@@ -263,15 +311,40 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 *     The {@link module:liaison/BindingTarget BindingTarget} instance
 		 *     representing the input element property/attribute.
 		 */
-		HTMLInputElement.prototype.bind = function (property, source) {
+		/**
+		 * Establishes two-way data binding between textarea element property/attribute and {@link module:liaison/BindingSource BindingSource}.
+		 * @method HTMLTextAreaElement#bind
+		 * @param {string} property Property/attribute name in textarea element.
+		 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the textarea element property/attribute to.
+		 * @return {module:liaison/BindingTarget}
+		 *     The {@link module:liaison/BindingTarget BindingTarget} instance
+		 *     representing the textarea element property/attribute.
+		 */
+		HTMLInputElement.prototype.bind = HTMLTextAreaElement.prototype.bind = function (property, source) {
 			var target = (this._targets || EMPTY_OBJECT)[property];
 			if (!target) {
-				var isCheckbox = REGEXP_TYPE_CHECKBOX.test(this.type);
-				target = !isCheckbox && REGEXP_ATTRIBUTE_VALUE.test(property) ?
-						new InputValueBindingTarget(this, property) :
-					isCheckbox && REGEXP_ATTRIBUTE_CHECKED.test(property) ?
-						new CheckedValueBindingTarget(this, property) :
-						HTMLElement.prototype.bind.call(this, property);
+				var isCheckbox = REGEXP_TYPES_CHECKBOX.test(this.type);
+				target = isCheckbox && REGEXP_ATTRIBUTE_CHECKED.test(property) ? new CheckedValueBindingTarget(this, property) :
+					!isCheckbox && REGEXP_ATTRIBUTE_VALUE.test(property) ? new InputValueBindingTarget(this, property) :
+					HTMLElement.prototype.bind.call(this, property);
+			}
+			return target.bind(source);
+		};
+
+		/**
+		 * Establishes two-way data binding between select element property/attribute and {@link module:liaison/BindingSource BindingSource}.
+		 * @method HTMLInputElement#bind
+		 * @param {string} property Property/attribute name in select element.
+		 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the select element property/attribute to.
+		 * @return {module:liaison/BindingTarget}
+		 *     The {@link module:liaison/BindingTarget BindingTarget} instance
+		 *     representing the select element property/attribute.
+		 */
+		HTMLSelectElement.prototype.bind = function (property, source) {
+			var target = (this._targets || EMPTY_OBJECT)[property];
+			if (!target) {
+				target = REGEXP_ATTRIBUTES_SELECT.test(property) ? new ChangeableValueBindingTarget(this, property) :
+					HTMLElement.prototype.bind.call(this, property);
 			}
 			return target.bind(source);
 		};
