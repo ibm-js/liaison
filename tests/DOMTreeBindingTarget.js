@@ -15,6 +15,7 @@ define([
 	"dojo/text!../tests/templates/simpleWithConditionalAttributeBindingTemplate.html",
 	"dojo/text!../tests/templates/simpleConditionalBindingTemplate.html",
 	"dojo/text!../tests/templates/simpleConditionalRepeatingTemplate.html",
+	"dojo/text!../tests/templates/attributeTemplate.html",
 	"dojo/text!../tests/templates/emptyBindingTemplate.html",
 	"dojo/text!../tests/templates/eventTemplate.html",
 	"dojo/text!../tests/templates/irregularTemplate.html"
@@ -35,6 +36,7 @@ define([
 	simpleWithConditionalAttributeBindingTemplate,
 	simpleConditionalBindingTemplate,
 	simpleConditionalRepeatingTemplate,
+	attributeTemplate,
 	emptyBindingTemplate,
 	eventTemplate,
 	irregularTemplate
@@ -561,6 +563,78 @@ define([
 						expect(innerTemplate.nextSibling.value).to.equal("Anne");
 						expect(innerTemplate.nextSibling.nextSibling.value).to.equal("Ben");
 					}), 500);
+				}), 500);
+			});
+			it("Attribute template", function () {
+				var dfd = this.async(10000),
+					observableArray = new ObservableArray(new ObservableArray("foo0", "foo1", "foo2"),
+						new ObservableArray("bar0", "bar1", "bar2"),
+						new ObservableArray("baz0", "baz1", "baz2")),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template"));
+				template.innerHTML = attributeTemplate;
+				handles.push(template.bind("bind", observableArray));
+				setTimeout(dfd.rejectOnError(function () {
+					var count = 0,
+						iterator = template.ownerDocument.createNodeIterator(template.nextSibling, NodeFilter.SHOW_ELEMENT, function (node) {
+							return (/^(TABLE|TBODY|TR|TD)$/).test(node.tagName) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+						}, false),
+						inspectCallbacks = [
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TABLE");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TBODY");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TR");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("foo0");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("foo1");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("foo2");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TR");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("bar0");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("bar1");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("bar2");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TR");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("baz0");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("baz1");
+							}),
+							dfd.callback(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("baz2");
+							})
+						];
+					for (var node; (node = iterator.nextNode());) {
+						inspectCallbacks[count++](node);
+					}
 				}), 500);
 			});
 			it("Empty binding", function () {

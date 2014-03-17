@@ -8,9 +8,9 @@
 		<polymer-element name="liaison-sample-swap">
 			<template>
 				<div>
-					<template repeat="{{data}}">
-						<input type="button" value="{{title}}" on-click="{{select}}">
-					</template>
+					<select on-change="{{select}}">
+						<option template repeat="{{data}}" value="{{title}}">{{title}}</option>
+					</select>
 				</div>
 				<template repeat="{{current}}">
 					<div>First: <input type="text" value="{{First}}"></div>

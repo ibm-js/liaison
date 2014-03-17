@@ -70,9 +70,9 @@
 	<body>
 		<template id="main-template">
 			<div>
-				<template repeat="{{data}}">
-					<input type="button" value="{{title}}" onclick="ctrl.select('{{title}}');">
-				</template>
+				<select onchange="ctrl.select(this.value);">
+					<option template repeat="{{data}}" value="{{title}}">{{title}}</option>
+				</select>
 			</div>
 			<template repeat="{{current}}">
 				<div>First: <input type="text" value="{{First}}"></div>
