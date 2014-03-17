@@ -664,6 +664,75 @@ define([
 					}), 500);
 				}), 500);
 			});
+			it("Template reference: From <template>", function () {
+				var dfd = this.async(2000),
+					observable = new Observable({first: "John", ref: "template0"}),
+					div = document.createElement("div"),
+					template0 = div.appendChild(document.createElement("template")),
+					template1 = div.appendChild(document.createElement("script")),
+					template2 = div.appendChild(document.createElement("template"));
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						div.parentNode.removeChild(div);
+					}
+				});
+				template0.innerHTML = basicTemplate;
+				template0.id = "template0";
+				template1.type = "text/x-template";
+				template1.innerHTML = "<div></div>";
+				template1.id = "template1";
+				handles.push(template2.bind("bind", observable), template2.bind("ref", new ObservablePath(observable, "ref")));
+				setTimeout(dfd.rejectOnError(function () {
+					var text = template2.nextSibling,
+						input = text.nextSibling;
+					expect(text.nodeValue).to.equal("John ");
+					expect(input.value).to.equal("John");
+					observable.set("ref", "template1");
+					setTimeout(dfd.rejectOnError(function () {
+						expect(template2.nextSibling.tagName).to.equal("DIV");
+						observable.set("ref", "foo");
+						setTimeout(dfd.callback(function () {
+							expect(template2.nextSibling).to.be.null;
+						}), 500);
+					}), 500);
+				}), 500);
+			});
+			it("Template reference: From <script type=\"x-template\">", function () {
+				var dfd = this.async(2000),
+					observable = new Observable({first: "John", ref: "template0"}),
+					div = document.createElement("div"),
+					template0 = div.appendChild(document.createElement("template")),
+					template1 = div.appendChild(document.createElement("script")),
+					template2 = div.appendChild(document.createElement("script"));
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						div.parentNode.removeChild(div);
+					}
+				});
+				template0.innerHTML = basicTemplate;
+				template0.id = "template0";
+				template1.type = "text/x-template";
+				template1.innerHTML = "<div></div>";
+				template1.id = "template1";
+				template2.type = "text/x-template";
+				handles.push(template2.bind("bind", observable), template2.bind("ref", new ObservablePath(observable, "ref")));
+				setTimeout(dfd.rejectOnError(function () {
+					var text = template2.nextSibling,
+						input = text.nextSibling;
+					expect(text.nodeValue).to.equal("John ");
+					expect(input.value).to.equal("John");
+					observable.set("ref", "template1");
+					setTimeout(dfd.rejectOnError(function () {
+						expect(template2.nextSibling.tagName).to.equal("DIV");
+						observable.set("ref", "foo");
+						setTimeout(dfd.callback(function () {
+							expect(template2.nextSibling).to.be.null;
+						}), 500);
+					}), 500);
+				}), 500);
+			});
 		});
 	}
 });
