@@ -136,7 +136,9 @@ define([
 
 			if (!isBroadTemplate && node.nodeType === Node.ELEMENT_NODE && node.hasAttribute("template")) {
 				imported = doc.createElement("template");
-				imported.content = imported.content || doc.createDocumentFragment();
+				if (!imported.content) {
+					imported.content = doc.createDocumentFragment();
+				}
 				var root = imported.content.appendChild(doc.importNode(node, true));
 				root.removeAttribute("template");
 				root.removeAttribute(ATTRIBUTE_IF);
