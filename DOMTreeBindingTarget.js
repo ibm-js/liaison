@@ -17,9 +17,11 @@ define([
 		ATTRIBUTE_IF = "if",
 		ATTRIBUTE_BIND = "bind",
 		ATTRIBUTE_REPEAT = "repeat",
+		ATTRIBUTE_REF = "ref",
 		REGEXP_ATTRIBUTE_IF = /^if$/i,
 		REGEXP_ATTRIBUTE_BIND = /^bind$/i,
 		REGEXP_ATTRIBUTE_REPEAT = /^repeat$/i,
+		REGEXP_ATTRIBUTE_REF = /^ref$/i,
 		REGEXP_TEMPLATE_TYPE = /template$/i,
 		defineProperty = Object.defineProperty;
 
@@ -44,6 +46,17 @@ define([
 	}
 
 	DOMTreeBindingTarget.prototype = Object.create(BindingTarget.prototype);
+
+	DOMTreeBindingTarget.prototype.refreshBinder = function () {
+		var ref = this.object.getAttribute("ref"),
+			template = ref && this.object.ownerDocument.getElementById(ref) || this.object;
+		if (ref && !template) {
+			console.warn("Invalid template reference detected. Ignoring: " + ref);
+		}
+		this.binder = this.binder && this.binder.template === template ? this.binder :
+			new TemplateBinder(templateElement.upgrade(template));
+		return this.binder;
+	};
 
 	DOMTreeBindingTarget.prototype.remove = function () {
 		if (this.content) {
@@ -70,8 +83,7 @@ define([
 				}
 				var condition = this.object._targets[ATTRIBUTE_IF];
 				if (this.model && (!condition || condition.value)) {
-					this.binder = this.binder || new TemplateBinder(templateElement.upgrade(this.object));
-					this.content = this.binder.create(this.model, this.object, "afterEnd");
+					this.content = this.refreshBinder().create(this.model, this.object, "afterEnd");
 				}
 			}
 			return function (value) {
@@ -134,7 +146,6 @@ define([
 				// it preferes regular loop over array extras,
 				// which makes cyclomatic complexity higher.
 				/* jshint maxcomplexity: 15, validthis: true */
-				this.binder = this.binder || new TemplateBinder(templateElement.upgrade(this.object));
 				for (var i = 0, l = splices.length; i < l; ++i) {
 					var spliceIndex = splices[i].index,
 						contentsToBeRemoved = this.contents.splice(spliceIndex, splices[i].removed.length);
@@ -181,8 +192,8 @@ define([
 					console.warn("An attempt to set a non-array value is detected. Auto-repeat won't happen.");
 				}
 				var condition = this.object._targets[ATTRIBUTE_IF],
-					shouldAdd = typeof (this.model || EMPTY_OBJECT).splice === "function"
-						&& (!condition || condition.value);
+					shouldAdd = typeof (this.model || EMPTY_OBJECT).splice === "function" && (!condition || condition.value);
+				this.refreshBinder();
 				spliceCallback.call(this, [{
 					index: 0,
 					removed: typeof (old || EMPTY_OBJECT).splice === "function" ? old : EMPTY_ARRAY,
@@ -231,6 +242,43 @@ define([
 		},
 		set: function (value) {
 			this.condition = value;
+			var target = this.object._targets[ATTRIBUTE_REPEAT] || this.object._targets[ATTRIBUTE_BIND];
+			if (target) {
+				target.value = target.value;
+			}
+		},
+		enumeable: true,
+		configurable: true
+	});
+
+	/**
+	 * Binding target for external template reference.
+	 * Created with {@link HTMLTemplateElement#bind HTMLTemplateElement.bind()}.
+	 * or {@link HTMLScriptElement#bind HTMLScriptElement.bind()}
+	 * (if the script element has type="x-template")
+	 * with "ref" attribute.
+	 * @class module:liaison/DOMTreeBindingTarget~TemplateReferenceBindingTarget
+	 * @augments module:liaison/BindingTarget
+	 * @param {Object} object The DOM element.
+	 * @param {string} property Not used.
+	 * @param {Object} [options]
+	 *     The parameters governing
+	 *     this {@link module:liaison/DOMTreeBindingTarget~TemplateReferenceBindingTarget TemplateReferenceBindingTarget}'s behavior.
+	 */
+	function TemplateReferenceBindingTarget() {
+		var args = EMPTY_ARRAY.slice.call(arguments);
+		args[1] = ATTRIBUTE_REF;
+		DOMBindingTarget.apply(this, args);
+	}
+
+	TemplateReferenceBindingTarget.prototype = Object.create(DOMBindingTarget.prototype);
+
+	defineProperty(TemplateReferenceBindingTarget.prototype, "value", {
+		get: function () {
+			return this.object.getAttribute(this.property);
+		},
+		set: function (value) {
+			this.object.setAttribute(this.property, value != null ? value : "");
 			var target = this.object._targets[ATTRIBUTE_REPEAT] || this.object._targets[ATTRIBUTE_BIND];
 			if (target) {
 				target.value = target.value;
@@ -318,6 +366,8 @@ define([
 						return new DOMTreeBindingTarget(this, property).bind(source);
 					} else if (REGEXP_ATTRIBUTE_REPEAT.test(property)) {
 						return new RepeatingDOMTreeBindingTarget(this, property).bind(source);
+					} else if (REGEXP_ATTRIBUTE_REF.test(property)) {
+						return new TemplateReferenceBindingTarget(this, property).bind(source);
 					}
 				}
 			}
