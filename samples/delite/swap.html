@@ -3,15 +3,12 @@
 	<head>
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
-		<script id="swap-item-template" type="text/x-template">
-			<input type="button" value="{{itemtitle}}" on-click="{{select}}">
-		</script>
 		<script id="swap-template" type="text/x-template">
 			<div>
 				<div on-liaison-sample-swap-item-selected="{{select}}">
-					<template repeat="{{data}}">
-						<liaison-sample-swap-item itemtitle="{{title}}"></liaison-sample-swap-item>
-					</template>
+					<select on-change="{{select}}">
+						<option template repeat="{{data}}" value="{{title}}">{{title}}</option>
+					</select>
 				</div>
 				<template repeat="{{current}}">
 					<div>First: <input type="text" value="{{First}}"></div>
@@ -27,16 +24,6 @@
 				"liaison/delite/widgets/Widget"
 			], function (dcl, register, createRenderer, Widget) {
 				function startup () {
-					register("liaison-sample-swap-item", [HTMLElement, Widget], Widget.wrap({
-						buildRendering: createRenderer(document.getElementById("swap-item-template").innerHTML),
-						baseClass: "liaison-sample-swap-item",
-						itemtitle: undefined, // IE9 throws an error if we use "title" here
-						select: function () {
-							var event = document.createEvent("CustomEvent");
-							event.initCustomEvent("liaison-sample-swap-item-selected", true, true, {title: this.itemtitle});
-							this.dispatchEvent(event);
-						}
-					}));
 					register("liaison-sample-swap", [HTMLElement, Widget], Widget.wrap({
 						buildRendering: createRenderer(document.getElementById("swap-template").innerHTML),
 						baseClass: "liaison-sample-swap",
@@ -82,9 +69,9 @@
 							}
 						],
 						current: undefined,
-						select: function (event, detail) {
+						select: function (event, detail, sender) {
 							this.set("current", this.data.filter(function (entry) {
-								return entry.title == detail.title;
+								return entry.title == sender.value;
 							})[0].names);
 						},
 						createdCallback: dcl.superCall(function (sup) {

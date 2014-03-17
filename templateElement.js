@@ -38,8 +38,7 @@ define(function () {
 				if (template.tagName === "SCRIPT") {
 					(template = element.ownerDocument.createElement("template")).innerHTML = element.innerHTML;
 				}
-				var isNativeTemplate = (template.content || EMPTY_OBJECT).nodeType === Node.DOCUMENT_FRAGMENT_NODE;
-				if (!isNativeTemplate) {
+				if ((template.content || EMPTY_OBJECT).nodeType !== Node.DOCUMENT_FRAGMENT_NODE) {
 					var frag = template.ownerDocument.createDocumentFragment();
 					while (template.firstChild) {
 						frag.appendChild(template.firstChild);

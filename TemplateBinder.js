@@ -131,7 +131,28 @@ define([
 		 * @returns {DocumentFragment} The instantiated node.
 		 */
 		importNode: function (doc, node, parsed, toBeBound) {
-			var imported = doc.importNode(node, false);
+			var imported,
+				isBroadTemplate = node.tagName === "TEMPLATE" || node.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(node.type);
+
+			if (!isBroadTemplate && node.nodeType === Node.ELEMENT_NODE && node.hasAttribute("template")) {
+				imported = doc.createElement("template");
+				imported.content = imported.content || doc.createDocumentFragment();
+				var root = imported.content.appendChild(doc.importNode(node, true));
+				root.removeAttribute("template");
+				root.removeAttribute(ATTRIBUTE_IF);
+				root.removeAttribute(ATTRIBUTE_BIND);
+				root.removeAttribute(ATTRIBUTE_REPEAT);
+			} else {
+				imported = doc.importNode(node, false);
+				if (isBroadTemplate) {
+					imported.innerHTML = node.innerHTML;
+					templateElement.upgrade(imported); // To prevent parsed -> toBeBound copy for template contents
+				} else {
+					for (var child = node.firstChild; child; child = child.nextSibling) {
+						imported.appendChild(this.importNode(doc, child, parsed, toBeBound));
+					}
+				}
+			}
 
 			for (var parsedIndex = 0; (parsedIndex = parsed.indexOf(node, parsedIndex)) >= 0; parsedIndex += PARSED_ENTRY_LENGTH) {
 				toBeBound.push(
@@ -139,15 +160,6 @@ define([
 					parsed[parsedIndex + PARSED_ENTRY_ATTRIBUTENAME],
 					parsed[parsedIndex + PARSED_ENTRY_ATTRIBUTEVALUE],
 					parsed[parsedIndex + PARSED_ENTRY_SOURCE]);
-			}
-
-			if (node.tagName === "TEMPLATE" || node.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(node.type)) {
-				imported.innerHTML = node.innerHTML;
-				templateElement.upgrade(imported); // To prevent parsed -> toBeBound copy for template contents
-			} else {
-				for (var child = node.firstChild; child; child = child.nextSibling) {
-					imported.appendChild(this.importNode(doc, child, parsed, toBeBound));
-				}
 			}
 
 			return imported;
