@@ -89,7 +89,7 @@ define([
 				}), 500);
 			});
 			it("Simple binding: <template>", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({first: "John"});
@@ -118,7 +118,7 @@ define([
 				}), 500);
 			});
 			it("Simple binding: <script type=\"text/x-template\">", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("script")),
 					observable = new Observable({first: "John"});
@@ -148,7 +148,7 @@ define([
 				}), 500);
 			});
 			it("Simple object path binding", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = objectPathTemplate;
@@ -174,7 +174,7 @@ define([
 				}), 500);
 			});
 			it("Simple binding with alternate binding factory", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = alternateBindingTemplate;
@@ -230,7 +230,7 @@ define([
 						BindingTarget.createBindingSourceFactory = originalCreateBindingSourceFactory;
 					}
 				});
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = alternateBindingTemplate;
@@ -256,7 +256,7 @@ define([
 				}), 500);
 			});
 			it("Binding with nested template: Basic", function () {
-				var dfd = this.async(3000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({first: "John"});
@@ -291,7 +291,7 @@ define([
 				}), 500);
 			});
 			it("Binding with nested template: <script type=\"text/x-template\">", function () {
-				var dfd = this.async(3000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({first: "John"});
@@ -326,7 +326,7 @@ define([
 				}), 500);
 			});
 			it("Binding with nested template: Change in source", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					grandchild = new Observable({first: "Anne"}),
@@ -370,7 +370,7 @@ define([
 				}), 500);
 			});
 			it("Binding with deep nested template", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					grandchild = new Observable({first: "Ben"}),
@@ -390,7 +390,7 @@ define([
 				}), 500);
 			});
 			it("Simple repeat: <template>", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray = ObservableArray.apply(undefined, [
@@ -420,7 +420,7 @@ define([
 				}), 500);
 			});
 			it("Repeat with nested template", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray = ObservableArray.apply(undefined, [
@@ -444,7 +444,7 @@ define([
 				}), 500);
 			});
 			it("Repeat with swapping model", function () {
-				var dfd = this.async(4000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray0 = ObservableArray.apply(undefined, [
@@ -485,7 +485,7 @@ define([
 				}), 500);
 			});
 			it("disabled attribute reflecting model", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					observable = new Observable({disabled: false}),
 					template = div.appendChild(document.createElement("template"));
@@ -507,7 +507,7 @@ define([
 				}), 500);
 			});
 			it("Simple conditional template", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					observable = new Observable({first: "John"}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
@@ -541,7 +541,7 @@ define([
 				}), 500);
 			});
 			it("Simple conditional repeating template", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					observable = new Observable({names: new ObservableArray({first: "Anne"}, {first: "Ben"})}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
@@ -564,7 +564,7 @@ define([
 				}), 500);
 			});
 			it("Empty binding", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray = ObservableArray.apply(undefined, [
@@ -597,7 +597,7 @@ define([
 				var event,
 					senderDiv,
 					targetDiv,
-					dfd = this.async(2000),
+					dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					handleClick = dfd.rejectOnError(function (event, detail, sender) {
@@ -634,7 +634,7 @@ define([
 				}), 500);
 			});
 			it("Irregular template", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					observable = new Observable({foo: "Foo"}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
@@ -646,7 +646,7 @@ define([
 				}), 500);
 			});
 			it("Unbinding right after binding", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					observable = new Observable(),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
@@ -665,7 +665,7 @@ define([
 				}), 500);
 			});
 			it("Template reference: From <template>", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					observable = new Observable({first: "John", ref: "template0"}),
 					div = document.createElement("div"),
 					template0 = div.appendChild(document.createElement("template")),
@@ -699,7 +699,7 @@ define([
 				}), 500);
 			});
 			it("Template reference: From <script type=\"x-template\">", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					observable = new Observable({first: "John", ref: "template0"}),
 					div = document.createElement("div"),
 					template0 = div.appendChild(document.createElement("template")),
