@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../css/examples.css">
+		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
+		<script type="text/javascript">
+			require([
+				"liaison/ObservablePath",
+				"liaison/wrapper",
+				"deliteful/ProgressIndicator",
+				"deliteful/Slider",
+				"liaison/DOMTreeBindingTarget",
+				"liaison/delite/TemplateBinderExtension",
+				"liaison/delite/Widgets/StarRating"
+			], function (ObservablePath, wrapper) {
+				function startup() {
+					var REGEXP_NUMBER_BINDING = /^number:(.*)$/,
+						template = document.getElementById("main-template");
+					template.createBindingSourceFactory = function(target){
+						var match = REGEXP_NUMBER_BINDING.exec(target);
+						if(match){
+							var path = match[1];
+							return function(model){
+								return new ObservablePath(model, path, function(value){
+									return value + "";
+								}, function(value){
+									return +value;
+								});
+							}
+						}
+					};
+					template.bind("bind", wrapper.wrap({
+						num: 3,
+						max: 5,
+						percent: wrapper.computed(function (num, max) {
+							return num / max * 100;
+						}, "num", "max"),
+						disabled: false,
+						active: wrapper.computed(function (disabled) {
+							return !disabled;
+						}, "disabled"),
+						readOnly: false
+					}));
+				}
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<template id="main-template">
+			<div>
+				Value: <input type="number" value="{{number:num}}">
+			</div>
+			<div>
+				Max: <input type="number" value="{{number:max}}">
+			</div>
+			<div>
+				Disabled/Inactive: <input type="checkbox" checked="{{disabled}}">
+			</div>
+			<div>
+				Read only: <input type="checkbox" checked="{{readOnly}}">
+			</div>
+			<div>
+				<d-l-star-rating value="{{num}}" max="{{max}}" disabled="{{disabled}}" readOnly="{{readOnly}}"></d-l-star-rating>
+			</div>
+			<div>
+				<d-slider value="{{num}}" min="0" max="{{max}}" step="1" disabled="{{disabled}}" readOnly="{{readOnly}}"></d-slider>
+			</div>
+			<div>
+				<d-progress-indicator value="{{percent}}" active="{{active}}"></d-progress-indicator>
+			</div>
+		</template>
+	</body>
+</html>
