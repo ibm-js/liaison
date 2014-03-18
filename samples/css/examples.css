@@ -3,6 +3,10 @@
 	src: local("Helvetica Neue Light"), local("HelveticaNeue-Light");
 }
 
+template, * [template] {
+	display: none;
+}
+
 body, input {
 	font-family: Segoe UI, Helvetica Neue, Helvetica, arial, sans-serif;
 	-webkit-font-smoothing: antialiased;

@@ -19,23 +19,29 @@
 	 *     The {@link http://dojotoolkit.org/reference-guide/dojo/Stateful.html dojo/Stateful} instance.
 	 * @return {Handle} The handle to stop emitting {@link module:liaison/Observable~ChangeRecord}.
 	 */
-	return function (stateful) {
-		if (!stateful._observable) {
-			Observable.call(stateful);
-			var h = stateful.watch(function (name, old) {
-				Observable.getNotifier(stateful).notify({
-					// Always Observable.CHANGETYPE_UPDATE as Stateful cannot detect property addition
-					type: Observable.CHANGETYPE_UPDATE,
-					object: stateful,
-					name: name + "",
-					oldValue: old
-				});
+	return (function () {
+		function notify(name, old) {
+			Observable.getNotifier(this).notify({
+				// Always Observable.CHANGETYPE_UPDATE as Stateful cannot detect property addition
+				type: Observable.CHANGETYPE_UPDATE,
+				object: this,
+				name: name + "",
+				oldValue: old
 			});
-			stateful.set = stateful._set.bind(stateful);
-			if (stateful.own) {
-				stateful.own(h);
-			}
-			return h;
 		}
-	};
+		function set(name, value) {
+			this[name] = value;
+		}
+		return function (stateful) {
+			if (!stateful._observable) {
+				Observable.call(stateful);
+				var h = stateful.watch(notify.bind(stateful));
+				stateful.set = set.bind(stateful);
+				if (stateful.own) {
+					stateful.own(h);
+				}
+				return h;
+			}
+		};
+	})();
 });

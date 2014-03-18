@@ -73,6 +73,7 @@ define([
 
 		_incrementKeyCodes: [keys.RIGHT_ARROW, keys.UP_ARROW, keys.NUMPAD_PLUS], // keys to press to increment value
 		_decrementKeyCodes: [keys.LEFT_ARROW, keys.DOWN_ARROW, keys.NUMPAD_MINUS], // keys to press to decrement value
+		stars: null,
 		_entrySeq: 0,
 
 		/**
@@ -276,5 +277,5 @@ define([
 		}
 	});
 
-	return register("d-b-star-rating", [HTMLElement, StarRating]);
+	return register("d-l-star-rating", [HTMLElement, StarRating]);
 });
