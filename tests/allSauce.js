@@ -6,7 +6,8 @@ define((function () {
 			"./DOMTreeBindingTarget",
 			"./delite/template",
 			"./delite/TemplateBinderExtension",
-			"./delite/widgets/Widget");
+			"./delite/widgets/Widget",
+			"./delite/widgets/RadioButton");
 	}
 	return list;
 })(), 1);

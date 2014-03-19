@@ -1,9 +1,10 @@
 /** @module liaison/delite/WidgetBindingTarget */
 define([
 	"delite/register",
+	"../wrapStateful",
 	"../BindingTarget",
 	"../DOMBindingTarget"
-], function (register, BindingTarget, DOMBindingTarget) {
+], function (register, wrapStateful, BindingTarget, DOMBindingTarget) {
 	"use strict";
 
 	var EMPTY_OBJECT = {};
@@ -27,6 +28,12 @@ define([
 		}
 		return function () {
 			BindingTarget.apply(this, arguments);
+			// Defining HTMLInputElement#value, etc. in prototype breaks <input> in IE.
+			// Also Safari throws if we try to set up a "shadow property" for something like HTMLInputElement#value.
+			// Therefore rather than relying 100% on delite/Stateful to trigger emitting change record,
+			// we make the widget a "pseudo Obserable"
+			// and use its pseudo .set() API to make sure a change record is emitted when a widget property gets a new value.
+			wrapStateful(this.object);
 			this.hw = this.object.own(this.object.watch(this.property, setTo.bind(this)))[0];
 		};
 	})();
@@ -47,7 +54,7 @@ define([
 			return this.object[this.property];
 		},
 		set: function (value) {
-			this.object[this.property] = value;
+			this.object.set(this.property, value);
 		},
 		enumeable: true,
 		configurable: true
@@ -65,42 +72,37 @@ define([
 		 *     representing the widget property/attribute.
 		 */
 
-		var origBind = HTMLElement.prototype.bind;
-		HTMLElement.prototype.bind = (function () {
-			// Characters in attribute name can be lower-cased for unknown reason
-			// TODO(asudoh): Create a test case for this
-			function findProperty(name) {
-				for (var s in this) {
-					if (s.toLowerCase() === name.toLowerCase()) {
-						return s;
+		// TODO(asudoh): Should we hook HTMLTemplateElement, HTMLScriptElement and/or HTMLUnknownElement, too?
+		[HTMLInputElement, HTMLSelectElement, HTMLTextAreaElement, HTMLElement].forEach(function (elementClass) {
+			var origBind = elementClass.prototype.bind;
+			elementClass.prototype.bind = (function () {
+				// HTMLElements#attributes in Chrome has attribute names in lower case
+				function findProperty(name) {
+					for (var s in this) {
+						if (s.toLowerCase() === name.toLowerCase()) {
+							return s;
+						}
 					}
 				}
-			}
-			return function (property, source) {
-				register.upgrade(this);
-				if (this.startup && !this._started) {
-					this.startup();
-				}
-				var target = this._targets && this._targets[property];
-				if (!target) {
-					var convertedProperty,
-						useWidgetAttribute = typeof this.buildRendering === "function"
-							&& (this.alwaysUseWidgetAttribute
-								|| (this._invalidatingProperties || EMPTY_OBJECT)[property]
-								|| property in this
-								|| (convertedProperty = findProperty.call(this, property)));
-					if (useWidgetAttribute) {
-						target = new WidgetBindingTarget(this,
-							convertedProperty && !(property in this) && convertedProperty in this ?
-								convertedProperty :
-								property);
-					} else {
-						target = origBind.call(this, property);
+				return function (property, source) {
+					register.upgrade(this);
+					if (this.startup && !this._started) {
+						this.startup();
 					}
-				}
-				return target.bind(source);
-			};
-		})();
+					var target = this._targets && this._targets[property];
+					if (!target) {
+						var convertedProperty,
+							useWidgetAttribute = typeof this.buildRendering === "function"
+								&& (this.alwaysUseWidgetAttribute
+									|| (this._invalidatingProperties || EMPTY_OBJECT)[property]
+									|| property in this // Fast path for findProperty()
+									|| (convertedProperty = findProperty.call(this, property)));
+						target = useWidgetAttribute ? new WidgetBindingTarget(this, convertedProperty || property) : origBind.call(this, property);
+					}
+					return target.bind(source);
+				};
+			})();
+		});
 	}
 
 	return WidgetBindingTarget;
