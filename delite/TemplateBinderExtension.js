@@ -7,10 +7,11 @@
 define([
 	"dojo/has",
 	"delite/register",
+	"../schedule",
 	"../TemplateBinder",
 	"../DOMTreeBindingTarget",
 	"./WidgetBindingTarget"
-], function (has, register, TemplateBinder) {
+], function (has, register, schedule, TemplateBinder) {
 	"use strict";
 
 	var slice = [].slice;
@@ -21,7 +22,12 @@ define([
 		var origImportNode = TemplateBinder.prototype.importNode;
 		TemplateBinder.prototype.importNode = function () {
 			var imported = origImportNode.apply(this, arguments);
-			imported.nodeType === Node.ELEMENT_NODE && register.upgrade(imported);
+			if (imported.nodeType === Node.ELEMENT_NODE) {
+				register.upgrade(imported);
+				if (imported.startup && !imported._started) {
+					schedule(imported.startup.bind(imported));
+				}
+			}
 			return imported;
 		};
 
