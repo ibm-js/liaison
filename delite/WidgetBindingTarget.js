@@ -78,6 +78,9 @@ define([
 			}
 			return function (property, source) {
 				register.upgrade(this);
+				if (this.startup && !this._started) {
+					this.startup();
+				}
 				var target = this._targets && this._targets[property];
 				if (!target) {
 					var convertedProperty,
