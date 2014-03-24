@@ -20,7 +20,7 @@ define([
 				}
 			});
 			it("Simple binding: <d-button>", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					model = new Observable({label: "Foo"}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
@@ -48,7 +48,7 @@ define([
 				}), 500);
 			});
 			it("Simple binding: <d-star-rating>", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					model = new Observable({rating: 2}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));

@@ -1,5 +1,5 @@
 define((function () {
-	var list = ["./allSauce"];
+	var list = ["./allBrowser"];
 	if (typeof window !== "undefined") {
 		if (document.all) {
 			var ieVer = parseFloat(navigator.appVersion.split("MSIE ")[1]) || undefined,

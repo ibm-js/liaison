@@ -17,7 +17,7 @@ define([
 			});
 			it("Object reflecting model", function () {
 				var h,
-					dfd = this.async(1000),
+					dfd = this.async(10000),
 					o = {},
 					observable = new Observable({foo: "Foo0"}),
 					observer = new PathObserver(observable, "foo");

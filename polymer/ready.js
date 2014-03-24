@@ -6,7 +6,7 @@ define(function () {
 	var EMPTY_OBJECT = {};
 	return {
 		load: function (id, parentRequire, loaded) {
-			if (!(window.CustomElements || EMPTY_OBJECT).ready) {
+			if (!(window.CustomElements || EMPTY_OBJECT).readyTime) { // CustomElements.ready may be turned to false after WebComponentsReady
 				window.addEventListener("WebComponentsReady", loaded);
 			} else {
 				loaded();

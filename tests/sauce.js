@@ -30,7 +30,12 @@ define(["./intern"], function (intern) {
 			port: 4444
 		},
 
-		suites: ["liaison/tests/allSauce"]
+		suites: ["liaison/tests/allBrowser"],
+
+		functionalSuites: [
+			"liaison/tests/delite/sandbox",
+			"liaison/tests/polymer/sandbox"
+		]
 	};
 
 	for (var key in intern) {

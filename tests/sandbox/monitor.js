@@ -1,52 +1,53 @@
 define(["intern/dojo/topic"], function (topic) {
+	var failedTests = [];
 	// Early setup of error handler before Intern sets one up
 	window.onerror = function (message, url, lineNumber, columnNumber, error) {
 		var data = {
-			topic: "/error",
-			event: {
-				message: message,
-				url: url,
-				lineNumber: lineNumber
-			}
+			message: message,
+			url: url,
+			lineNumber: lineNumber
 		};
 		if (columnNumber !== undefined) {
-			data.event.columnNumber = columnNumber;
+			data.columnNumber = columnNumber;
 		}
 		if (error) {
-			data.event.name = error.name;
-			data.event.stack = "" + (error.stack || error);
+			data.name = error.name;
+			data.stack = "" + (error.stack || error);
 		}
-		// Try waiting for iframe's onload/onReadyStateChange event fires
-		setTimeout(window.postMessage.bind(window, JSON.stringify(data), "*"), 10000);
+		window.sandboxResult = {
+			state: "/error",
+			data: data
+		};
 	};
 	return function () {
-		[
-			"start",
-			"stop",
-			"/suite/start",
-			"/suite/end",
-			"/suite/error",
-			"/test/start",
-			"/test/end",
-			"/test/pass",
-			"/test/fail"
-		].forEach(function (entry) {
-			topic.subscribe(entry, function (event) {
-				window.postMessage(JSON.stringify({
-					topic: entry,
-					event: event.toJSON()
-				}), "*");
-			});
+		topic.subscribe("/test/fail", failedTests.push.bind(failedTests));
+		topic.subscribe("/suite/end", function (event) {
+			var data = Object.create(event.toJSON());
+			data.failedTests = failedTests;
+			window.sandboxResult = {
+				state: "/suite/end",
+				data: data
+			};
+		});
+		topic.subscribe("/suite/error", function (event) {
+			window.sandboxResult = {
+				state: "/suite/error",
+				data: {
+					name: event.name,
+					message: event.message,
+					stack: "" + (event.stack || event)
+				}
+			};
 		});
 		topic.subscribe("/error", function (error) {
-			window.postMessage(JSON.stringify({
-				topic: "/error",
-				event: {
+			window.sandboxResult = {
+				state: "/error",
+				data: {
 					name: error.name,
 					message: error.message,
 					stack: "" + (error.stack || error)
 				}
-			}), "*");
+			};
 		});
 	};
 });

@@ -123,7 +123,7 @@ define([
 				caught = false;
 			});
 			it("Attribute reflecting model", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					observable = new Observable({foo: "Foo0"}),
 					binding = div.bind("attrib", new ObservablePath(observable, "foo"));
@@ -137,7 +137,7 @@ define([
 				}), 500);
 			});
 			it("Conditional attribute reflecting model", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					observable = new Observable(),
 					binding = div.bind("attrib?", new ObservablePath(observable, "foo"));
@@ -151,7 +151,7 @@ define([
 				}), 500);
 			});
 			it("Text box reflecting model", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					input = createInput("text"),
 					observable = new Observable({foo: "Foo0"}),
 					binding = document.body.appendChild(input).bind("value", new ObservablePath(observable, "foo"));
@@ -186,7 +186,7 @@ define([
 				expect(observable.foo).to.equal("Foo1");
 			});
 			it("Check box reflecting model", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					input = createInput("checkbox"),
 					observable = new Observable({foo: false}),
 					binding = document.body.appendChild(input).bind("checked", new ObservablePath(observable, "foo"));
@@ -220,7 +220,7 @@ define([
 				expect(observable.foo).to.equal(true);
 			});
 			it("Radio button reflecting model", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					radio0 = createInput("radio", "foo", "Foo0"),
 					radio1 = createInput("radio", "foo", "Foo1"),
 					observable = new Observable({0: true, 1: false}),
@@ -268,7 +268,7 @@ define([
 			});
 			it("Select value reflecting model", function () {
 				var binding, option,
-					dfd = this.async(1000),
+					dfd = this.async(10000),
 					select = document.createElement("select"),
 					observable = new Observable({foo: "Foo0", foo0: "Foo0", foo1: "Foo1"});
 				option = document.createElement("option");
@@ -325,7 +325,7 @@ define([
 			});
 			it("Select index reflecting model", function () {
 				var binding, option,
-					dfd = this.async(1000),
+					dfd = this.async(10000),
 					select = document.createElement("select"),
 					observable = new Observable({index: 0});
 				option = document.createElement("option");
@@ -381,7 +381,7 @@ define([
 				expect(observable.index).to.equal(1);
 			});
 			it("Text area reflecting model", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					textarea = document.createElement("textarea"),
 					observable = new Observable({foo: "Foo0"}),
 					binding = document.body.appendChild(textarea).bind("value", new ObservablePath(observable, "foo"));
@@ -416,7 +416,7 @@ define([
 				expect(observable.foo).to.equal("Foo1");
 			});
 			it("Text node reflecting model", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					text = document.createTextNode(""),
 					observable = new Observable({foo: "Foo0"}),
 					binding = document.body.appendChild(text).bind("nodeValue", new ObservablePath(observable, "foo"));
@@ -435,7 +435,7 @@ define([
 				}), 500);
 			});
 			it("Style attribute reflecting model", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					observable = new Observable({foo: "color:red;"});
 				handles.push(document.body.appendChild(div).bind("style", new ObservablePath(observable, "foo")));

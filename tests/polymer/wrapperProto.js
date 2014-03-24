@@ -13,10 +13,8 @@ define([
 				}
 			});
 			it("Computed property", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					link = document.createElement("link");
-				link.href = "./imports/computed.html";
-				link.rel = "import";
 				link.addEventListener("load", dfd.rejectOnError(function () {
 					require(["liaison/polymer/wrapperProto"], dfd.rejectOnError(function () {
 						// Wait for <liaison-test-basic>'s dependency, and wait another 100ms to make sure <liaison-test-basic> is registered
@@ -30,13 +28,13 @@ define([
 						}), 100);
 					}));
 				}));
+				link.href = "./imports/computed.html";
+				link.rel = "import";
 				document.head.appendChild(link);
 			});
 			it("Computed array", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					link = document.createElement("link");
-				link.href = "./imports/computedArray.html";
-				link.rel = "import";
 				link.addEventListener("load", dfd.rejectOnError(function () {
 					require(["liaison/polymer/wrapperProto"], dfd.rejectOnError(function () {
 						// Wait for <liaison-test-basic>'s dependency, and wait another 100ms to make sure <liaison-test-basic> is registered
@@ -50,6 +48,8 @@ define([
 						}), 100);
 					}));
 				}));
+				link.href = "./imports/computedArray.html";
+				link.rel = "import";
 				document.head.appendChild(link);
 			});
 		});

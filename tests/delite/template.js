@@ -108,7 +108,7 @@ define([
 				}
 			});
 			it("Template with <input>: Programmatic", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					w = new InputTemplateWidget({object: new Observable({value: "Foo"})}).placeAt(document.body),
 					input = w.querySelector("input");
 				handles.push({
@@ -127,7 +127,7 @@ define([
 				}), 500);
 			});
 			it("Template with <input>: Declarative", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					observable = new Observable({object: new Observable({value: "Foo"})}),
 					template = div.appendChild(document.createElement("template"));
@@ -152,7 +152,7 @@ define([
 				}), 100);
 			});
 			it("Template with <d-star-rating>: Programmatic", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					w = new StarRatingTemplateWidget({rating: 2}).placeAt(document.body),
 					star = w.querySelector("d-star-rating");
 				handles.push({
@@ -169,7 +169,7 @@ define([
 				}), 500);
 			});
 			it("Template with <d-star-rating>: Declarative", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					observable = new Observable({rating: 2, zeroAreaWidth: 8}),
 					template = div.appendChild(document.createElement("template"));
@@ -192,7 +192,7 @@ define([
 				}), 100);
 			});
 			it("Nested template: Programmatic", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					w = new NestedTemplateWidget({
 						first: "John",
 						name: new Observable({
@@ -227,7 +227,7 @@ define([
 				}), 500);
 			});
 			it("Nested template: Declarative", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					observable = new Observable({first: "John", name: new Observable({first: "Ben"})}),
 					template = div.appendChild(document.createElement("template"));
@@ -267,7 +267,7 @@ define([
 				}), 100);
 			});
 			it("Nested repeating template: Programmatic", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					w = new NestedRepeatingTemplateWidget({
 						names: new ObservableArray(
 							{first: "Anne"},
@@ -311,7 +311,7 @@ define([
 				}), 500);
 			});
 			it("Nested repeating template: Declarative", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					observable = new Observable({
 						names: new ObservableArray(
@@ -363,7 +363,7 @@ define([
 				}), 100);
 			});
 			it("Nested widget template", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					w = new NestedWidgetTemplateWidget({name: new Observable({value: "John"})}).placeAt(document.body);
 				handles.push({
 					remove: function () {
@@ -376,7 +376,7 @@ define([
 				}), 500);
 			});
 			it("Template with complex attribtue", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					w = new ComplexAttributeTemplateWidget({
 						name: new Observable({first: "John"})
 					}).placeAt(document.body);
@@ -391,7 +391,7 @@ define([
 				}), 500);
 			});
 			it("Simple binding with default alternate binding factory", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					w = new AlternateBindingTemplateWidget({
 						first: "John"
 					}).placeAt(document.body),
@@ -422,7 +422,7 @@ define([
 				var event,
 					senderDiv,
 					targetDiv,
-					dfd = this.async(2000),
+					dfd = this.async(10000),
 					w = new EventTemplateWidget({
 						handleClick: dfd.rejectOnError(function (event, detail, sender) {
 							expect(event.type).to.equal("click");
