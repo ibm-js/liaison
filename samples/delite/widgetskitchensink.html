@@ -6,32 +6,48 @@
 		<script type="text/javascript">
 			require([
 				"liaison/ObservablePath",
+				"liaison/BindingTarget",
 				"liaison/wrapper",
 				"deliteful/ProgressIndicator",
 				"deliteful/Slider",
 				"liaison/DOMTreeBindingTarget",
 				"liaison/delite/TemplateBinderExtension",
+				"liaison/delite/Widgets/RadioButton",
 				"liaison/delite/Widgets/StarRating"
-			], function (ObservablePath, wrapper) {
+			], function (ObservablePath, BindingTarget, wrapper) {
 				function startup() {
 					var REGEXP_NUMBER_BINDING = /^number:(.*)$/,
-						template = document.getElementById("main-template");
-					template.createBindingSourceFactory = function(target){
-						var match = REGEXP_NUMBER_BINDING.exec(target);
-						if(match){
-							var path = match[1];
-							return function(model){
-								return new ObservablePath(model, path, function(value){
-									return value + "";
-								}, function(value){
-									return +value;
-								});
+						origCreateBindingSourceFactory = BindingTarget.createBindingSourceFactory;
+					BindingTarget.createBindingSourceFactory = function (target) {
+						var factory = origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
+						if (!factory) {
+							var match = REGEXP_NUMBER_BINDING.exec(target);
+							if (match) {
+								var path = match[1];
+								return function (model) {
+									return new ObservablePath(model, path, function (value) {
+										return value + "";
+									}, function (value) {
+										return +value;
+									});
+								}
 							}
+						} else {
+							return factory;
 						}
 					};
-					template.bind("bind", wrapper.wrap({
+					document.getElementById("main-template").bind("bind", wrapper.wrap({
+						numberType: /trident/i.test(navigator.userAgent) ? "" : "number",
 						num: 3,
 						max: 5,
+						nums: wrapper.computed(function (max) {
+							return Array.apply(undefined, new Array(+max + 1)).map(function (entry, i) {
+								return {
+									$$: this,
+									num: i
+								};
+							}, this);
+						}, "max"),
 						percent: wrapper.computed(function (num, max) {
 							return num / max * 100;
 						}, "num", "max"),
@@ -49,26 +65,41 @@
 	<body>
 		<template id="main-template">
 			<div>
-				Value: <input type="number" value="{{number:num}}">
+				<span class="cell">Disabled:</span>
+				<input type="checkbox" checked="{{disabled}}">
 			</div>
 			<div>
-				Max: <input type="number" value="{{number:max}}">
+				<span class="cell">Read only:</span>
+				<input type="checkbox" checked="{{readOnly}}">
 			</div>
 			<div>
-				Disabled/Inactive: <input type="checkbox" checked="{{disabled}}">
+				<span class="cell">Value:</span>
+				<input type="{{numberType}}" value="{{number:num}}" disabled?="{{disabled}}" readOnly?="{{readOnly}}">
 			</div>
 			<div>
-				Read only: <input type="checkbox" checked="{{readOnly}}">
+				<span class="cell">Max:</span>
+				<input type="{{numberType}}" value="{{number:max}}" disabled?="{{disabled}}" readOnly?="{{readOnly}}">
 			</div>
 			<div>
+				<span class="cell">Radio buttons:</span>
+				<template repeat="{{nums}}">
+					<input is="d-l-radiobutton" name="group" value="{{number:num}}" current="{{number:$$.num}}" disabled?="{{$$.disabled}}">
+				</template>
+			</div>
+			<div>
+				<span class="cell">Star rating:</span>
 				<d-l-star-rating value="{{num}}" max="{{max}}" disabled="{{disabled}}" readOnly="{{readOnly}}"></d-l-star-rating>
 			</div>
 			<div>
-				<d-slider value="{{num}}" min="0" max="{{max}}" step="1" disabled="{{disabled}}" readOnly="{{readOnly}}"></d-slider>
+				<span class="cell">Slider:</span>
+				<d-slider value="{{number:num}}" min="0" max="{{number:max}}" step="1" disabled="{{disabled}}" readOnly="{{readOnly}}"></d-slider>
 			</div>
+			<!--
 			<div>
+				<span class="cell">Progress indicator:</span>
 				<d-progress-indicator value="{{percent}}" active="{{active}}"></d-progress-indicator>
 			</div>
+			-->
 		</template>
 	</body>
 </html>

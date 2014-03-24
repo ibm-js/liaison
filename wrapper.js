@@ -101,7 +101,7 @@
 			}
 			return function () {
 				var o = this.o;
-				this.source = new BindingSourceList(this.paths.map(mapPath, o), callComputedCallback.bind(this, this.callback));
+				this.source = new BindingSourceList(this.paths.map(mapPath, o), callComputedCallback.bind(o, this.callback));
 				this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name));
 				set.call(o, this.name, this.source.getFrom());
 				return this;

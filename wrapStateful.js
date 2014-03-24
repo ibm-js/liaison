@@ -6,7 +6,7 @@
 	} else if (typeof define === "function" && define.amd) {
 		define(["./Observable"], factory);
 	} else {
-		root.makeObservable = factory(root.Observable);
+		root.wrapStateful = factory(root.Observable);
 	}
 })(this, function (Observable) {
 	"use strict";
@@ -30,7 +30,13 @@
 			});
 		}
 		function set(name, value) {
-			this[name] = value;
+			if ("_" + name + "Attr" in this) {
+				// If shadow property is there, let delite/Stateful#watch trigger emitting change record
+				this[name] = value;
+			} else {
+				// Otherwise let Observable#set emit a change record
+				Observable.prototype.set.call(this, name, value);
+			}
 		}
 		return function (stateful) {
 			if (!stateful._observable) {
