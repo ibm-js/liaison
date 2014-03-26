@@ -11,12 +11,7 @@ install:
   - yes | bower install
   - cd node_modules/intern
   - npm install --production
-  - cd ../../..
-  - git clone https://github.com/ibm-js/delite.git
-  - git clone https://github.com/ibm-js/deliteful.git
-  - git clone https://github.com/ibm-js/dpointer.git
-  - git clone https://github.com/ibm-js/requirejs-dplugins.git
-  - cd liaison
+  - cd ../..
 script:
   - jshint --exclude-path .gitignore .
   - cd ..
