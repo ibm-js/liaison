@@ -18,7 +18,7 @@ define([
 			});
 			it("Changed watcher", function () {
 				var changeCount = 0,
-					dfd = this.async(1000);
+					dfd = this.async(10000);
 				register("liaison-test-basic-data", [HTMLElement, Widget], Widget.wrap({
 					first: "John",
 					last: "Doe",
@@ -51,7 +51,7 @@ define([
 					}, "first", "last")
 				}));
 				var changeCount = 0,
-					dfd = this.async(1000),
+					dfd = this.async(10000),
 					elem = register.createElement("liaison-test-computed");
 				handles.push({
 					remove: function () {
@@ -75,7 +75,7 @@ define([
 				elem.first = "Ben";
 			});
 			it("Computed array", function () {
-				var dfd = this.async(1000);
+				var dfd = this.async(10000);
 				register("liaison-test-computedarray", [HTMLElement, Widget], Widget.wrap({
 					baseClass: "liaison-test-computedarray",
 					items: [

@@ -12,8 +12,6 @@ install:
   - cd node_modules/intern
   - npm install --production
   - cd ../../..
-  - git clone https://github.com/uhop/dcl.git
-  - git clone https://github.com/dojo/dojo.git
   - git clone https://github.com/ibm-js/delite.git
   - git clone https://github.com/ibm-js/deliteful.git
   - git clone https://github.com/ibm-js/dpointer.git

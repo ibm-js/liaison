@@ -17,7 +17,7 @@ define([
 			});
 			it("Computed property", function () {
 				var changeCount = 0,
-					dfd = this.async(1000),
+					dfd = this.async(10000),
 					o = wrapper.wrap({
 						first: "John",
 						last: "Doe",
@@ -45,7 +45,7 @@ define([
 				o.first = "Ben";
 			});
 			it("Computed array", function () {
-				var dfd = this.async(1000),
+				var dfd = this.async(10000),
 					o = wrapper.wrap({
 						items: [
 							{Name: "Anne Ackerman"},
@@ -66,7 +66,7 @@ define([
 				o.items.push({Name: "John Jacklin"});
 			});
 			it("Computed property with template", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = computedTemplate;
@@ -101,7 +101,7 @@ define([
 				}), 500);
 			});
 			it("Computed array with template", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = computedArrayTemplate;

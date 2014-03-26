@@ -72,7 +72,7 @@ define([
 				}
 			}
 			it("Assigning non-object/array", function () {
-				var dfd = this.async(2000),
+				var dfd = this.async(10000),
 					observable = new Observable({foo: 0}),
 					observablePath = new ObservablePath(observable, "foo"),
 					div = document.createElement("div"),

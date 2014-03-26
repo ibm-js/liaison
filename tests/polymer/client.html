@@ -17,9 +17,7 @@
 		<script type="text/javascript">
 			(function(){
 				require(this.__internConfig, ["liaison/tests/sandbox/monitor"], function(monitor){
-					if(window.parent != window){
-						monitor();
-					}
+					monitor();
 					require(["intern/client"]);
 				});
 			})();
