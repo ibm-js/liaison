@@ -6,6 +6,8 @@
 	},
 	"devDependencies": {
 		"dojo": ">=1.9.1",
+		"delite": "*",
+		"deliteful": "*",
 		"dcl": "1.1.x",
 		"polymer": "~0.2.0"
 	}
