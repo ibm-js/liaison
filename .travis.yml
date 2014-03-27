@@ -7,7 +7,7 @@ node_js: "0.10"
 install:
   - npm -g install bower
   - npm -g install jshint
-  - npm install intern
+  - npm install
   - yes | bower install
   - cd node_modules/intern
   - npm install --production

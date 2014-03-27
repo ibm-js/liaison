@@ -1,0 +1,16 @@
+{
+	"name": "liaison",
+	"version": "0.1.0-dev",
+	"dependencies": {
+	},
+	"devDependencies": {
+		"intern": "1.5"
+	},
+	"licenses": [
+		{
+			"type": "BSD",
+			"url": "https://github.com/ibm-js/liaison/blob/master/LICENSE"
+		}
+	],
+	"bugs": "https://github.com/ibm-js/liaison/issues"
+}
