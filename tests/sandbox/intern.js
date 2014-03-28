@@ -2,6 +2,14 @@
 define({
 	loader: {
 		baseUrl: "../../..",
-		packages: ["liaison"]
+		packages: ["liaison"],
+		map: {
+			"liaison/tests/patches/Widget": {
+				"delite/Widget": "delite/Widget"
+			},
+			"*": {
+				"delite/Widget": "liaison/tests/patches/Widget"
+			}
+		}
 	}
 });

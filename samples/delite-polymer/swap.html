@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../css/examples.css">
+		<script type="text/javascript" src="../../../platform/platform.js"></script>
+		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
+		<script id="swap-template" type="text/x-template">
+			<div>
+				<div on-liaison-sample-swap-item-selected="{{select}}">
+					<select on-change="{{select}}">
+						<option template repeat="{{data}}" value="{{title}}">{{title}}</option>
+					</select>
+				</div>
+				<template repeat="{{current}}">
+					<div>First: <input type="text" value="{{First}}"></div>
+					<div>Last: <input type="text" value="{{Last}}"></div>
+				</template>
+			</div>
+		</script>
+		<script type="text/javascript">
+			require([
+				"dcl/dcl",
+				"delite/register",
+				"liaison/delite/createRenderer",
+				"liaison/delite/widgets/Widget"
+			], function (dcl, register, createRenderer, Widget) {
+				function startup () {
+					register("liaison-sample-swap", [HTMLElement, Widget], Widget.wrap({
+						buildRendering: createRenderer(document.getElementById("swap-template").innerHTML),
+						baseClass: "liaison-sample-swap",
+						data: [
+							{
+								title: "Model1",
+								names: [
+									{
+										First: "Anne1",
+										Last: "Ackerman1"
+									},
+									{
+										First: "Ben1",
+										Last: "Beckham1"
+									},
+									{
+										First: "Chad1",
+										Last: "Chapman1"
+									}
+								]
+							},
+							{
+								title: "Model2",
+								names: [
+									{
+										First: "Anne2",
+										Last: "Ackerman2"
+									},
+									{
+										First: "Ben2",
+										Last: "Beckham2"
+									}
+								]
+							},
+							{
+								title: "Model3",
+								names: [
+									{
+										First: "Anne3",
+										Last: "Ackerman3"
+									}
+								]
+							}
+						],
+						current: undefined,
+						select: function (event, detail, sender) {
+							this.set("current", this.data.filter(function (entry) {
+								return entry.title == sender.value;
+							})[0].names);
+						},
+						createdCallback: dcl.superCall(function (sup) {
+							return function () {
+								this.current = this.data[0].names;
+								sup && sup.apply(this, arguments);
+							};
+						})
+					}));
+				}
+
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<liaison-sample-swap></liaison-sample-swap>
+	</body>
+</html>

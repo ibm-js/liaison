@@ -81,10 +81,6 @@ define([
 			// it preferes regular loop over array extras,
 			// which makes cyclomatic complexity higher.
 			/* jshint maxcomplexity: 15 */
-			/**
-			 * The list of (node, attribute name, attribute value) with data binding syntax.
-			 * @type {Array}
-			 */
 			var currentNode,
 				parsed = [],
 				iterator = node.ownerDocument.createNodeIterator(
@@ -234,10 +230,6 @@ define([
 		 * @throws {SyntaxError} If the position is not one of "beforeBegin", "afterBegin", "beforeEnd", "afterEnd".
 		 */
 		insert: function (content, referenceNode, position) {
-			/**
-			 * Child nodes of the cloned content.
-			 * @type {Array.<Node>}
-			 */
 			var childNodes = [].slice.call(content.childNodes);
 			switch (position) {
 			case "beforeBegin":
@@ -267,10 +259,6 @@ define([
 		 *     The list of data bindings for the parsed node contents and element attributes.
 		 */
 		bind: function (toBeBound) {
-			/**
-			 * The list of data bindings for the parsed node contents and element attributes.
-			 * @type {Array.<module:liaison/BindingTarget>}
-			 */
 			var bound = [];
 			for (var i = 0, l = toBeBound.length; i < l; i += PARSED_ENTRY_LENGTH) {
 				var name = toBeBound[i + PARSED_ENTRY_ATTRIBUTENAME],
@@ -312,14 +300,29 @@ define([
 				}
 			}
 			return function (model, referenceNode, position) {
-				this.parsed = this.parsed || this.parseNode(this.template.content);
+				var letTemplateCreateInstance = typeof this.template.createInstance === "function";
+				this.parsed = this.parsed || !letTemplateCreateInstance && this.parseNode(this.template.content);
 				var toBeBound = [],
-					content = this.createContent(this.parsed, toBeBound);
-				this.assignSources(model, toBeBound);
+					bindings = [],
+					content = letTemplateCreateInstance ?
+						this.template.createInstance(model,
+							this.template.createBindingSourceFactory && {prepareBinding: this.template.createBindingSourceFactory}
+								|| this.template.bindingDelegate
+								|| BindingTarget.createBindingSourceFactory && {prepareBinding: BindingTarget.createBindingSourceFactory},
+							undefined,
+							bindings) :
+						this.createContent(this.parsed, toBeBound);
+				!letTemplateCreateInstance && this.assignSources(model, toBeBound);
 				var instantiated = {
 					childNodes: this.insert(content, referenceNode, position)
 				};
-				instantiated.remove = remove.bind(instantiated, this.bind(toBeBound));
+				instantiated.remove = remove.bind(instantiated,
+					letTemplateCreateInstance ?
+						bindings.map(function (binding) {
+							binding.remove = binding.close;
+							return binding;
+						}) :
+						this.bind(toBeBound));
 				return instantiated;
 			};
 		})()

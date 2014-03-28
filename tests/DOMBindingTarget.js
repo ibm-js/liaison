@@ -46,16 +46,16 @@ define([
 				text.unbind("nodeValue");
 				div.unbind("attrib");
 				input.unbind("value");
-				expect(!!text._targets).not.to.be.true;
-				expect(!!div._targets).not.to.be.true;
-				expect(!!input._targets).not.to.be.true;
+				expect(!!text.bindings).not.to.be.true;
+				expect(!!div.bindings).not.to.be.true;
+				expect(!!input.bindings).not.to.be.true;
 				// Make sure unbinding twice won't cause anything wrong
 				text.unbind("nodeValue");
 				div.unbind("attrib");
 				input.unbind("value");
-				expect(!!text._targets).not.to.be.true;
-				expect(!!div._targets).not.to.be.true;
-				expect(!!input._targets).not.to.be.true;
+				expect(!!text.bindings).not.to.be.true;
+				expect(!!div.bindings).not.to.be.true;
+				expect(!!input.bindings).not.to.be.true;
 			});
 			it("DOM node without binding feature", function () {
 				var caught,

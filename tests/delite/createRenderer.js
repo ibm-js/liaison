@@ -46,7 +46,7 @@ define([
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {
-		describe("Test liaison/delite/template", function () {
+		describe("Test liaison/delite/createRenderer", function () {
 			var handles = [],
 				InputTemplateWidget = register("liaison-test-input", [HTMLElement, Widget], {
 					buildRendering: renderInputTemplate,

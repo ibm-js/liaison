@@ -58,7 +58,7 @@ define([
 		return this.binder;
 	};
 
-	DOMTreeBindingTarget.prototype.remove = function () {
+	DOMTreeBindingTarget.prototype.remove = DOMTreeBindingTarget.prototype.close = function () {
 		if (this.content) {
 			this.content.remove();
 			this.content = null;
@@ -81,7 +81,7 @@ define([
 					this.content.remove();
 					this.content = null;
 				}
-				var condition = this.object._targets[ATTRIBUTE_IF];
+				var condition = this.object.bindings[ATTRIBUTE_IF];
 				if (this.model && (!condition || condition.value)) {
 					this.content = this.refreshBinder().create(this.model, this.object, "afterEnd");
 				}
@@ -118,7 +118,7 @@ define([
 
 	RepeatingDOMTreeBindingTarget.prototype = Object.create(DOMTreeBindingTarget.prototype);
 
-	RepeatingDOMTreeBindingTarget.prototype.remove = function () {
+	RepeatingDOMTreeBindingTarget.prototype.remove = RepeatingDOMTreeBindingTarget.prototype.close = function () {
 		if (this.ha) {
 			this.ha.remove();
 			this.ha = null;
@@ -191,7 +191,7 @@ define([
 				if (this.model !== undefined && typeof (this.model || EMPTY_OBJECT).splice !== "function") {
 					console.warn("An attempt to set a non-array value is detected. Auto-repeat won't happen.");
 				}
-				var condition = this.object._targets[ATTRIBUTE_IF],
+				var condition = this.object.bindings[ATTRIBUTE_IF],
 					shouldAdd = typeof (this.model || EMPTY_OBJECT).splice === "function" && (!condition || condition.value);
 				this.refreshBinder();
 				spliceCallback.call(this, [{
@@ -242,7 +242,7 @@ define([
 		},
 		set: function (value) {
 			this.condition = value;
-			var target = this.object._targets[ATTRIBUTE_REPEAT] || this.object._targets[ATTRIBUTE_BIND];
+			var target = this.object.bindings[ATTRIBUTE_REPEAT] || this.object.bindings[ATTRIBUTE_BIND];
 			if (target) {
 				target.value = target.value;
 			}
@@ -279,7 +279,7 @@ define([
 		},
 		set: function (value) {
 			this.object.setAttribute(this.property, value != null ? value : "");
-			var target = this.object._targets[ATTRIBUTE_REPEAT] || this.object._targets[ATTRIBUTE_BIND];
+			var target = this.object.bindings[ATTRIBUTE_REPEAT] || this.object.bindings[ATTRIBUTE_BIND];
 			if (target) {
 				target.value = target.value;
 			}
@@ -358,7 +358,7 @@ define([
 		templateElementClass.prototype.bind = HTMLScriptElement.prototype.bind = function (property, source) {
 			if (this.tagName === "TEMPLATE"
 				|| this.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(this.getAttribute("type"))) {
-				var target = this._targets && this._targets[property];
+				var target = this.bindings && this.bindings[property];
 				if (!target) {
 					if (REGEXP_ATTRIBUTE_IF.test(property)) {
 						return new ConditionalDOMTreeBindingTarget(this, property).bind(source);

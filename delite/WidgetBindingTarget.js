@@ -4,7 +4,7 @@ define([
 	"../wrapStateful",
 	"../BindingTarget",
 	"../DOMBindingTarget"
-], function (register, wrapStateful, BindingTarget, DOMBindingTarget) {
+], function (register, wrapStateful, BindingTarget) {
 	"use strict";
 
 	var EMPTY_OBJECT = {};
@@ -22,8 +22,8 @@ define([
 	 */
 	var WidgetBindingTarget = (function () {
 		function setTo(name, old, current) {
-			if ((this.source || EMPTY_OBJECT).setTo) {
-				this.source.setTo(current);
+			if ((this.source || EMPTY_OBJECT).setValue) {
+				this.source.setValue(current);
 			}
 		}
 		return function () {
@@ -41,7 +41,7 @@ define([
 
 	WidgetBindingTarget.prototype = Object.create(BindingTarget.prototype);
 
-	WidgetBindingTarget.prototype.remove = function () {
+	WidgetBindingTarget.prototype.remove = WidgetBindingTarget.prototype.close = function () {
 		if (this.hw) {
 			this.hw.remove();
 			this.hw = null;
@@ -60,50 +60,52 @@ define([
 		configurable: true
 	});
 
-	if (!DOMBindingTarget.useExisting) {
-		/** @class external:Widget */
-		/**
-		 * Establishes data binding between widget property/attribute and {@link module:liaison/BindingSource BindingSource}.
-		 * @method external:Widget#bind
-		 * @param {string} property Property/attribute name in widget.
-		 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the widget property/attribute to.
-		 * @returns {module:liaison/BindingTarget}
-		 *     The {@link module:liaison/BindingTarget BindingTarget} instance
-		 *     representing the widget property/attribute.
-		 */
+	/** @class external:Widget */
+	/**
+	 * Establishes data binding between widget property/attribute and {@link module:liaison/BindingSource BindingSource}.
+	 * @method external:Widget#bind
+	 * @param {string} property Property/attribute name in widget.
+	 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the widget property/attribute to.
+	 * @returns {module:liaison/BindingTarget}
+	 *     The {@link module:liaison/BindingTarget BindingTarget} instance
+	 *     representing the widget property/attribute.
+	 */
 
-		// TODO(asudoh): Should we hook HTMLTemplateElement, HTMLScriptElement and/or HTMLUnknownElement, too?
-		[HTMLInputElement, HTMLSelectElement, HTMLTextAreaElement, HTMLElement].forEach(function (elementClass) {
-			var origBind = elementClass.prototype.bind;
-			elementClass.prototype.bind = (function () {
-				// HTMLElements#attributes in Chrome has attribute names in lower case
-				function findProperty(name) {
-					for (var s in this) {
-						if (s.toLowerCase() === name.toLowerCase()) {
-							return s;
-						}
+	// TODO(asudoh): Should we hook HTMLTemplateElement, HTMLScriptElement and/or HTMLUnknownElement, too?
+	[HTMLInputElement, HTMLSelectElement, HTMLTextAreaElement, HTMLElement].forEach(function (elementClass) {
+		var origBind = elementClass.prototype.bind;
+		elementClass.prototype.bind = (function () {
+			// HTMLElements#attributes in Chrome has attribute names in lower case
+			function findProperty(name) {
+				for (var s in this) {
+					if (s.toLowerCase() === name.toLowerCase()) {
+						return s;
 					}
 				}
-				return function (property, source) {
-					register.upgrade(this);
-					if (this.startup && !this._started) {
-						this.startup();
+			}
+			return function (property, source) {
+				register.upgrade(this);
+				if (this.startup && !this._started) {
+					this.startup();
+				}
+				var target = this.bindings && this.bindings[property];
+				if (!target) {
+					var convertedProperty,
+						useWidgetAttribute = typeof this.buildRendering === "function"
+							&& (this.alwaysUseWidgetAttribute
+								|| (this._invalidatingProperties || EMPTY_OBJECT)[property]
+								|| property in this // Fast path for findProperty()
+								|| (convertedProperty = findProperty.call(this, property)));
+					if (useWidgetAttribute) {
+						target = new WidgetBindingTarget(this, convertedProperty || property);
+					} else {
+						return origBind.call(this, property, source);
 					}
-					var target = this._targets && this._targets[property];
-					if (!target) {
-						var convertedProperty,
-							useWidgetAttribute = typeof this.buildRendering === "function"
-								&& (this.alwaysUseWidgetAttribute
-									|| (this._invalidatingProperties || EMPTY_OBJECT)[property]
-									|| property in this // Fast path for findProperty()
-									|| (convertedProperty = findProperty.call(this, property)));
-						target = useWidgetAttribute ? new WidgetBindingTarget(this, convertedProperty || property) : origBind.call(this, property);
-					}
-					return target.bind(source);
-				};
-			})();
-		});
-	}
+				}
+				return target.bind(source);
+			};
+		})();
+	});
 
 	return WidgetBindingTarget;
 });

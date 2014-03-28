@@ -77,13 +77,13 @@ define([
 					target0 = new BindingTarget(o, "Foo"),
 					target1 = new BindingTarget(o, "Bar");
 				handles.push(target0, target1);
-				expect(o._targets).to.deep.equal({
+				expect(o.bindings).to.deep.equal({
 					Foo: target0,
 					Bar: target1
 				});
 				target0.remove();
 				target1.remove();
-				expect("_targets" in o).to.be.false;
+				expect("bindings" in o).to.be.false;
 			});
 		});
 	}

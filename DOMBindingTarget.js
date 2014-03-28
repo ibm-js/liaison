@@ -93,7 +93,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 *     representing the element property/attribute.
 		 */
 		HTMLElement.prototype.bind = function (property, source) {
-			var target = (this._targets || EMPTY_OBJECT)[property];
+			var target = (this.bindings || EMPTY_OBJECT)[property];
 			target = target || (property.lastIndexOf("?") === property.length - 1 ?
 				new ConditionalDOMBindingTarget(this, property) :
 				new DOMBindingTarget(this, property));
@@ -106,8 +106,8 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 * @param {string} property Property/attribute name in element
 		 */
 		HTMLElement.prototype.unbind = function (property) {
-			if ((this._targets || EMPTY_OBJECT)[property]) {
-				this._targets[property].remove();
+			if ((this.bindings || EMPTY_OBJECT)[property]) {
+				this.bindings[property].remove();
 			}
 		};
 	}
@@ -159,7 +159,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 	ChangeableValueBindingTarget.prototype.eventListenerCallback = ChangeableValueBindingTarget.prototype.updateSource;
 
-	ChangeableValueBindingTarget.prototype.remove = function () {
+	ChangeableValueBindingTarget.prototype.remove = ChangeableValueBindingTarget.prototype.close = function () {
 		BindingTarget.prototype.remove.call(this);
 		if (this.boundEventListenerCallback) {
 			this.object.removeEventListener(this.eventName, this.boundEventListenerCallback);
@@ -208,7 +208,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 	InputValueBindingTarget.prototype = Object.create(ChangeableValueBindingTarget.prototype);
 	InputValueBindingTarget.prototype.eventName = "input";
 
-	InputValueBindingTarget.prototype.remove = function () {
+	InputValueBindingTarget.prototype.remove = InputValueBindingTarget.prototype.close = function () {
 		ChangeableValueBindingTarget.prototype.remove.apply(this, arguments);
 		for (var index; (index = (InputValueBindingTarget.all || EMPTY_ARRAY).indexOf(this)) >= 0;) {
 			InputValueBindingTarget.all.splice(index, 1);
@@ -228,7 +228,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 	 * Used for IE9 where backspace/delete keystrokes don't fire oninput event.
 	 */
 	InputValueBindingTarget.updateSourceForActiveElement = function () {
-		var target = ((document.activeElement || EMPTY_OBJECT)._targets || EMPTY_OBJECT).value;
+		var target = ((document.activeElement || EMPTY_OBJECT).bindings || EMPTY_OBJECT).value;
 		target && target.object.tagName === "INPUT" && target.updateSource && target.updateSource();
 	};
 
@@ -277,7 +277,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		this.updateSource();
 		if (REGEXP_TYPE_RADIO.test(this.object.type)) {
 			for (var elems = getOtherRadioButtonsInTheSameGroup(this.object), i = 0, l = elems.length; i < l; ++i) {
-				var target = (elems[i]._targets || EMPTY_OBJECT).checked;
+				var target = (elems[i].bindings || EMPTY_OBJECT).checked;
 				target && target.updateSource();
 			}
 		}
@@ -290,7 +290,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		set: function (value) {
 			if ((this.object[this.property] = value) && REGEXP_TYPE_RADIO.test(this.object.type)) {
 				for (var elems = getOtherRadioButtonsInTheSameGroup(this.object), i = 0, l = elems.length; i < l; ++i) {
-					var target = (elems[i]._targets || EMPTY_OBJECT).checked;
+					var target = (elems[i].bindings || EMPTY_OBJECT).checked;
 					target && target.updateSource();
 				}
 			}
@@ -321,7 +321,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 *     representing the textarea element property/attribute.
 		 */
 		HTMLInputElement.prototype.bind = HTMLTextAreaElement.prototype.bind = function (property, source) {
-			var target = (this._targets || EMPTY_OBJECT)[property];
+			var target = (this.bindings || EMPTY_OBJECT)[property];
 			if (!target) {
 				var isCheckbox = REGEXP_TYPES_CHECKBOX.test(this.type);
 				target = isCheckbox && REGEXP_ATTRIBUTE_CHECKED.test(property) ? new CheckedValueBindingTarget(this, property) :
@@ -341,7 +341,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 *     representing the select element property/attribute.
 		 */
 		HTMLSelectElement.prototype.bind = function (property, source) {
-			var target = (this._targets || EMPTY_OBJECT)[property];
+			var target = (this.bindings || EMPTY_OBJECT)[property];
 			if (!target) {
 				target = REGEXP_ATTRIBUTES_SELECT.test(property) ? new ChangeableValueBindingTarget(this, property) :
 					HTMLElement.prototype.bind.call(this, property);
@@ -371,15 +371,15 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 */
 		Text.prototype.bind = function (property, source) {
 			var target;
-			for (var s in this._targets) {
-				target = this._targets[s];
+			for (var s in this.bindings) {
+				target = this.bindings[s];
 				break;
 			}
 			return (target || new TextNodeValueBindingTarget(this, property)).bind(source);
 		};
 		Text.prototype.unbind = function () {
-			for (var s in this._targets) {
-				this._targets[s].remove();
+			for (var s in this.bindings) {
+				this.bindings[s].remove();
 			}
 		};
 	}

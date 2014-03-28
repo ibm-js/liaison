@@ -29,14 +29,14 @@
 		this.object = object;
 		this.property = property;
 		this.options = options;
-		var targets = object._targets;
-		if (!targets) {
-			Object.defineProperty(object, "_targets", { // Make _targets not enumeable or writable
-				value: targets = {},
+		var bindings = object.bindings;
+		if (!bindings) {
+			Object.defineProperty(object, "bindings", { // Make bindings not enumeable or writable
+				value: bindings = {},
 				configurable: true
 			});
 		}
-		targets[property] = this;
+		bindings[property] = this;
 	}
 
 	BindingTarget.prototype = /** @lends module:liaison/BindingTarget# */ {
@@ -101,17 +101,18 @@
 			}
 			this.source = null;
 			var found,
-				targets = this.object._targets;
-			targets && delete targets[this.property];
-			for (var s in targets) {
+				bindings = this.object.bindings;
+			bindings && delete bindings[this.property];
+			for (var s in bindings) {
 				found = true;
 				break;
 			}
 			if (!found) {
-				delete this.object._targets;
+				delete this.object.bindings;
 			}
 		}
 	};
 
+	BindingTarget.prototype.close = BindingTarget.prototype.remove;
 	return BindingTarget;
 });

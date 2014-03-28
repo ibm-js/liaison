@@ -30,22 +30,28 @@ define(function () {
 					|| node.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(node.getAttribute("type"));
 			}
 			return function (element) {
+				/* global HTMLTemplateElement */
 				if (!isUpgradable(element)) {
 					throw new TypeError("Only <template>, <element template>,"
 						+ " or <script type=\"x-template\"> can be used as a template.");
 				}
-				var template = element;
-				if (template.tagName === "SCRIPT") {
-					(template = element.ownerDocument.createElement("template")).innerHTML = element.innerHTML;
-				}
-				if ((template.content || EMPTY_OBJECT).nodeType !== Node.DOCUMENT_FRAGMENT_NODE) {
-					var frag = template.ownerDocument.createDocumentFragment();
-					while (template.firstChild) {
-						frag.appendChild(template.firstChild);
+				if (typeof HTMLTemplateElement !== "undefined" && typeof HTMLTemplateElement.decorate === "function") {
+					// If Polymer TemplateBinding is there, let it upgrade the template
+					HTMLTemplateElement.decorate(element);
+				} else {
+					var template = element;
+					if (template.tagName === "SCRIPT") {
+						(template = element.ownerDocument.createElement("template")).innerHTML = element.innerHTML;
 					}
-					element.content = frag;
-				} else if (template !== element) {
-					element.content = template.content.cloneNode(true);
+					if ((template.content || EMPTY_OBJECT).nodeType !== Node.DOCUMENT_FRAGMENT_NODE) {
+						var frag = template.ownerDocument.createDocumentFragment();
+						while (template.firstChild) {
+							frag.appendChild(template.firstChild);
+						}
+						element.content = frag;
+					} else if (template !== element) {
+						element.content = template.content.cloneNode(true);
+					}
 				}
 				return element;
 			};

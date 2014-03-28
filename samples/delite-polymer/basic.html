@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../css/examples.css">
+		<script type="text/javascript" src="../../../platform/platform.js"></script>
+		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
+		<script id="basic-template" type="text/x-template">
+			<div>
+				<input type="text" placeholder="Type your first name" value="{{first}}">
+				<input type="text" placeholder="Type your last name" value="{{last}}">
+				<div>Hello, {{name}}! Length of your name is: {{name.length}}</div>
+			</div>
+		</script>
+		<script type="text/javascript">
+			require([
+				"delite/register",
+				"liaison/delite/createRenderer",
+				"liaison/delite/widgets/Widget"
+			], function (register, createRenderer, Widget) {
+				function startup() {
+					register("liaison-sample-basic", [HTMLElement, Widget], Widget.wrap({
+						buildRendering: createRenderer(document.getElementById("basic-template").innerHTML),
+						baseClass: "liaison-sample-basic",
+						first: "John",
+						last: "Doe",
+						name: Widget.computed(function (first, last) {
+							return first + " " + last;
+						}, "first", "last")
+					}));
+				}
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<liaison-sample-basic></liaison-sample-basic>
+	</body>
+</html>
