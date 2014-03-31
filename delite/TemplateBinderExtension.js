@@ -46,8 +46,11 @@ define([
 				origRemove.apply(this, slice.call(arguments, 1));
 			}
 			return function () {
-				var instantiated = origCreate.apply(this, arguments);
-				instantiated.remove = remove.bind(instantiated, instantiated.remove);
+				var letTemplateCreateInstance = typeof this.template.createInstance === "function",
+					instantiated = origCreate.apply(this, arguments);
+				if (!letTemplateCreateInstance) {
+					instantiated.remove = remove.bind(instantiated, instantiated.remove);
+				}
 				return instantiated;
 			};
 		})();

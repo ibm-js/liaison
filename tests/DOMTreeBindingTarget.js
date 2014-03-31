@@ -716,7 +716,7 @@ define([
 				handles.push(template.bind("bind", observable));
 				setTimeout(dfd.callback(function () {
 					expect(template.nextSibling.nodeValue).to.equal("{{Foo");
-					expect(!!template.nextSibling.nextSibling._targets).to.be.false;
+					expect(!!template.nextSibling.nextSibling.bindings).to.be.false;
 				}), 500);
 			});
 			it("Unbinding right after binding", function () {

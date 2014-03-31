@@ -35,7 +35,7 @@ define([
 				setTimeout(dfd.rejectOnError(function () {
 					var w = template.nextSibling;
 					expect(w.textContent).to.equal("Foo");
-					expect(w._targets.label.value).to.equal("Foo");
+					expect(w.bindings.label.value).to.equal("Foo");
 					w.label = "Bar";
 					expect(model.label).to.equal("Bar");
 					setTimeout(dfd.rejectOnError(function () {
@@ -63,7 +63,7 @@ define([
 				setTimeout(dfd.rejectOnError(function () {
 					var w = template.nextSibling.nextSibling;
 					expect(w.value).to.equal(2);
-					expect(w._targets.value.value).to.equal(2);
+					expect(w.bindings.value.value).to.equal(2);
 					w.value = 4;
 					expect(model.rating).to.equal(4);
 					model.set("rating", 3);

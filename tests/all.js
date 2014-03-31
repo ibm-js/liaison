@@ -1,18 +1,9 @@
 define((function () {
-	var list = ["./allBrowser"];
+	var list = ["./allNode"];
 	if (typeof window !== "undefined") {
-		if (document.all) {
-			var ieVer = parseFloat(navigator.appVersion.split("MSIE ")[1]) || undefined,
-				mode = document.documentMode;
-			if (mode && mode !== 5 && Math.floor(ieVer) !== mode) {
-				ieVer = mode;
-			}
-			if (ieVer > 9) {
-				list.push("./polymer/sandbox");
-			}
-		} else {
-			list.push("./polymer/sandbox");
-		}
+		list.push("./templateElement",
+			"./DOMBindingTarget",
+			"./DOMTreeBindingTarget");
 	}
 	return list;
 })(), 1);

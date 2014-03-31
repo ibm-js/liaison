@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../css/examples.css">
+		<style type="text/css">
+			.close-button {
+				color: red;
+			}
+
+			ul.namelist {
+				margin: 0;
+				padding: 2px;
+				border: solid #4080ff 1px;
+				list-style-type: none;
+			}
+
+			ul.namelist liaison-sample-collection-item {
+				display: inline-block;
+				border: solid #4080ff 1px;
+				margin: 2px;
+				padding: 2px;
+			}
+
+			ul.namelist img {
+				padding: 1px;
+			}
+		</style>
+		<script type="text/javascript" src="../../../platform/platform.js"></script>
+		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
+		<script id="collection-item-template" type="text/x-template">
+			<li>
+				{{item.Name}}
+				<span class="close-button" on-click="{{removeItem}}">X</span>
+			</li>
+		</script>
+		<script id="collection-template" type="text/x-template">
+			<div>
+				<form on-submit="{{addItem}}">
+					<input type="text" placeholder="Type the new name" value="{{newName}}">
+				</form>
+				<ul class="namelist" on-liaison-sample-collection-item-remove-requested="{{removeItem}}">
+					<template repeat="{{items}}">
+						<liaison-sample-collection-item item="{{}}"></liaison-sample-collection-item>
+					</template>
+				</ul>
+				<div>Sum of lengths of names: {{totalNameLength}}</div>
+			</div>
+		</script>
+		<script type="text/javascript">
+			require([
+				"delite/register",
+				"liaison/delite/createRenderer",
+				"liaison/delite/widgets/Widget",
+				"liaison/delite/TemplateBinderExtension"
+			], function (register, createRenderer, Widget) {
+				function startup(){
+					var seq = 0;
+					register("liaison-sample-collection-item", [HTMLLIElement, Widget], {
+						buildRendering: createRenderer(document.getElementById("collection-item-template").innerHTML),
+						baseClass: "liaison-sample-collection-item",
+						item: undefined,
+						removeItem: function () {
+							var event = document.createEvent("CustomEvent");
+							event.initCustomEvent("liaison-sample-collection-item-remove-requested", true, true, {id: this.item.id});
+							this.dispatchEvent(event);
+						}
+					});
+					register("liaison-sample-collection", [HTMLElement, Widget], Widget.wrap({
+						buildRendering: createRenderer(document.getElementById("collection-template").innerHTML),
+						baseClass: "liaison-sample-collection",
+						addItem: function (event, detail, sender) {
+							sender.querySelector("input").blur(); // IE9 does not blur <input> at onsubmit. TODO(asudoh): Switch to oninput
+							this.items.push({id: seq++, Name: this.newName});
+							this.set("newName", "");
+							event.preventDefault();
+						},
+						removeItem: function (event, detail) {
+							var index = this.items.indexOf(this.items.filter(function(entry){ return entry.id == detail.id; })[0]);
+							if(index >= 0){
+								this.items.splice(index, 1);
+							}
+						},
+						items: [
+							{id: seq++, Name: "Anne Ackerman"},
+							{id: seq++, Name: "Ben Beckham"},
+							{id: seq++, Name: "Chad Chapman"},
+							{id: seq++, Name: "Irene Ira"},
+							{id: seq++, Name: "John Jacklin"}
+						],
+						totalNameLength: Widget.computedArray(function (a) {
+							return a.reduce(function(length, entry){
+								return length + entry.Name.length;
+							}, 0);
+						}, "items"),
+						newName: undefined
+					}));
+				}
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<liaison-sample-collection></liaison-sample-collection>
+	</body>
+</html>

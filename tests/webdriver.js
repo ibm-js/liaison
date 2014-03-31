@@ -24,11 +24,12 @@ define(["./intern"], function (intern) {
 			port: 4444
 		},
 
-		suites: ["liaison/tests/allBrowser"],
+		suites: ["liaison/tests/all"],
 
 		functionalSuites: [
 			"liaison/tests/delite/sandbox",
-			"liaison/tests/polymer/sandbox"
+			"liaison/tests/polymer/sandbox",
+			"liaison/tests/delite-polymer/sandbox"
 		]
 	};
 

@@ -9,6 +9,6 @@
 		"delite": "*",
 		"deliteful": "*",
 		"dcl": "1.1.x",
-		"polymer": "~0.2.0"
+		"polymer": "0.2.1"
 	}
 }
