@@ -355,24 +355,39 @@ define([
 		 *         template.bind("bind", observable);
 		 *     });
 		 */
-		templateElementClass.prototype.bind = HTMLScriptElement.prototype.bind = function (property, source) {
-			if (this.tagName === "TEMPLATE"
-				|| this.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(this.getAttribute("type"))) {
-				var target = this.bindings && this.bindings[property];
-				if (!target) {
+		(function () {
+			function createBindingTarget(element, property, source) {
+				var target = element.bindings && element.bindings[property];
+				if (target) {
+					return target.bind(source);
+				} else {
 					if (REGEXP_ATTRIBUTE_IF.test(property)) {
-						return new ConditionalDOMTreeBindingTarget(this, property).bind(source);
+						return new ConditionalDOMTreeBindingTarget(element, property).bind(source);
 					} else if (REGEXP_ATTRIBUTE_BIND.test(property)) {
-						return new DOMTreeBindingTarget(this, property).bind(source);
+						return new DOMTreeBindingTarget(element, property).bind(source);
 					} else if (REGEXP_ATTRIBUTE_REPEAT.test(property)) {
-						return new RepeatingDOMTreeBindingTarget(this, property).bind(source);
+						return new RepeatingDOMTreeBindingTarget(element, property).bind(source);
 					} else if (REGEXP_ATTRIBUTE_REF.test(property)) {
-						return new TemplateReferenceBindingTarget(this, property).bind(source);
+						return new TemplateReferenceBindingTarget(element, property).bind(source);
 					}
 				}
 			}
-			return HTMLElement.prototype.bind.call(this, property, source);
-		};
+			templateElementClass.prototype.bind = HTMLScriptElement.prototype.bind = function (property, source) {
+				var isTemplate = this.tagName === "TEMPLATE"
+					|| this.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(this.getAttribute("type"));
+				return isTemplate && createBindingTarget(this, property, source) || HTMLElement.prototype.bind.call(this, property, source);
+			};
+			// <template> in <svg>
+			var svgTemplateElementClassList = [];
+			typeof Element !== "undefined" && svgTemplateElementClassList.push(Element);
+			typeof SVGElement !== "undefined" && svgTemplateElementClassList.push(SVGElement);
+			svgTemplateElementClassList.forEach(function (svgTemplateElementClass) {
+				var origTemplateInSVGBind = svgTemplateElementClass.prototype.bind;
+				svgTemplateElementClass.prototype.bind = function (property, source) {
+					return this.tagName === "template" && createBindingTarget(this, property, source) || origTemplateInSVGBind.apply(this, arguments);
+				};
+			});
+		})();
 	}
 
 	return DOMTreeBindingTarget;
