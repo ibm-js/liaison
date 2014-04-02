@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="./css/examples.css">
+		<script type="text/javascript" src="../../requirejs/require.js" data-main="../../"></script>
+		<script type="text/javascript">
+			require([
+				"liaison/ObservablePath",
+				"liaison/wrapper",
+				"liaison/DOMTreeBindingTarget"
+			], function (ObservablePath, wrapper) {
+				var REGEXP_NUMBER_BINDING = /^number:(.*)$/,
+					template = document.getElementById("main-template"),
+					model = wrapper.wrap({
+						numberType: /trident/i.test(navigator.userAgent) ? "" : "number",
+						width: 200,
+						height: 200,
+						red: 0,
+						green: 255,
+						blue: 0
+					});
+				template.createBindingSourceFactory = function (target) {
+					var match = REGEXP_NUMBER_BINDING.exec(target);
+					if(match){
+						var path = match[1];
+						return function(model){
+							return new ObservablePath(model, path, function (value) {
+								return value + "";
+							}, function(value){
+								return +value;
+							});
+						}
+					}
+				};
+				template.bind("bind", model);
+			});
+		</script>
+	</head>
+	<body>
+		<template id="main-template">
+			<div>
+				<span class="cell">Width:</span> <input type="{{numberType}}" value="{{number:width}}">
+			</div>
+			<div>
+				<span class="cell">Height:</span> <input type="{{numberType}}" value="{{number:height}}">
+			</div>
+			<div>
+				<span class="cell">Red:</span> <input type="{{numberType}}" value="{{number:red}}">
+			</div>
+			<div>
+				<span class="cell">Green:</span> <input type="{{numberType}}" value="{{number:green}}">
+			</div>
+			<div>
+				<span class="cell">Blue:</span> <input type="{{numberType}}" value="{{number:blue}}">
+			</div>
+			<div>
+				<svg width="400" height="400">
+					<template bind="{{}}">
+						<rect width@="{{width}}" height@="{{height}}" style@="fill:rgb({{red}},{{green}},{{blue}});"></rect>
+					</template>
+				</svg>
+			</div>
+		</template>
+	</body>
+</html>

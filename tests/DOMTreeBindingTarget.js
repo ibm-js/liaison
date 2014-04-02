@@ -17,6 +17,8 @@ define([
 	"dojo/text!../tests/templates/simpleConditionalRepeatingTemplate.html",
 	"dojo/text!../tests/templates/attributeTemplate.html",
 	"dojo/text!../tests/templates/emptyBindingTemplate.html",
+	"dojo/text!../tests/templates/svgTemplate.html",
+	"dojo/text!../tests/templates/svgNestedTemplate.html",
 	"dojo/text!../tests/templates/eventTemplate.html",
 	"dojo/text!../tests/templates/irregularTemplate.html"
 ], function (
@@ -38,6 +40,8 @@ define([
 	simpleConditionalRepeatingTemplate,
 	attributeTemplate,
 	emptyBindingTemplate,
+	svgTemplate,
+	svgNestedTemplate,
 	eventTemplate,
 	irregularTemplate
 ) {
@@ -71,6 +75,24 @@ define([
 					expect(inputs[i * 2 + 1].value).to.equal(a[i].name.first);
 				}
 			}
+			var testRGB = (function () {
+				var REGEXP_HEXCOLOR = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/,
+					REGEXP_DECIMALCOLOR = /^rgb\((\d+), *(\d+), *(\d+)\)$/;
+				return function (str, r, g, b) {
+					var match;
+					if ((match = REGEXP_HEXCOLOR.exec(str))) {
+						expect(parseInt(match[1], 16)).to.equal(r);
+						expect(parseInt(match[2], 16)).to.equal(g);
+						expect(parseInt(match[3], 16)).to.equal(b);
+					} else if ((match = REGEXP_DECIMALCOLOR.exec(str))) {
+						expect(parseInt(match[1], 10)).to.equal(r);
+						expect(parseInt(match[2], 10)).to.equal(g);
+						expect(parseInt(match[3], 10)).to.equal(b);
+					} else {
+						throw new Error("Wrong RGB string: " + str);
+					}
+				};
+			})();
 			it("Assigning non-object/array", function () {
 				var dfd = this.async(10000),
 					observable = new Observable({foo: 0}),
@@ -667,6 +689,70 @@ define([
 					}
 				}), 500);
 			});
+			var ieVer = parseFloat(navigator.appVersion.split("MSIE ")[1]) || undefined,
+				mode = document.documentMode;
+			if (mode && mode !== 5 && Math.floor(ieVer) !== mode) {
+				ieVer = mode;
+			}
+			if (ieVer === undefined || ieVer > 9) {
+				it("SVG - Basic", function () {
+					var dfd = this.async(10000),
+						div = document.createElement("div"),
+						observable = new Observable({width: 250, height: 150, red: 128, green: 255, blue: 0});
+					div.innerHTML = svgTemplate;
+					var binding = div.querySelector("template").bind("bind", observable);
+					handles.push(binding);
+					document.body.appendChild(div);
+					handles.push({
+						remove: function () {
+							div.innerHTML = "";
+							document.body.removeChild(div);
+						}
+					});
+					setTimeout(dfd.rejectOnError(function () {
+						var rect = div.querySelector("rect");
+						expect(rect.width.baseVal.value).to.equal(250);
+						expect(rect.height.baseVal.value).to.equal(150);
+						testRGB(document.defaultView.getComputedStyle(rect).fill, 128, 255, 0);
+						observable.set("width", 150);
+						observable.set("height", 250);
+						observable.set("blue", 128);
+						setTimeout(dfd.callback(function () {
+							expect(rect.width.baseVal.value).to.equal(150);
+							expect(rect.height.baseVal.value).to.equal(250);
+							testRGB(document.defaultView.getComputedStyle(rect).fill, 128, 255, 128);
+						}), 500);
+					}), 500);
+				});
+				it("SVG - Nested", function () {
+					var dfd = this.async(10000),
+						div = document.createElement("div"),
+						template = div.appendChild(document.createElement("template")),
+						observable = new Observable({width: 250, height: 150, red: 128, green: 255, blue: 0});
+					template.innerHTML = svgNestedTemplate;
+					handles.push(template.bind("bind", observable));
+					document.body.appendChild(div);
+					handles.push({
+						remove: function () {
+							document.body.removeChild(div);
+						}
+					});
+					setTimeout(dfd.rejectOnError(function () {
+						var rect = div.querySelector("rect");
+						expect(rect.width.baseVal.value).to.equal(250);
+						expect(rect.height.baseVal.value).to.equal(150);
+						testRGB(document.defaultView.getComputedStyle(rect).fill, 128, 255, 0);
+						observable.set("width", 150);
+						observable.set("height", 250);
+						observable.set("blue", 128);
+						setTimeout(dfd.callback(function () {
+							expect(rect.width.baseVal.value).to.equal(150);
+							expect(rect.height.baseVal.value).to.equal(250);
+							testRGB(document.defaultView.getComputedStyle(rect).fill, 128, 255, 128);
+						}), 500);
+					}), 500);
+				});
+			}
 			it("Declarative events", function () {
 				var event,
 					senderDiv,

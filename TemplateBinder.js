@@ -128,7 +128,9 @@ define([
 		 */
 		importNode: function (doc, node, parsed, toBeBound) {
 			var imported,
-				isBroadTemplate = node.tagName === "TEMPLATE" || node.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(node.type);
+				isBroadTemplate = node.tagName === "TEMPLATE"
+					|| node.tagName === "template" && node.namespaceURI === "http://www.w3.org/2000/svg"
+					|| node.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(node.type);
 
 			if (!isBroadTemplate && node.nodeType === Node.ELEMENT_NODE && node.hasAttribute("template")) {
 				imported = doc.createElement("template");
@@ -141,9 +143,13 @@ define([
 				root.removeAttribute(ATTRIBUTE_BIND);
 				root.removeAttribute(ATTRIBUTE_REPEAT);
 			} else {
-				imported = doc.importNode(node, false);
+				imported = doc.importNode(node, !!isBroadTemplate);
 				if (isBroadTemplate) {
-					imported.innerHTML = node.innerHTML;
+					// For non-native template, let recursive clone of node (above) copy the template content,
+					// for native template, do that by copying innerHTML
+					if (imported.content) {
+						imported.innerHTML = node.innerHTML;
+					}
 					templateElement.upgrade(imported); // To prevent parsed -> toBeBound copy for template contents
 				} else {
 					for (var child = node.firstChild; child; child = child.nextSibling) {

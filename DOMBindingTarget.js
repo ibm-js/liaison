@@ -25,22 +25,40 @@ define(["./BindingTarget"], function (BindingTarget) {
 		var args = EMPTY_ARRAY.slice.call(arguments);
 		args[1] = args[1].toLowerCase();
 		BindingTarget.apply(this, args);
+		this.targetProperty = this.property;
 	}
 
 	DOMBindingTarget.prototype = Object.create(BindingTarget.prototype);
 
 	Object.defineProperty(DOMBindingTarget.prototype, "value", {
 		get: function () {
-			return this.object.getAttribute(this.property);
+			return this.object.getAttribute(this.targetProperty);
 		},
 		set: function (value) {
-			this.object.setAttribute(this.property, value != null ? value : "");
+			this.object.setAttribute(this.targetProperty, value != null ? value : "");
 		},
 		enumeable: true,
 		configurable: true
 	});
 
 	DOMBindingTarget.useExisting = useExisting;
+
+	/**
+	 * Binding target for a DOM attribute, for ones that don't accept data binding syntax as attribute value.
+	 * Created with {@link HTMLElement#bind HTMLElement.bind()}.
+	 * @class module:liaison/DOMPointerBindingTarget
+	 * @augments module:liaison/BindingTarget
+	 * @param {Object} object The DOM element.
+	 * @param {string} property The attribute name.
+	 * @param {Object} [options]
+	 *     The parameters governing this {@link module:liaison/DOMPointerBindingTarget DOMPointerBindingTarget}'s behavior.
+	 */
+	function DOMPointerBindingTarget() {
+		DOMBindingTarget.apply(this, arguments);
+		this.targetProperty = this.property.substr(0, this.property.length - 1);
+	}
+
+	DOMPointerBindingTarget.prototype = Object.create(DOMBindingTarget.prototype);
 
 	/**
 	 * Binding target for a conditional DOM attribute.
@@ -94,9 +112,10 @@ define(["./BindingTarget"], function (BindingTarget) {
 		 */
 		HTMLElement.prototype.bind = function (property, source) {
 			var target = (this.bindings || EMPTY_OBJECT)[property];
-			target = target || (property.lastIndexOf("?") === property.length - 1 ?
-				new ConditionalDOMBindingTarget(this, property) :
-				new DOMBindingTarget(this, property));
+			target = target
+				|| (property.lastIndexOf("?") === property.length - 1 ? new ConditionalDOMBindingTarget(this, property) :
+					property.lastIndexOf("@") === property.length - 1 ? new DOMPointerBindingTarget(this, property) :
+					new DOMBindingTarget(this, property));
 			return target.bind(source);
 		};
 
@@ -110,6 +129,15 @@ define(["./BindingTarget"], function (BindingTarget) {
 				this.bindings[property].remove();
 			}
 		};
+		if (typeof SVGElement !== undefined) {
+			/**
+			 * @class SVGElement
+			 * @borrows HTMLElement#bind as #bind
+			 * @borrows HTMLElement#unbind as #unbind
+			 */
+			SVGElement.prototype.bind = HTMLElement.prototype.bind;
+			SVGElement.prototype.unbind = HTMLElement.prototype.unbind;
+		}
 	}
 
 	/**

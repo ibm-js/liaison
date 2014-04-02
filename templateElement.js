@@ -26,6 +26,7 @@ define(function () {
 		upgrade: (function () {
 			function isUpgradable(node) {
 				return node.tagName === "TEMPLATE"
+					|| node.tagName === "template" && node.namespaceURI === "http://www.w3.org/2000/svg"
 					|| node.hasAttribute("template")
 					|| node.tagName === "SCRIPT" && REGEXP_TEMPLATE_TYPE.test(node.getAttribute("type"));
 			}
@@ -33,7 +34,7 @@ define(function () {
 				/* global HTMLTemplateElement */
 				if (!isUpgradable(element)) {
 					throw new TypeError("Only <template>, <element template>,"
-						+ " or <script type=\"x-template\"> can be used as a template.");
+						+ " or <script type=\"x-template\"> (except in SVG context) can be used as a template.");
 				}
 				if (typeof HTMLTemplateElement !== "undefined" && typeof HTMLTemplateElement.decorate === "function") {
 					// If Polymer TemplateBinding is there, let it upgrade the template
