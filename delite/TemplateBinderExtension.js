@@ -19,8 +19,8 @@ define([
 	// If document.register() is there, upgradable elements will be upgraded automatically.
 	// "document-register" has() flag is tested in delite/register.
 	if (!has("document-register")) {
-		var origImportNode = TemplateBinder.prototype.importNode;
-		TemplateBinder.prototype.importNode = function () {
+		var origImportNode = TemplateBinder.importNode;
+		TemplateBinder.importNode = function () {
 			var imported = origImportNode.apply(this, arguments);
 			if (imported.nodeType === Node.ELEMENT_NODE) {
 				register.upgrade(imported);

@@ -17,6 +17,7 @@ define([
 	"dojo/text!./templates/widgetWithNestedRepeatingTemplate.html",
 	"../../delite/createRenderer!./templates/nestedWidgetTemplate.html",
 	"../../delite/createRenderer!./templates/complexAttributeTemplate.html",
+	"../../delite/createRenderer!./templates/attachPointTemplate.html",
 	"../../delite/createRenderer!./templates/simpleWithAlternateBindingTemplate.html",
 	"../../delite/createRenderer!../templates/eventTemplate.html",
 	"deliteful/StarRating",
@@ -40,6 +41,7 @@ define([
 	widgetWithNestedRepeatingTemplate,
 	renderNestedWidgetTemplate,
 	renderComplexAttributeTemplate,
+	renderAttachPointTemplate,
 	renderAlternateBindingTemplate,
 	renderEventsTemplate
 ) {
@@ -79,6 +81,10 @@ define([
 					buildRendering: renderComplexAttributeTemplate,
 					baseClass: "liaison-test-complexattribute",
 					name: undefined
+				}),
+				AttachPointTemplateWidget = register("liaison-test-attachpoint", [HTMLElement, Widget], {
+					buildRendering: renderAttachPointTemplate,
+					baseClass: "liaison-test-attachpoint"
 				}),
 				AlternateBindingTemplateWidget = register("liaison-test-alternatebinding", [HTMLElement, Widget], {
 					buildRendering: renderAlternateBindingTemplate,
@@ -388,6 +394,18 @@ define([
 				setTimeout(dfd.callback(function () {
 					// Mixin properties are applied after template is instantiated
 					expect(w.querySelector("span").getAttribute("attrib")).to.equal("First name: John");
+				}), 500);
+			});
+			it("Attach point", function () {
+				var dfd = this.async(10000),
+					w = new AttachPointTemplateWidget().placeAt(document.body);
+				handles.push({
+					remove: function () {
+						w.destroy();
+					}
+				});
+				setTimeout(dfd.callback(function () {
+					expect(w.valueNode).to.equal(w.querySelector("input"));
 				}), 500);
 			});
 			it("Simple binding with default alternate binding factory", function () {

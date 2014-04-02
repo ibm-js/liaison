@@ -293,6 +293,8 @@ define([
 		var templateElementClass
 			= typeof HTMLTemplateElement !== "undefined" ? HTMLTemplateElement : HTMLUnknownElement;
 
+		/** @class HTMLScriptElement */
+
 		/**
 		 * Establishes data binding between script element property/attribute and {@link module:liaison/BindingSource BindingSource}.
 		 * If the script element has type="x-template" attribute and the given property is "bind",
@@ -310,6 +312,8 @@ define([
 		 *     The {@link module:liaison/BindingTarget BindingTarget} instance
 		 *     representing the element property/attribute.
 		 */
+
+		/** @class HTMLTemplateElement */
 
 		/**
 		 * Establishes data binding between template element property/attribute and {@link module:liaison/BindingSource BindingSource}.
@@ -357,20 +361,18 @@ define([
 		 */
 		(function () {
 			function createBindingTarget(element, property, source) {
+				/* jshint newcap: false */
 				var target = element.bindings && element.bindings[property];
-				if (target) {
-					return target.bind(source);
-				} else {
-					if (REGEXP_ATTRIBUTE_IF.test(property)) {
-						return new ConditionalDOMTreeBindingTarget(element, property).bind(source);
-					} else if (REGEXP_ATTRIBUTE_BIND.test(property)) {
-						return new DOMTreeBindingTarget(element, property).bind(source);
-					} else if (REGEXP_ATTRIBUTE_REPEAT.test(property)) {
-						return new RepeatingDOMTreeBindingTarget(element, property).bind(source);
-					} else if (REGEXP_ATTRIBUTE_REF.test(property)) {
-						return new TemplateReferenceBindingTarget(element, property).bind(source);
+				if (!target) {
+					var clz = REGEXP_ATTRIBUTE_IF.test(property) && ConditionalDOMTreeBindingTarget
+						|| REGEXP_ATTRIBUTE_BIND.test(property) && DOMTreeBindingTarget
+						|| REGEXP_ATTRIBUTE_REPEAT.test(property) && RepeatingDOMTreeBindingTarget
+						|| REGEXP_ATTRIBUTE_REF.test(property) && TemplateReferenceBindingTarget;
+					if (clz) {
+						target = new clz(element, property);
 					}
 				}
+				return target && target.bind(source);
 			}
 			templateElementClass.prototype.bind = HTMLScriptElement.prototype.bind = function (property, source) {
 				var isTemplate = this.tagName === "TEMPLATE"

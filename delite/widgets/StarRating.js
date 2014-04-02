@@ -77,6 +77,53 @@ define([
 		_entrySeq: 0,
 
 		/**
+		 * The list of attributes of this custom element to set after DOM is created.
+		 * @type {Object}
+		 */
+		attribs: {
+			"role": "slider",
+			"aria-label": messages["aria-label"],
+			"aria-valuemin": 0,
+			"aria-valuemax": "{{max}}",
+			"aria-valuenow": "{{value}}",
+			"aria-valuetext": "{{aria:value}}"
+		},
+
+		/**
+		 * The list of attributes of attach point nodes to set after DOM is created.
+		 * @type {Function}
+		 */
+		attachPointsAttribs: function () {
+			if (this.noReuseInput) {
+				return {
+					"valueNode": {
+						"name": "{{name}}",
+						"value": "{{value}}",
+						"readOnly": "{{readOnly}}",
+						"disabled": "{{disabled}}"
+					}
+				};
+			}
+		},
+
+		/**
+		 * Binding source factory implementation for this widget.
+		 * @see {@link module:delite/Widget#createBindingSourceFactory module:delite/Widget#createBindingSourceFactory}.
+		 * @param {string} path What's in the mustache syntax.
+		 * @returns {Function} The function that creates an alternate binding source for `{{aria:xxx}}`, using aria-valuetext string resource.
+		 */
+		createBindingSourceFactory: function (path) {
+			var match = /^aria:(.*)/.exec(path);
+			if (match) {
+				return function (model) {
+					return new ObservablePath(model, match[1], function () {
+						return string.substitute(messages["aria-valuetext"], model);
+					});
+				};
+			}
+		},
+
+		/**
 		 * Getter for {@link module:liaison/delite/widgets/StarRating#zeroAreaWidth zeroAreaWidth property}.
 		 * @returns {number}
 		 *     {@link module:liaison/delite/widgets/StarRating#zeroAreaWidth zeroAreaWidth property} value.
@@ -105,10 +152,6 @@ define([
 			}
 			this.style.display = "inline-block";
 
-			// init WAI-ARIA attributes
-			this.setAttribute("role", "slider");
-			this.setAttribute("aria-label", messages["aria-label"]);
-			this.setAttribute("aria-valuemin", 0);
 			// init tabIndex if not explicitly set
 			if (!this.hasAttribute("tabindex")) {
 				this.setAttribute("tabindex", "0");
@@ -128,18 +171,7 @@ define([
 				this.valueNode = this.getElementsByTagName("INPUT")[0];
 			} else {
 				this.appendChild(this.valueNode);
-				// Use imperative data binding here if <input> is reused
-				this.own(this.valueNode.bind("name", new ObservablePath(this, "name")));
-				this.own(this.valueNode.bind("value", new ObservablePath(this, "value")));
-				this.own(this.valueNode.bind("readOnly", new ObservablePath(this, "readOnly")));
-				this.own(this.valueNode.bind("disabled", new ObservablePath(this, "disabled")));
 			}
-
-			this.own(this.bind("aria-valuemax", new ObservablePath(this, "max")));
-			this.own(this.bind("aria-valuenow", new ObservablePath(this, "value")));
-			this.own(this.bind("aria-valuetext", new ObservablePath(this, "value", function () {
-				return string.substitute(messages["aria-valuetext"], this);
-			}.bind(this))));
 
 			this.disabledChanged(this.disabled);
 			this.readOnlyChanged(this.readOnly);
