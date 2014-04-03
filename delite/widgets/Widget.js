@@ -23,13 +23,42 @@ define([
 	 */
 	var LiaisonWidget = dcl(Widget, /** @lends module:liaison/delite/widgets/Widget# */ {
 		/**
+		 * The list of attributes of this custom element to set after DOM is created.
+		 * If the attribute value contains data binding syntax, it's evaluated.
+		 * Alternatively this can be a function that returns the list of attributes.
+		 * @example <caption>Binds value property of this widget to aria-valuenow attribute of this widget.</caption>
+		 * attribs: {
+		 *     "aria-valuenow": "{{value}}"
+		 * }
+		 */
+		attribs: null,
+
+		/**
+		 * The list of attributes of attach point nodes to set after DOM is created.
+		 * If the attribute value contains data binding syntax, it's evaluated.
+		 * Alternatively this can be a function that returns the list of attributes.
+		 * @example <caption>Binds value property of this widget to value property of valueNode.</caption>
+		 * attachPointsAttribs: {
+		 *     "valueNode": {
+		 *         "value": "{{value}}"
+		 *     }
+		 * }
+		 */
+		attachPointsAttribs: null,
+
+		/**
+		 * If true, don't call property change callbacks (`propCallback()`) at initialization.
+		 */
+		preventDispatchValuesAtInitialization: false,
+
+		/**
 		 * Lifecycle callback for this custom element being created.
 		 * Makes sure change in "introspected" property emits change records compatible
 		 * with {@link http://wiki.ecmascript.org/doku.php?id=harmony:observe ECMAScript Harmony Object.observe()}.
 		 * Also adds support for propChanged() callback.
 		 * @method
 		 */
-		createdCallback: dcl.before(function () {
+		preCreate: dcl.before(function () {
 			var tokens;
 			this.watch = Stateful.prototype.watch; // From delite/Widget#preCreate
 			wrapStateful(this);
@@ -54,12 +83,14 @@ define([
 				nodes = [this],
 				declarations = [typeof this.attribs === "function" ? this.attribs() : this.attribs],
 				attachPointsAttribs = typeof this.attachPointsAttribs === "function" ? this.attachPointsAttribs() : this.attachPointsAttribs;
-			for (var s in attachPointsAttribs) {
-				if (this[s]) {
-					nodes.push(this[s]);
-					declarations.push(attachPointsAttribs[s]);
+
+			for (var point in attachPointsAttribs) {
+				if (this[point]) {
+					nodes.push(this[point]);
+					declarations.push(attachPointsAttribs[point]);
 				}
 			}
+
 			nodes.forEach(function (node, i) {
 				var declaration = declarations[i];
 				for (var name in declaration) {
@@ -70,34 +101,20 @@ define([
 					}
 				}
 			});
+
 			TemplateBinder.assignSources(this, toBeBound, this.createBindingSourceFactory);
 			this.own.apply(this, TemplateBinder.bind(toBeBound));
+
+			if (!this.preventDispatchValuesAtInitialization) {
+				var tokens;
+				for (var prop in this) {
+					if ((tokens = REGEXP_CHAGED_CALLBACK.exec(prop)) && typeof this[prop] === "function") {
+						this[prop](this[tokens[1]]);
+					}
+				}
+			}
 		})
 	});
-
-	/**
-	 * The list of attributes of this custom element to set after DOM is created.
-	 * If the attribute value contains data binding syntax, it's evaluated.
-	 * Alternatively this can be a function that returns the list of attributes.
-	 * @member {Object} module:liaison/delite/widgets/Widget#attribs
-	 * @example <caption>Binds value property of this widget to aria-valuenow attribute of this widget.</caption>
-	 * attribs: {
-	 *     "aria-valuenow": "{{value}}"
-	 * }
-	 */
-
-	/**
-	 * The list of attributes of attach point nodes to set after DOM is created.
-	 * If the attribute value contains data binding syntax, it's evaluated.
-	 * Alternatively this can be a function that returns the list of attributes.
-	 * @member {Object} module:liaison/delite/widgets/Widget#attachPointsAttribs
-	 * @example <caption>Binds value property of this widget to value property of valueNode.</caption>
-	 * attachPointsAttribs: {
-	 *     "valueNode": {
-	 *         "value": "{{value}}"
-	 *     }
-	 * }
-	 */
 
 	LiaisonWidget.wrap = wrapperProto.wrap;
 	LiaisonWidget.computed = wrapperProto.computed;

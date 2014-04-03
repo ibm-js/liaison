@@ -80,13 +80,16 @@ define([
 		 * The list of attributes of this custom element to set after DOM is created.
 		 * @type {Object}
 		 */
-		attribs: {
-			"role": "slider",
-			"aria-label": messages["aria-label"],
-			"aria-valuemin": 0,
-			"aria-valuemax": "{{max}}",
-			"aria-valuenow": "{{value}}",
-			"aria-valuetext": "{{aria:value}}"
+		attribs: function () {
+			return {
+				"role": "slider",
+				"tabIndex": this.hasAttribute("tabIndex") ? this.getAttribute("tabIndex") : "0",
+				"aria-label": messages["aria-label"],
+				"aria-valuemin": 0,
+				"aria-valuemax": "{{max}}",
+				"aria-valuenow": "{{value}}",
+				"aria-valuetext": "{{aria:value}}"
+			};
 		},
 
 		/**
@@ -138,9 +141,9 @@ define([
 		 * and create data bindings that are not defined in the template.
 		 */
 		buildRendering: function () {
-			/* jshint newcap: false */
 			pointer.setTouchAction(this, "none");
-			var inputs = this.getElementsByTagName("INPUT");
+
+			var inputs = this.getElementsByTagName("input");
 			if (inputs.length) {
 				(this.valueNode = inputs[0]).parentNode.removeChild(this.valueNode);
 				if (!isNaN(parseFloat(this.valueNode.value))) {
@@ -150,32 +153,18 @@ define([
 			} else {
 				this.noReuseInput = true;
 			}
+
 			this.style.display = "inline-block";
-
-			// init tabIndex if not explicitly set
-			if (!this.hasAttribute("tabindex")) {
-				this.setAttribute("tabindex", "0");
-			}
-
-			var a = Array.apply(undefined, new Array(Math.max(this.max, 0))).map(function (entry, i) {
-				return new Observable({
-					uniqueId: "" + this._entrySeq++,
-					state: i < this.value ? "full" : "empty"
-				});
-			}, this);
-			this.set("stars", ObservableArray.apply(undefined, a));
 
 			renderer.call(this);
 
+			!this.stars && this.set("stars", new ObservableArray());
+
 			if (this.noReuseInput) {
-				this.valueNode = this.getElementsByTagName("INPUT")[0];
+				this.valueNode = this.getElementsByTagName("input")[0];
 			} else {
 				this.appendChild(this.valueNode);
 			}
-
-			this.disabledChanged(this.disabled);
-			this.readOnlyChanged(this.readOnly);
-			this.passiveChanged(this.passive);
 		},
 
 		/**
@@ -185,8 +174,9 @@ define([
 		 * @param  {number} oldValue The old value.
 		 */
 		valueChanged: function (value, oldValue) {
+			oldValue = oldValue || 0;
 			var turnTo = value > oldValue ? "full" : "empty";
-			this.stars.slice(Math.max(Math.min(value, oldValue), 0), Math.max(value, oldValue, 0))
+			this.stars && this.stars.slice(Math.max(Math.min(value, oldValue), 0), Math.max(value, oldValue, 0))
 				.forEach(function (entry) {
 					entry.set("state", turnTo);
 				});
@@ -199,6 +189,7 @@ define([
 		 * @param  {number} oldMax The old value.
 		 */
 		maxChanged: function (max, oldMax) {
+			oldMax = oldMax || 0;
 			if (max < oldMax) {
 				this.stars.set("length", Math.max(max, 0));
 			} else {
