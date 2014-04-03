@@ -17,27 +17,33 @@ define([
 				}
 			});
 			it("Changed watcher", function () {
-				var changeCount = 0,
+				var created,
+					changeCount = 0,
 					dfd = this.async(10000);
 				register("liaison-test-basic-data", [HTMLElement, Widget], Widget.wrap({
 					first: "John",
 					last: "Doe",
 					firstChanged: dfd.rejectOnError(function (first, oldFirst) {
-						expect(first).to.equal("Anne");
-						expect(oldFirst).to.equal("John");
-						if (++changeCount >= 2) {
-							dfd.resolve(1);
+						if (created) {
+							expect(first).to.equal("Anne");
+							expect(oldFirst).to.equal("John");
+							if (++changeCount >= 2) {
+								dfd.resolve(1);
+							}
 						}
 					}),
 					lastChanged: dfd.rejectOnError(function (last, oldLast) {
-						expect(last).to.equal("Ackerman");
-						expect(oldLast).to.equal("Doe");
-						if (++changeCount >= 2) {
-							dfd.resolve(1);
+						if (created) {
+							expect(last).to.equal("Ackerman");
+							expect(oldLast).to.equal("Doe");
+							if (++changeCount >= 2) {
+								dfd.resolve(1);
+							}
 						}
 					})
 				}));
 				var elem = register.createElement("liaison-test-basic-data");
+				created = true;
 				elem.first = "Anne";
 				elem.last = "Ackerman";
 			});
@@ -75,7 +81,8 @@ define([
 				elem.first = "Ben";
 			});
 			it("Computed array", function () {
-				var dfd = this.async(10000);
+				var created,
+					dfd = this.async(10000);
 				register("liaison-test-computedarray", [HTMLElement, Widget], Widget.wrap({
 					baseClass: "liaison-test-computedarray",
 					items: [
@@ -89,12 +96,16 @@ define([
 							return length + entry.Name.length;
 						}, 0);
 					}, "items"),
-					totalNameLengthChanged: dfd.callback(function (length, oldLength) {
-						expect(length).to.equal(57);
-						expect(oldLength).to.equal(45);
+					totalNameLengthChanged: dfd.rejectOnError(function (length, oldLength) {
+						if (created) {
+							expect(length).to.equal(57);
+							expect(oldLength).to.equal(45);
+							dfd.resolve(1);
+						}
 					})
 				}));
 				var elem = register.createElement("liaison-test-computedarray");
+				created = true;
 				handles.push({
 					remove: function () {
 						elem.destroy();
@@ -181,6 +192,39 @@ define([
 						expect(elem.getAttribute("aria-value")).to.equal("value1");
 					}), 500);
 				}), 500);
+			});
+			it("Dispatch values at initialization", function () {
+				var gotValue;
+				register("liaison-test-dispatch", [HTMLElement, Widget], {
+					value: "foo",
+					valueChanged: function (value) {
+						gotValue = value;
+					}
+				});
+				var elem = register.createElement("liaison-test-dispatch");
+				handles.push({
+					remove: function () {
+						elem.destroy();
+					}
+				});
+				expect(gotValue).to.equal("foo");
+			});
+			it("Prevent dispatching values at initialization", function () {
+				var got;
+				register("liaison-test-preventdispatch", [HTMLElement, Widget], {
+					preventDispatchValuesAtInitialization: true,
+					value: "foo",
+					valueChanged: function () {
+						got = true;
+					}
+				});
+				var elem = register.createElement("liaison-test-preventdispatch");
+				handles.push({
+					remove: function () {
+						elem.destroy();
+					}
+				});
+				expect(got).not.to.be.true;
 			});
 		});
 	}

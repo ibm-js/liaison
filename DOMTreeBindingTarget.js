@@ -63,9 +63,9 @@ define([
 			this.content.remove();
 			this.content = null;
 		}
-		if (this.hInsantiation) {
-			this.hInsantiation.remove();
-			this.hInsantiation = null;
+		if (this.hInstantiation) {
+			this.hInstantiation.remove();
+			this.hInstantiation = null;
 		}
 		BindingTarget.prototype.remove.apply(this, arguments);
 	};
@@ -76,7 +76,7 @@ define([
 		},
 		set: (function () {
 			function refresh() {
-				this.hInsantiation = null;
+				this.hInstantiation = null;
 				if (this.content) {
 					this.content.remove();
 					this.content = null;
@@ -88,7 +88,7 @@ define([
 			}
 			return function (value) {
 				this.model = value;
-				this.hInsantiation = this.hInstantiation || schedule(refresh.bind(this));
+				this.hInstantiation = this.hInstantiation || schedule(refresh.bind(this));
 			};
 		})(),
 		enumeable: true,
@@ -129,9 +129,9 @@ define([
 				content.remove();
 			}
 		}
-		if (this.hInsantiation) {
-			this.hInsantiation.remove();
-			this.hInsantiation = null;
+		if (this.hInstantiation) {
+			this.hInstantiation.remove();
+			this.hInstantiation = null;
 		}
 		DOMTreeBindingTarget.prototype.remove.apply(this, arguments);
 	};
@@ -183,7 +183,7 @@ define([
 				}
 			}
 			function refresh(old) {
-				this.hInsantiation = null;
+				this.hInstantiation = null;
 				this.contents = this.contents || [];
 				if (ObservableArray.canObserve(this.model)) {
 					this.ha = ObservableArray.observe(this.model, spliceCallback.bind(this));
@@ -207,7 +207,7 @@ define([
 				}
 				var old = this.model;
 				this.model = value;
-				this.hInsantiation = this.hInstantiation || schedule(refresh.bind(this, old));
+				this.hInstantiation = this.hInstantiation || schedule(refresh.bind(this, old));
 			};
 		})(),
 		enumeable: true,

@@ -6,21 +6,21 @@ define([
 	"../ObservableArray",
 	"../BindingTarget",
 	"../DOMTreeBindingTarget",
-	"dojo/text!../tests/templates/simpleBindingTemplate.html",
-	"dojo/text!../tests/templates/simpleObjectPathBindingTemplate.html",
-	"dojo/text!../tests/templates/simpleWithAlternateBindingTemplate.html",
-	"dojo/text!../tests/templates/nestedTemplate.html",
-	"dojo/text!../tests/templates/nestedScriptTemplate.html",
-	"dojo/text!../tests/templates/deepNestedTemplate.html",
-	"dojo/text!../tests/templates/simpleWithConditionalAttributeBindingTemplate.html",
-	"dojo/text!../tests/templates/simpleConditionalBindingTemplate.html",
-	"dojo/text!../tests/templates/simpleConditionalRepeatingTemplate.html",
-	"dojo/text!../tests/templates/attributeTemplate.html",
-	"dojo/text!../tests/templates/emptyBindingTemplate.html",
-	"dojo/text!../tests/templates/svgTemplate.html",
-	"dojo/text!../tests/templates/svgNestedTemplate.html",
-	"dojo/text!../tests/templates/eventTemplate.html",
-	"dojo/text!../tests/templates/irregularTemplate.html"
+	"dojo/text!./templates/simpleBindingTemplate.html",
+	"dojo/text!./templates/simpleObjectPathBindingTemplate.html",
+	"dojo/text!./templates/simpleWithAlternateBindingTemplate.html",
+	"dojo/text!./templates/nestedTemplate.html",
+	"dojo/text!./templates/nestedScriptTemplate.html",
+	"dojo/text!./templates/deepNestedTemplate.html",
+	"dojo/text!./templates/simpleWithConditionalAttributeBindingTemplate.html",
+	"dojo/text!./templates/simpleConditionalBindingTemplate.html",
+	"dojo/text!./templates/simpleConditionalRepeatingTemplate.html",
+	"dojo/text!./templates/attributeTemplate.html",
+	"dojo/text!./templates/emptyBindingTemplate.html",
+	"dojo/text!./templates/svgTemplate.html",
+	"dojo/text!./templates/svgNestedTemplate.html",
+	"dojo/text!./templates/eventTemplate.html",
+	"dojo/text!./templates/irregularTemplate.html"
 ], function (
 	bdd,
 	expect,
@@ -506,6 +506,17 @@ define([
 							}), 500);
 						}), 500);
 					}), 500);
+				}), 500);
+			});
+			it("Binding to another array for repeat right after binding", function () {
+				var dfd = this.async(10000),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template"));
+				template.innerHTML = basicTemplate;
+				template.bind("repeat", new ObservableArray());
+				handles.push(template.bind("repeat", new ObservableArray("a", "b", "c")));
+				setTimeout(dfd.callback(function () {
+					expect(div.querySelectorAll("input").length).to.equal(3);
 				}), 500);
 			});
 			it("disabled attribute reflecting model", function () {
