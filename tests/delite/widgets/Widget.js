@@ -102,6 +102,86 @@ define([
 				});
 				elem.items.push({Name: "John Jacklin"});
 			});
+			it("Attribute mapping with plain object", function () {
+				var dfd = this.async(10000);
+				register("liaison-test-attribute-object", [HTMLElement, Widget], {
+					value: "",
+					attribs: {
+						"aria-value": "{{value}}"
+					},
+					attachPointsAttribs: {
+						"valueNode": {
+							"value": "{{value}}"
+						}
+					},
+					buildRendering: function () {
+						this.valueNode = this.ownerDocument.createElement("input");
+						this.valueNode.setAttribute("type", "text");
+						this.appendChild(this.valueNode);
+					}
+				});
+				var elem = register.createElement("liaison-test-attribute-object");
+				handles.push({
+					remove: function () {
+						elem.destroy();
+					}
+				});
+				elem.set("value", "value0");
+				setTimeout(dfd.rejectOnError(function () {
+					expect(elem.getAttribute("aria-value")).to.equal("value0");
+					expect(elem.valueNode.value).to.equal("value0");
+					elem.valueNode.value = "value1";
+					var event = document.createEvent("HTMLEvents");
+					event.initEvent("input", false, true);
+					elem.valueNode.dispatchEvent(event);
+					setTimeout(dfd.callback(function () {
+						expect(elem.value).to.equal("value1");
+						expect(elem.getAttribute("aria-value")).to.equal("value1");
+					}), 500);
+				}), 500);
+			});
+			it("Attribute mapping with function", function () {
+				var dfd = this.async(10000);
+				register("liaison-test-attribute-function", [HTMLElement, Widget], {
+					value: "",
+					attribs: function () {
+						return {
+							"aria-value": "{{value}}"
+						};
+					},
+					attachPointsAttribs: function () {
+						return {
+							"valueNode": {
+								"value": "{{value}}"
+							}
+						};
+					},
+					buildRendering: function () {
+						this.valueNode = this.ownerDocument.createElement("input");
+						this.valueNode.setAttribute("type", "text");
+						this.appendChild(this.valueNode);
+					}
+				});
+				var elem = register.createElement("liaison-test-attribute-function");
+				handles.push({
+					remove: function () {
+						elem.destroy();
+					}
+				});
+				elem.set("value", "value0");
+				setTimeout(dfd.rejectOnError(function () {
+					expect(elem.getAttribute("aria-value")).to.equal("value0");
+					expect(elem.valueNode.value).to.equal("value0");
+					elem.valueNode.value = "value1";
+					var event = document.createEvent("HTMLEvents");
+					event.initEvent("input", false, true);
+					elem.valueNode.dispatchEvent(event);
+					setTimeout(dfd.callback(function () {
+						expect(elem.value).to.equal("value1");
+						expect(elem.getAttribute("aria-value")).to.equal("value1");
+					}), 500);
+				}), 500);
+			});
 		});
 	}
 });

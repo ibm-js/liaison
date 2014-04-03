@@ -46,12 +46,12 @@ define(["./BindingTarget"], function (BindingTarget) {
 	/**
 	 * Binding target for a DOM attribute, for ones that don't accept data binding syntax as attribute value.
 	 * Created with {@link HTMLElement#bind HTMLElement.bind()}.
-	 * @class module:liaison/DOMPointerBindingTarget
+	 * @class module:liaison/DOMBindingTarget~DOMPointerBindingTarget
 	 * @augments module:liaison/BindingTarget
 	 * @param {Object} object The DOM element.
 	 * @param {string} property The attribute name.
 	 * @param {Object} [options]
-	 *     The parameters governing this {@link module:liaison/DOMPointerBindingTarget DOMPointerBindingTarget}'s behavior.
+	 *     The parameters governing this {@link module:liaison/DOMBindingTarget~DOMPointerBindingTarget DOMPointerBindingTarget}'s behavior.
 	 */
 	function DOMPointerBindingTarget() {
 		DOMBindingTarget.apply(this, arguments);

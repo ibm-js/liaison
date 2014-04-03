@@ -6,6 +6,8 @@ define([
 ], function (wrapStateful, templateElement, TemplateBinder) {
 	"use strict";
 
+	var forEach = [].forEach;
+
 	/**
 	 * @function module:liaison/delite/createRenderer
 	 * @param {string} template The template string.
@@ -56,6 +58,12 @@ define([
 			this.binder = new TemplateBinder(templateElement.create(prefix + template, this.ownerDocument));
 			this.binder.template.createBindingSourceFactory = this.createBindingSourceFactory;
 			this.own(this.binder.create(this, this, "beforeEnd"));
+			forEach.call(this.querySelectorAll("[data-attach-point]"), function (elem) {
+				var value = elem.getAttribute("data-attach-point");
+				if (value) {
+					this[value] = elem;
+				}
+			}, this);
 		};
 	};
 
@@ -87,6 +95,13 @@ define([
 			loaded(createRenderer(template));
 		});
 	};
+
+	/**
+	 * The binding source factory,
+	 * used when {@link module:liaison/delite/createRenderer liaison/delite/createRenderer} stamps out the template content.
+	 * This function has the same interface as {@link HTMLTemplateElement#createBindingSourceFactory}.
+	 * @function module:delite/Widget#createBindingSourceFactory
+	 */
 
 	return createRenderer;
 });
