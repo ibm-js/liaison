@@ -53,8 +53,16 @@
 				return result;
 			};
 		})(),
-		computed: wrapper.computed,
-		computedArray: wrapper.computedArray,
+		computed: function () {
+			var computed = wrapper.computed.apply(this, arguments);
+			computed.lazyObjectAssignment = true;
+			return computed;
+		},
+		computedArray: function () {
+			var computedArray = wrapper.computedArray.apply(this, arguments);
+			computedArray.lazyObjectAssignment = true;
+			return computedArray;
+		},
 		isComputed: wrapper.isComputed
 	};
 });

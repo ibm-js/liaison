@@ -149,7 +149,7 @@
 			wrapped = new Observable();
 			for (var s in o) {
 				if (isComputed(o[s])) {
-					handles.push(o[s].init(wrapped, s).activate());
+					handles.push(o[s].lazyObjectAssignment ? o[s].init(undefined, s) : o[s].init(wrapped, s).activate());
 				} else {
 					wrapped[s] = wrap(o[s]);
 				}
