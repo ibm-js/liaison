@@ -50,7 +50,7 @@
 	 */
 	function ObservablePath(object, path, formatter, parser) {
 		this.object = object;
-		this.path = path;
+		this.path = Array.isArray(path) ? path : path + "";
 		this.formatter = formatter;
 		this.parser = parser;
 		this.observers = [];
@@ -116,9 +116,7 @@
 			observer.remove = observer.close;
 			return observer;
 		} else {
-			if (!Array.isArray(path) && typeof path !== "string") {
-				throw new Error("Wrong path specified: " + path);
-			}
+			path = Array.isArray(path) ? path : "" + path;
 			var comps = getPathComps(path, true);
 			this.o = o;
 			this.prop = comps.shift();

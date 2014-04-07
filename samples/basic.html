@@ -5,18 +5,18 @@
 		<script type="text/javascript" src="../../requirejs/require.js" data-main="../../"></script>
 		<script type="text/javascript">
 			require([
+				"liaison/computed",
 				"liaison/wrapper",
 				"liaison/DOMTreeBindingTarget"
-			], function (wrapper) {
+			], function (computed, wrapper) {
 				function startup() {
-					var o = wrapper.wrap({
+					document.getElementById("main-template").bind("bind", wrapper.wrap({
 						first: "John",
 						last: "Doe",
-						name: wrapper.computed(function (first, last) {
+						name: computed(function (first, last) {
 							return first + " " + last;
 						}, "first", "last")
-					});
-					document.getElementById("main-template").bind("bind", o);
+					}));
 				}
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
 			});

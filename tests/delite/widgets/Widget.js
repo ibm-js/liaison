@@ -2,10 +2,11 @@ define([
 	"intern!bdd",
 	"intern/chai!expect",
 	"delite/register",
+	"liaison/computed",
 	"liaison/wrapper",
 	"liaison/ObservablePath",
 	"liaison/delite/widgets/Widget"
-], function (bdd, expect, register, wrapper, ObservablePath, Widget) {
+], function (bdd, expect, register, computed, wrapper, ObservablePath, Widget) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {
@@ -20,7 +21,7 @@ define([
 				var created,
 					changeCount = 0,
 					dfd = this.async(10000);
-				register("liaison-test-basic-data", [HTMLElement, Widget], Widget.wrap({
+				register("liaison-test-basic-data", [HTMLElement, Widget], wrapper.wrap({
 					first: "John",
 					last: "Doe",
 					firstChanged: dfd.rejectOnError(function (first, oldFirst) {
@@ -48,11 +49,11 @@ define([
 				elem.last = "Ackerman";
 			});
 			it("Computed property", function () {
-				register("liaison-test-computed", [HTMLElement, Widget], Widget.wrap({
+				register("liaison-test-computed", [HTMLElement, Widget], wrapper.wrap({
 					baseClass: "liaison-test-computed",
 					first: "John",
 					last: "Doe",
-					name: wrapper.computed(function (first, last) {
+					name: computed(function (first, last) {
 						return first + " " + last;
 					}, "first", "last")
 				}));
@@ -83,7 +84,7 @@ define([
 			it("Computed array", function () {
 				var created,
 					dfd = this.async(10000);
-				register("liaison-test-computedarray", [HTMLElement, Widget], Widget.wrap({
+				register("liaison-test-computedarray", [HTMLElement, Widget], wrapper.wrap({
 					baseClass: "liaison-test-computedarray",
 					items: [
 						{Name: "Anne Ackerman"},
@@ -91,7 +92,7 @@ define([
 						{Name: "Chad Chapman"},
 						{Name: "Irene Ira"}
 					],
-					totalNameLength: wrapper.computedArray(function (a) {
+					totalNameLength: computed.array(function (a) {
 						return a.reduce(function (length, entry) {
 							return length + entry.Name.length;
 						}, 0);

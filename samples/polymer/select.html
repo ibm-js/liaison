@@ -3,7 +3,6 @@
 	<head>
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
-		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
 		<link rel="import" href="../../../polymer/polymer.html">
 		<polymer-element name="liaison-sample-select">
 			<template>
@@ -33,61 +32,60 @@
 				</template>
 			</template>
 			<script type="text/javascript">
-				require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
-					Polymer("liaison-sample-select", wrapperProto.wrap({
-						Serial: "360324",
-						First: "John",
-						Last: "Doe",
-						Email: "jdoe@example.com",
-						ShipTo: {
-							Type: "Home",
-							Address: {
-								Street: "123 Valley Rd",
-								City: "Katonah",
-								State: "NY",
-								Zip: "10536"
-							},
-							Telephone: {
-								AreaCode: "123",
-								Landline: {
-									Number: "456-7890",
-									Extension: "42"
-								},
-								Cell: {
-									Number: "765-4321"
-								}
-							}
+				Polymer("liaison-sample-select", {
+					Serial: "360324",
+					First: "John",
+					Last: "Doe",
+					Email: "jdoe@example.com",
+					ShipTo: {
+						Type: "Home",
+						Address: {
+							Street: "123 Valley Rd",
+							City: "Katonah",
+							State: "NY",
+							Zip: "10536"
 						},
-						BillTo: {
-							Type: "Office",
-							Address: {
-								Street: "17 Skyline Dr",
-								City: "Hawthorne",
-								State: "NY",
-								Zip: "10532"
+						Telephone: {
+							AreaCode: "123",
+							Landline: {
+								Number: "456-7890",
+								Extension: "42"
 							},
-							Telephone: {
-								AreaCode: "098",
-								Landline: {
-									Number: "765-4321",
-									Extension: "24"
-								},
-								Cell: {
-									Number: "123-4567"
-								}
+							Cell: {
+								Number: "765-4321"
 							}
-						},
-						select: function (event, detail, sender) {
-							var item = sender.getAttribute("data-item");
-							this.current = this[item];
-							this.Selected = item;
 						}
-					}));
+					},
+					BillTo: {
+						Type: "Office",
+						Address: {
+							Street: "17 Skyline Dr",
+							City: "Hawthorne",
+							State: "NY",
+							Zip: "10532"
+						},
+						Telephone: {
+							AreaCode: "098",
+							Landline: {
+								Number: "765-4321",
+								Extension: "24"
+							},
+							Cell: {
+								Number: "123-4567"
+							}
+						}
+					},
+					select: function (event, detail, sender) {
+						var item = sender.getAttribute("data-item");
+						this.current = this[item];
+						this.Selected = item;
+					}
 				});
 			</script>
 		</polymer-element>
 	</head>
 	<body>
+		<div>Note: This example is for comparison purpose, no liaison module is used here.</div>
 		<liaison-sample-select></liaison-sample-select>
 	</body>
 </html>

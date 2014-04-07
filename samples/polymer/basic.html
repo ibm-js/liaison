@@ -12,14 +12,14 @@
 				<div>Hello, {{name}}! Length of your name is: {{name.length}}</div>
 			</template>
 			<script type="text/javascript">
-				require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
-					Polymer("liaison-sample-basic", wrapperProto.wrap({
+				require(["liaison/polymer/computed"], function (computed) {
+					Polymer("liaison-sample-basic", {
 						first: "John",
 						last: "Doe",
-						name: wrapperProto.computed(function (first, last) {
+						name: computed(function (first, last) {
 							return first + " " + last;
 						}, "first", "last")
-					}));
+					});
 				});
 			</script>
 		</polymer-element>

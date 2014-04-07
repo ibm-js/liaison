@@ -3,7 +3,6 @@
 	<head>
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
-		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
 		<link rel="import" href="../../../polymer/polymer.html">
 		<polymer-element name="liaison-sample-masterdetail-item" attributes="item">
 			<link rel="stylesheet" type="text/css" href="../css/examples.css">
@@ -41,64 +40,63 @@
 				</div>
 			</template>
 			<script type="text/javascript">
-				require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
-					Polymer("liaison-sample-masterdetail", wrapperProto.wrap({
-						items: [
-							{
-								First: "Anne",
-								Last: "Ackerman",
-								Location: "NY",
-								Office: "1S76",
-								Email: "a.a@test.com",
-								Tel: "123-764-8237",
-								Fax: "123-764-8228"
-							},
-							{
-								First: "Ben",
-								Last: "Beckham",
-								Location: "NY",
-								Office: "5N47",
-								Email: "b.b@test.com",
-								Tel: "123-764-8599",
-								Fax: "123-764-8600"
-							},
-							{
-								First: "Chad",
-								Last: "Chapman",
-								Location: "CA",
-								Office: "1278",
-								Email: "c.c@test.com",
-								Tel: "408-764-8237",
-								Fax: "408-764-8228"
-							},
-							{
-								First: "Irene",
-								Last: "Ira",
-								Location: "NJ",
-								Office: "F09",
-								Email: "i.i@test.com",
-								Tel: "514-764-6532",
-								Fax: "514-764-7300"
-							},
-							{
-								First: "John",
-								Last: "Jacklin",
-								Location: "CA",
-								Office: "6701",
-								Email: "j.j@test.com",
-								Tel: "408-764-1234",
-								Fax: "408-764-4321"
-							}
-						],
-						selectItem: function (event, detail) {
-							this.current = detail.item;
+				Polymer("liaison-sample-masterdetail", {
+					items: [
+						{
+							First: "Anne",
+							Last: "Ackerman",
+							Location: "NY",
+							Office: "1S76",
+							Email: "a.a@test.com",
+							Tel: "123-764-8237",
+							Fax: "123-764-8228"
+						},
+						{
+							First: "Ben",
+							Last: "Beckham",
+							Location: "NY",
+							Office: "5N47",
+							Email: "b.b@test.com",
+							Tel: "123-764-8599",
+							Fax: "123-764-8600"
+						},
+						{
+							First: "Chad",
+							Last: "Chapman",
+							Location: "CA",
+							Office: "1278",
+							Email: "c.c@test.com",
+							Tel: "408-764-8237",
+							Fax: "408-764-8228"
+						},
+						{
+							First: "Irene",
+							Last: "Ira",
+							Location: "NJ",
+							Office: "F09",
+							Email: "i.i@test.com",
+							Tel: "514-764-6532",
+							Fax: "514-764-7300"
+						},
+						{
+							First: "John",
+							Last: "Jacklin",
+							Location: "CA",
+							Office: "6701",
+							Email: "j.j@test.com",
+							Tel: "408-764-1234",
+							Fax: "408-764-4321"
 						}
-					}));
+					],
+					selectItem: function (event, detail) {
+						this.current = detail.item;
+					}
 				});
 			</script>
 		</polymer-element>
 	</head>
 	<body>
+		<div>Note: This example is for comparison purpose, no liaison module is used here.</div>
 		<liaison-sample-masterdetail></<liaison-sample-masterdetail>
 	</body>
 </html>

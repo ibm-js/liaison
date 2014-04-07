@@ -7,8 +7,9 @@ define([
 	"./ObservablePath",
 	"./BindingSourceList",
 	"./BindingTarget",
+	"./computed",
 	"./DOMBindingTarget"
-], function (templateElement, ObservablePath, BindingSourceList, BindingTarget) {
+], function (templateElement, ObservablePath, BindingSourceList, BindingTarget, computed) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},
@@ -97,6 +98,11 @@ define([
 					node.parentNode.removeChild(node);
 				}
 			}
+			if (!this.preventRemoveComputed) {
+				for (var c; (c = this.computed.shift());) {
+					c.remove();
+				}
+			}
 		}
 		return function (model, referenceNode, position) {
 			var letTemplateCreateInstance = typeof this.template.createInstance === "function";
@@ -113,7 +119,9 @@ define([
 					TemplateBinder.createContent(this.template, this.parsed, toBeBound);
 			!letTemplateCreateInstance && TemplateBinder.assignSources(model, toBeBound, this.template.createBindingSourceFactory);
 			var instantiated = {
-				childNodes: TemplateBinder.insert(content, referenceNode, position)
+				childNodes: TemplateBinder.insert(content, referenceNode, position),
+				computed: computed.apply(model),
+				preventRemoveComputed: this.template.preventRemoveComputed
 			};
 			instantiated.remove = remove.bind(instantiated,
 				letTemplateCreateInstance ?

@@ -34,11 +34,12 @@
 		<script type="text/javascript">
 			require([
 				"delite/register",
+				"liaison/wrapper",
 				"liaison/delite/createRenderer",
 				"liaison/delite/widgets/Widget"
-			], function (register, createRenderer, Widget) {
+			], function (register, wrapper, createRenderer, Widget) {
 				function startup () {
-					register("liaison-sample-select", [HTMLElement, Widget], Widget.wrap({
+					register("liaison-sample-select", [HTMLElement, Widget], wrapper.wrap({
 						buildRendering: createRenderer(document.getElementById("select-template").innerHTML),
 						baseClass: "liaison-sample-select",
 						Serial: "360324",

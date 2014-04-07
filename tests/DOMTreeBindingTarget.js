@@ -6,6 +6,7 @@ define([
 	"../ObservableArray",
 	"../BindingTarget",
 	"../DOMTreeBindingTarget",
+	"../computed",
 	"dojo/text!./templates/simpleBindingTemplate.html",
 	"dojo/text!./templates/simpleObjectPathBindingTemplate.html",
 	"dojo/text!./templates/simpleWithAlternateBindingTemplate.html",
@@ -15,6 +16,7 @@ define([
 	"dojo/text!./templates/simpleWithConditionalAttributeBindingTemplate.html",
 	"dojo/text!./templates/simpleConditionalBindingTemplate.html",
 	"dojo/text!./templates/simpleConditionalRepeatingTemplate.html",
+	"dojo/text!./templates/computedTemplate.html",
 	"dojo/text!./templates/attributeTemplate.html",
 	"dojo/text!./templates/emptyBindingTemplate.html",
 	"dojo/text!./templates/svgTemplate.html",
@@ -29,6 +31,7 @@ define([
 	ObservableArray,
 	BindingTarget,
 	DOMTreeBindingTarget,
+	computed,
 	basicTemplate,
 	objectPathTemplate,
 	alternateBindingTemplate,
@@ -38,6 +41,7 @@ define([
 	simpleWithConditionalAttributeBindingTemplate,
 	simpleConditionalBindingTemplate,
 	simpleConditionalRepeatingTemplate,
+	computedTemplate,
 	attributeTemplate,
 	emptyBindingTemplate,
 	svgTemplate,
@@ -595,6 +599,60 @@ define([
 					setTimeout(dfd.callback(function () {
 						expect(innerTemplate.nextSibling.value).to.equal("Anne");
 						expect(innerTemplate.nextSibling.nextSibling.value).to.equal("Ben");
+					}), 500);
+				}), 500);
+			});
+			it("Computed property", function () {
+				var dfd = this.async(10000),
+					observable = new Observable({
+						first: "John",
+						last: "Doe",
+						name: computed(function (first, last) {
+							return first + " " + last;
+						}, "first", "last")
+					}),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template"));
+				template.innerHTML = computedTemplate;
+				handles.push(template.bind("bind", observable));
+				setTimeout(dfd.rejectOnError(function () {
+					expect(div.querySelectorAll("span")[2].innerHTML).to.equal("John Doe");
+					expect(div.querySelectorAll("span")[3].innerHTML).to.equal("8");
+					observable.set("first", "Ben");
+					setTimeout(dfd.rejectOnError(function () {
+						expect(div.querySelectorAll("span")[2].innerHTML).to.equal("Ben Doe");
+						expect(div.querySelectorAll("span")[3].innerHTML).to.equal("7");
+						template.bind("bind", undefined);
+						setTimeout(dfd.rejectOnError(function () {
+							observable.set("first", "Irene");
+							setTimeout(dfd.callback(function () {
+								expect(observable.name).not.to.equal("Irene Doe");
+							}), 500);
+						}), 500);
+					}), 500);
+				}), 500);
+			});
+			it("Prevent cleaning up computed property", function () {
+				var dfd = this.async(10000),
+					observable = new Observable({
+						first: "John",
+						last: "Doe",
+						name: computed(function (first, last) {
+							return first + " " + last;
+						}, "first", "last")
+					}),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template"));
+				template.innerHTML = computedTemplate;
+				template.preventRemoveComputed = true;
+				handles.push(template.bind("bind", observable));
+				setTimeout(dfd.rejectOnError(function () {
+					template.bind("bind", undefined);
+					setTimeout(dfd.rejectOnError(function () {
+						observable.set("first", "Irene");
+						setTimeout(dfd.callback(function () {
+							expect(observable.name).to.equal("Irene Doe");
+						}), 500);
 					}), 500);
 				}), 500);
 			});

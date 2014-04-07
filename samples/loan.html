@@ -10,6 +10,7 @@
 		<script type="text/javascript" src="../../dojo/dojo.js" data-dojo-config="async: 1"></script>
 		<script type="text/javascript">
 			require([
+				"liaison/computed",
 				"liaison/wrapper",
 				"liaison/ObservablePath",
 				"liaison/BindingSourceList",
@@ -17,7 +18,7 @@
 				"dojox/charting/themes/PlotKit/blue",
 				"liaison/DOMTreeBindingTarget",
 				"dojox/charting/plot2d/Pie"
-			], function (wrapper, ObservablePath, BindingSourceList, Chart, blue) {
+			], function (computed, wrapper, ObservablePath, BindingSourceList, Chart, blue) {
 				var BindingSourceSeries = (function () {
 					function setDataAndPushChanges (value) {
 						this.data = value;
@@ -43,22 +44,22 @@
 						Name: "John Doe",
 						BaseIncome: 50000,
 						BonusIncome: 10000,
-						TotalIncome: wrapper.computed(function (BaseIncome, BonusIncome) {
+						TotalIncome: computed(function (BaseIncome, BonusIncome) {
 							return BaseIncome + BonusIncome;
 						}, "BaseIncome", "BonusIncome"),
 						Mortgage: 1000,
 						Taxes: 500,
 						OtherHousing: 1200,
-						TotalHousing: wrapper.computed(function (Mortgage, Taxes, OtherHousing) {
+						TotalHousing: computed(function (Mortgage, Taxes, OtherHousing) {
 							return Mortgage + Taxes + OtherHousing;							
 						}, "Mortgage", "Taxes", "OtherHousing"),
-						HousingPercent: wrapper.computed(function (TotalHousing, TotalIncome) {
+						HousingPercent: computed(function (TotalHousing, TotalIncome) {
 							return Math.round(TotalHousing / TotalIncome * 100);
 						}, "TotalHousing", "TotalIncome"),
-						HousingPercentError: wrapper.computed(function (HousingPercent) {
+						HousingPercentError: computed(function (HousingPercent) {
 							return HousingPercent > 33 ? "Housing should be less than 1/3 total expenses!" : "";
 						}, "HousingPercent"),
-						HousingPercentDisabled: wrapper.computed(function (HousingPercent) {
+						HousingPercentDisabled: computed(function (HousingPercent) {
 							return HousingPercent <= 0 ? "disabled" : null;
 						}, "HousingPercent"),
 						isZipValid: true

@@ -1,13 +1,13 @@
-<polymer-element name="liaison-test-basic">
+<polymer-element name="liaison-test-computed">
 	<script type="text/javascript">
-		require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
-			Polymer("liaison-test-basic", wrapperProto.wrap({
+		require(["liaison/polymer/computed"], function (computed) {
+			Polymer("liaison-test-computed", {
 				first: "John",
 				last: "Doe",
-				name: wrapperProto.computed(function (first, last) {
+				name: computed(function (first, last) {
 					return first + " " + last;
 				}, "first", "last")
-			}));
+			});
 		});
 	</script>
 </polymer-element>

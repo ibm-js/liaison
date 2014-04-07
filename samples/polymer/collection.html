@@ -26,10 +26,13 @@
 				</li>
 			</template>
 			<script type="text/javascript">
-				Polymer("liaison-sample-collection-item", {
-					remove: function () {
-						this.fire("liaison-sample-collection-item-remove-requested", {item: this.item});
-					}
+				require(["liaison/polymer/computed"], function (computed) {
+					// Wait for liaison/polymer/computed module to be available for Polymer base API hook
+					Polymer("liaison-sample-collection-item", {
+						remove: function () {
+							this.fire("liaison-sample-collection-item-remove-requested", {item: this.item});
+						}
+					});
 				});
 			</script>
 		</polymer-element>
@@ -55,9 +58,9 @@
 				<div>Sum of lengths of names: {{totalNameLength}}</div>
 			</template>
 			<script type="text/javascript">
-				require(["liaison/polymer/wrapperProto"], function (wrapperProto) {
+				require(["liaison/polymer/computed"], function (computed) {
 					var seq = 0;
-					Polymer("liaison-sample-collection", wrapperProto.wrap({
+					Polymer("liaison-sample-collection", {
 						items: [
 							{id: seq++, Name: "Anne Ackerman"},
 							{id: seq++, Name: "Ben Beckham"},
@@ -65,7 +68,7 @@
 							{id: seq++, Name: "Irene Ira"},
 							{id: seq++, Name: "John Jacklin"}
 						],
-						totalNameLength: wrapperProto.computedArray(function (a) {
+						totalNameLength: computed.array(function (a) {
 							return a.reduce(function(length, entry){
 								return length + entry.Name.length;
 							}, 0);
@@ -81,7 +84,7 @@
 								this.items.splice(index, 1);
 							}
 						}
-					}));
+					});
 				});
 			</script>
 		</polymer-element>
