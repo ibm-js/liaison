@@ -285,7 +285,7 @@ define([
 					throw new Error("Observer callback should never be called for changes being discarded.");
 				}));
 				observable.set("foo", "Foo1");
-				h1.discardChanges();
+				expect(h1.discardChanges()).to.deep.equal(["Foo1"]);
 				finishedMicrotask = true;
 			});
 			it("Round-trip of formatter/parser", function () {

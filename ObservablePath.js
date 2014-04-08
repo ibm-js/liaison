@@ -133,7 +133,7 @@
 				// Given this function works as a low-level one,
 				// it preferes regular loop over array extras, which makes cyclomatic complexity higher.
 				/* jshint maxcomplexity: 15 */
-				if (!this.beingDiscarded && !this.closed) {
+				if (!this.closed) {
 					var found, newValue, oldValue;
 					for (var i = 0, l = records.length; i < l; ++i) {
 						if (records[i].name === this.prop) {
@@ -144,11 +144,13 @@
 						}
 					}
 					if (found) {
-						var hasRemainder = this.remainder.length > 0,
-							oldPathValue = hasRemainder ? getObjectPath(oldValue, this.remainder) : oldValue,
-							newPathValue = hasRemainder ? getObjectPath(newValue, this.remainder) : newValue;
-						if (oldPathValue !== newPathValue) {
-							callback(newPathValue, oldPathValue);
+						var hasRemainder = this.remainder.length > 0;
+						if (!this.beingDiscarded) {
+							var oldPathValue = hasRemainder ? getObjectPath(oldValue, this.remainder) : oldValue,
+								newPathValue = hasRemainder ? getObjectPath(newValue, this.remainder) : newValue;
+							if (oldPathValue !== newPathValue) {
+								callback(newPathValue, oldPathValue);
+							}
 						}
 						if (newValue !== oldValue) {
 							if (this.observerRemainder) {
