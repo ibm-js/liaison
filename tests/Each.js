@@ -302,7 +302,12 @@ define([
 				}));
 				observable.set("foo", new ObservableArray({Name: "Irene Ira"}, {Name: "John Jacklin"}));
 				observable.foo.push({Name: "Anne Ackerman"}, {Name: "Ben Beckham"});
-				h1.discardChanges();
+				expect(h1.discardChanges()).to.deep.equal([
+					{Name: "Irene Ira"},
+					{Name: "John Jacklin"},
+					{Name: "Anne Ackerman"},
+					{Name: "Ben Beckham"}
+				]);
 				finishedMicrotask = true;
 			});
 			it("Round-trip of formatter/parser", function () {

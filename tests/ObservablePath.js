@@ -197,7 +197,7 @@ define([
 					throw new Error("Change callback is called even though the change has been discarded.");
 				}));
 				observable.set("foo", new Observable({"bar": "Bar1"}));
-				h1.discardChanges();
+				expect(h1.discardChanges()).to.equal("Bar1");
 			});
 			it("Discarding change, change in sub-property", function () {
 				var h0, h1, binding,
@@ -212,7 +212,7 @@ define([
 					throw new Error("Change callback is called even though the change has been discarded.");
 				}));
 				observable.foo.set("bar", "Bar1");
-				h1.discardChanges();
+				expect(h1.discardChanges()).to.equal("Bar1");
 			});
 			it("Exception in observer callback", function () {
 				var dfd = this.async(1000),
