@@ -12,10 +12,11 @@ define([
 	"../../Observable",
 	"../../ObservableArray",
 	"../../ObservablePath",
+	"../../computed",
 	"dojo/i18n!deliteful/StarRating/nls/StarRating",
 	"delite/themes/load!deliteful/StarRating/themes/{{theme}}/StarRating_css"
 ], function (dcl, domClass, domGeometry, keys, string, pointer, register, Widget, renderer,
-	Observable, ObservableArray, ObservablePath, messages) {
+	Observable, ObservableArray, ObservablePath, computed, messages) {
 	/**
 	 * Star rating widget based on Liaison features.
 	 * This widget does not have all features that deliteful/StarRating has,
@@ -23,7 +24,7 @@ define([
 	 * @class module:liaison/delite/widgets/StarRating
 	 * @augments {module:liaison/delite/widgets/Widget}
 	 */
-	var StarRating = dcl(Widget, Widget.wrap(/** @lends module:liaison/delite/widgets/StarRating# */ {
+	var StarRating = dcl(Widget, /** @lends module:liaison/delite/widgets/StarRating# */ {
 		baseClass: "d-star-rating",
 
 		/**
@@ -48,7 +49,7 @@ define([
 		 * The value of the Rating that user sees in UI.
 		 * @type {number}
 		 */
-		showingValue: Widget.computed(function (value, hoveredValue) {
+		showingValue: computed(function (value, hoveredValue) {
 			return hoveredValue != null ? hoveredValue : value;
 		}, "value", "_hoveredValue"),
 
@@ -74,7 +75,7 @@ define([
 		 * If true, this widget does not accept user's gestures.
 		 * @type {boolean}
 		 */
-		passive: Widget.computed(function (disabled, readOnly) {
+		passive: computed(function (disabled, readOnly) {
 			return disabled || readOnly;
 		}, "disabled", "readOnly"),
 
@@ -457,7 +458,7 @@ define([
 			var starStripLength = domNodeWidth - this.zeroAreaWidth;
 			return (x - this.zeroAreaWidth) / (starStripLength / this.max);
 		}
-	}));
+	});
 
 	return register("d-l-star-rating", [HTMLElement, StarRating]);
 });

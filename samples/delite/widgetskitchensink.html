@@ -7,6 +7,7 @@
 			require([
 				"liaison/ObservablePath",
 				"liaison/BindingTarget",
+				"liaison/computed",
 				"liaison/wrapper",
 				"deliteful/ProgressIndicator",
 				"deliteful/Slider",
@@ -14,7 +15,7 @@
 				"liaison/delite/TemplateBinderExtension",
 				"liaison/delite/Widgets/RadioButton",
 				"liaison/delite/Widgets/StarRating"
-			], function (ObservablePath, BindingTarget, wrapper) {
+			], function (ObservablePath, BindingTarget, computed, wrapper) {
 				function startup() {
 					var REGEXP_NUMBER_BINDING = /^number:(.*)$/,
 						origCreateBindingSourceFactory = BindingTarget.createBindingSourceFactory;
@@ -40,7 +41,7 @@
 						numberType: /trident/i.test(navigator.userAgent) ? "" : "number",
 						num: 3,
 						max: 5,
-						nums: wrapper.computed(function (max) {
+						nums: computed(function (max) {
 							return Array.apply(undefined, new Array(+max + 1)).map(function (entry, i) {
 								return {
 									$$: this,
@@ -48,11 +49,11 @@
 								};
 							}, this);
 						}, "max"),
-						percent: wrapper.computed(function (num, max) {
+						percent: computed(function (num, max) {
 							return num / max * 100;
 						}, "num", "max"),
 						disabled: false,
-						active: wrapper.computed(function (disabled) {
+						active: computed(function (disabled) {
 							return !disabled;
 						}, "disabled"),
 						readOnly: false

@@ -33,13 +33,15 @@
 				"delite/register",
 				"liaison/ObservablePath",
 				"liaison/BindingSourceList",
+				"liaison/computed",
+				"liaison/wrapper",
 				"liaison/delite/createRenderer",
 				"liaison/delite/widgets/Widget",
 				"dojox/charting/Chart",
 				"dojox/charting/themes/PlotKit/blue",
 				"liaison/DOMTreeBindingTarget",
 				"dojox/charting/plot2d/Pie"
-			], function (register, ObservablePath, BindingSourceList, createRenderer, Widget, Chart, blue) {
+			], function (register, ObservablePath, BindingSourceList, computed, wrapper, createRenderer, Widget, Chart, blue) {
 				var BindingSourceSeries = (function () {
 					function setDataAndPushChanges(value) {
 						this.data = value;
@@ -62,28 +64,28 @@
 
 				function startup () {
 					var REGEXP_NUMBER_BINDING = /^number:(.*)$/;
-					register("liaison-sample-loan", [HTMLElement, Widget], Widget.wrap({
+					register("liaison-sample-loan", [HTMLElement, Widget], wrapper.wrap({
 						buildRendering: createRenderer(document.getElementById("loan-template").innerHTML),
 						baseClass: "liaison-sample-loan",
 						Name: "John Doe",
 						BaseIncome: 50000,
 						BonusIncome: 10000,
-						TotalIncome: Widget.computed(function (BaseIncome, BonusIncome) {
+						TotalIncome: computed(function (BaseIncome, BonusIncome) {
 							return BaseIncome + BonusIncome;
 						}, "BaseIncome", "BonusIncome"),
 						Mortgage: 1000,
 						Taxes: 500,
 						OtherHousing: 1200,
-						TotalHousing: Widget.computed(function (Mortgage, Taxes, OtherHousing) {
+						TotalHousing: computed(function (Mortgage, Taxes, OtherHousing) {
 							return Mortgage + Taxes + OtherHousing;
 						}, "Mortgage", "Taxes", "OtherHousing"),
-						HousingPercent: Widget.computed(function (TotalHousing, TotalIncome) {
+						HousingPercent: computed(function (TotalHousing, TotalIncome) {
 							return Math.round(TotalHousing / TotalIncome * 100);
 						}, "TotalHousing", "TotalIncome"),
-						HousingPercentError: Widget.computed(function (HousingPercent) {
+						HousingPercentError: computed(function (HousingPercent) {
 							return HousingPercent > 33 ? "Housing should be less than 1/3 total expenses!" : "";
 						}, "HousingPercent"),
-						HousingPercentDisabled: Widget.computed(function (HousingPercent) {
+						HousingPercentDisabled: computed(function (HousingPercent) {
 							return HousingPercent <= 0 ? "disabled" : null;
 						}, "HousingPercent"),
 						isZipValid: true,

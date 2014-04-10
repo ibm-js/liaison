@@ -97,14 +97,12 @@
 					this.ha = null;
 				}
 				this.a = newValue;
-				if (ObservableArray.canObserve(newValue)) {
-					if (typeof ArrayObserver !== "undefined") {
-						this.ha = Object.create(new ArrayObserver(newValue));
-						this.ha.open(boundObserveArrayCallback);
-						this.ha.remove = this.ha.close;
-					} else {
-						this.ha = Object.create(ObservableArray.observe(newValue, boundObserveArrayCallback));
-					}
+				if (typeof ArrayObserver !== "undefined" && Array.isArray(newValue)) {
+					this.ha = Object.create(new ArrayObserver(newValue));
+					this.ha.open(boundObserveArrayCallback);
+					this.ha.remove = this.ha.close;
+				} else if (ObservableArray.canObserve(newValue)) {
+					this.ha = Object.create(ObservableArray.observe(newValue, boundObserveArrayCallback));
 				} else {
 					console.warn("The array from data source is not an instance of ObservableArray. Observation not happening.");
 				}

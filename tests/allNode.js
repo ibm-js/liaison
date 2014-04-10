@@ -7,5 +7,6 @@ define([
 	"./Each",
 	"./schedule",
 	"./assignObservable",
+	"./computed",
 	"./wrapper"
 ], 1);

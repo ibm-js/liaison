@@ -31,10 +31,11 @@
 		<script type="text/javascript">
 			require([
 				"delite/register",
+				"liaison/wrapper",
 				"liaison/delite/createRenderer",
 				"liaison/delite/widgets/Widget",
 				"liaison/delite/TemplateBinderExtension"
-			], function (register, createRenderer, Widget) {
+			], function (register, wrapper, createRenderer, Widget) {
 				function startup() {
 					var seq = 0;
 					register("liaison-sample-masterdetail-item", [HTMLElement, Widget], {
@@ -48,7 +49,7 @@
 							this.dispatchEvent(event);
 						}
 					});
-					register("liaison-sample-masterdetail", [HTMLElement, Widget], Widget.wrap({
+					register("liaison-sample-masterdetail", [HTMLElement, Widget], wrapper.wrap({
 						buildRendering: createRenderer(document.getElementById("masterdetail-template").innerHTML),
 						baseClass: "liaison-sample-masterdetail",
 						items: [

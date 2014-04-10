@@ -19,12 +19,13 @@
 		<script type="text/javascript">
 			require([
 				"dcl/dcl",
+				"liaison/wrapper",
 				"delite/register",
 				"liaison/delite/createRenderer",
 				"liaison/delite/widgets/Widget"
-			], function (dcl, register, createRenderer, Widget) {
+			], function (dcl, wrapper, register, createRenderer, Widget) {
 				function startup () {
-					register("liaison-sample-swap", [HTMLElement, Widget], Widget.wrap({
+					register("liaison-sample-swap", [HTMLElement, Widget], wrapper.wrap({
 						buildRendering: createRenderer(document.getElementById("swap-template").innerHTML),
 						baseClass: "liaison-sample-swap",
 						data: [

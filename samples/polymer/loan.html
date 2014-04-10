@@ -31,33 +31,33 @@
 				require([
 					"liaison/ObservablePath",
 					"liaison/BindingSourceList",
-					"liaison/polymer/wrapperProto",
+					"liaison/polymer/computed",
 					"dojox/charting/Chart",
 					"dojox/charting/themes/PlotKit/blue",
 					"dojox/charting/plot2d/Pie"
-				], function (ObservablePath, BindingSourceList, wrapperProto, Chart, blue) {
-					var BindingSourceSeries = (function () {
-						function setDataAndPushChanges(value) {
-							this.data = value;
-							if(this.series){
-								this.series.chart.updateSeries(this.series.name, this);
-								this.series.chart.delayedRender();
+				], function (ObservablePath, BindingSourceList, computed, Chart, blue) {
+					var REGEXP_NUMBER_BINDING = /^number:(.*)$/,
+						BindingSourceSeries = (function () {
+							function setDataAndPushChanges(value) {
+								this.data = value;
+								if(this.series){
+									this.series.chart.updateSeries(this.series.name, this);
+									this.series.chart.delayedRender();
+								}
 							}
-						}
-						return function (source) {
-							this.setSeriesObject = function (series) {
-								this.series = series;
+							return function (source) {
+								this.setSeriesObject = function (series) {
+									this.series = series;
+								};
+								this.destroy = function () {
+									if (h) { h.remove(); h = null; }
+								};
+								var h = source.observe(setDataAndPushChanges.bind(this));
+								setDataAndPushChanges.call(this, source.getFrom());
 							};
-							this.destroy = function () {
-								if (h) { h.remove(); h = null; }
-							};
-							var h = source.observe(setDataAndPushChanges.bind(this));
-							setDataAndPushChanges.call(this, source.getFrom());
-						};
-					})();
-					Polymer.api.instance.mdv.instanceTemplate = function (template) {
-						var REGEXP_NUMBER_BINDING = /^number:(.*)$/;
-						return template.createInstance(this, {
+						})();
+					Polymer("liaison-sample-loan", {
+						syntax: {
 							prepareBinding: function (target) {
 								var match = REGEXP_NUMBER_BINDING.exec(target);
 								if (match) {
@@ -71,28 +71,26 @@
 									}
 								}
 							}
-						});
-					};
-					Polymer("liaison-sample-loan", wrapperProto.wrap({
+						},
 						Name: "John Doe",
 						BaseIncome: 50000,
 						BonusIncome: 10000,
-						TotalIncome: wrapperProto.computed(function (BaseIncome, BonusIncome) {
+						TotalIncome: computed(function (BaseIncome, BonusIncome) {
 							return BaseIncome + BonusIncome;
 						}, "BaseIncome", "BonusIncome"),
 						Mortgage: 1000,
 						Taxes: 500,
 						OtherHousing: 1200,
-						TotalHousing: wrapperProto.computed(function (Mortgage, Taxes, OtherHousing) {
+						TotalHousing: computed(function (Mortgage, Taxes, OtherHousing) {
 							return Mortgage + Taxes + OtherHousing;							
 						}, "Mortgage", "Taxes", "OtherHousing"),
-						HousingPercent: wrapperProto.computed(function (TotalHousing, TotalIncome) {
+						HousingPercent: computed(function (TotalHousing, TotalIncome) {
 							return Math.round(TotalHousing / TotalIncome * 100);
 						}, "TotalHousing", "TotalIncome"),
-						HousingPercentError: wrapperProto.computed(function (HousingPercent) {
+						HousingPercentError: computed(function (HousingPercent) {
 							return HousingPercent > 33 ? "Housing should be less than 1/3 total expenses!" : "";
 						}, "HousingPercent"),
-						HousingPercentDisabled: wrapperProto.computed(function (HousingPercent) {
+						HousingPercentDisabled: computed(function (HousingPercent) {
 							return HousingPercent <= 0 ? "disabled" : null;
 						}, "HousingPercent"),
 						isZipValid: true,
@@ -108,7 +106,7 @@
 							 .addPlot("default", {type: "Pie"})
 							 .addSeries("default", new BindingSourceSeries(source)).render();
 						}
-					}));
+					});
 				});
 			</script>
 		</polymer-element>

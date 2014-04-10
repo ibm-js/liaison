@@ -3,12 +3,13 @@ define([
 	"dcl/dcl",
 	"delite/Stateful",
 	"delite/Widget",
-	"../../wrapperProto",
+	"../../computed",
+	"../../wrapper",
 	"../../wrapStateful",
 	"../../ObservablePath",
 	"../../TemplateBinder",
 	"../TemplateBinderExtension"
-], function (dcl, Stateful, Widget, wrapperProto, wrapStateful, ObservablePath, TemplateBinder) {
+], function (dcl, Stateful, Widget, computed, wrapper, wrapStateful, ObservablePath, TemplateBinder) {
 	var MUSTACHE_BEGIN = "{{",
 		REGEXP_CHAGED_CALLBACK = /^(.+)Changed$/;
 
@@ -16,10 +17,6 @@ define([
 	 * The base widget class for Liaison.
 	 * @class module:liaison/delite/widgets/Widget
 	 * @augments {external:Widget}
-	 * @borrows module:liaison/wrapperProto.wrap as wrap
-	 * @borrows module:liaison/wrapper.computed as computed
-	 * @borrows module:liaison/wrapper.computedArray as computedArray
-	 * @borrows module:liaison/wrapper.isComputed as isComputed
 	 */
 	var LiaisonWidget = dcl(Widget, /** @lends module:liaison/delite/widgets/Widget# */ {
 		/**
@@ -55,20 +52,18 @@ define([
 		 * Lifecycle callback for this custom element being created.
 		 * Makes sure change in "introspected" property emits change records compatible
 		 * with {@link http://wiki.ecmascript.org/doku.php?id=harmony:observe ECMAScript Harmony Object.observe()}.
-		 * Also adds support for propChanged() callback.
+		 * Also adds support for propChanged() callback, as well as activates computed properties.
 		 * @method
 		 */
 		preCreate: dcl.before(function () {
 			var tokens;
 			this.watch = Stateful.prototype.watch; // From delite/Widget#preCreate
 			wrapStateful(this);
+			this.own.apply(this, computed.apply(this)); // Let widget manage computed property so that it works for non-templated widgets
 			for (var s in this) {
 				if ((tokens = REGEXP_CHAGED_CALLBACK.exec(s)) && typeof this[s] === "function") {
 					this.own(new ObservablePath(this, tokens[1]).observe(this[s].bind(this)));
 				}
-			}
-			if (this._applyInstanceToComputed) {
-				this.own(this._applyInstanceToComputed());
 			}
 		}),
 
@@ -90,7 +85,6 @@ define([
 					declarations.push(attachPointsAttribs[point]);
 				}
 			}
-
 			nodes.forEach(function (node, i) {
 				var declaration = declarations[i];
 				for (var name in declaration) {
@@ -116,9 +110,5 @@ define([
 		})
 	});
 
-	LiaisonWidget.wrap = wrapperProto.wrap;
-	LiaisonWidget.computed = wrapperProto.computed;
-	LiaisonWidget.computedArray = wrapperProto.computedArray;
-	LiaisonWidget.isComputed = wrapperProto.isComputed;
 	return LiaisonWidget;
 });

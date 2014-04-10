@@ -45,6 +45,7 @@ define(["./intern"], function (intern) {
 		functionalSuites: [
 			"liaison/tests/delite/sandbox",
 			"liaison/tests/polymer/sandbox",
+			"liaison/tests/polymer-platform/sandbox",
 			"liaison/tests/delite-polymer/sandbox"
 		]
 	};
