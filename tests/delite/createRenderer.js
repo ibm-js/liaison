@@ -159,7 +159,7 @@ define([
 			});
 			it("Template with <d-star-rating>: Programmatic", function () {
 				var dfd = this.async(10000),
-					w = new StarRatingTemplateWidget({rating: 2}).placeAt(document.body),
+					w = new StarRatingTemplateWidget({rating: 2, allowZero: false}).placeAt(document.body),
 					star = w.querySelector("d-star-rating");
 				handles.push({
 					remove: function () {
@@ -169,7 +169,7 @@ define([
 				setTimeout(dfd.callback(function () {
 					// Mixin properties are applied after template is instantiated
 					expect(star.value).to.equal(2);
-					expect(star.zeroAreaWidth).to.equal(8);
+					expect(star.allowZero).to.be.false;
 					star.value = 4;
 					expect(w.rating).to.equal(4);
 				}), 500);
@@ -177,7 +177,7 @@ define([
 			it("Template with <d-star-rating>: Declarative", function () {
 				var dfd = this.async(10000),
 					div = document.createElement("div"),
-					observable = new Observable({rating: 2, zeroAreaWidth: 8}),
+					observable = new Observable({rating: 2, allowZero: false}),
 					template = div.appendChild(document.createElement("template"));
 				template.innerHTML = widgetWithStarRatingTemplate;
 				handles.push(template.bind("bind", observable));
@@ -191,7 +191,7 @@ define([
 					var star = div.querySelector("liaison-test-starrating").querySelector("d-star-rating");
 					setTimeout(dfd.callback(function () {
 						expect(star.value).to.equal(2);
-						expect(star.zeroAreaWidth).to.equal(8);
+						expect(star.allowZero).to.be.false;
 						star.value = 4;
 						expect(observable.rating).to.equal(4);
 					}), 500);
