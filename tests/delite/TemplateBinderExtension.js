@@ -3,12 +3,13 @@ define([
 	"intern/chai!expect",
 	"../../Observable",
 	"../../BindingTarget",
+	"../waitFor",
 	"dojo/text!../../tests/delite/templates/buttonTemplate.html",
 	"dojo/text!../../tests/delite/templates/starRatingTemplate.html",
 	"deliteful/Button",
 	"deliteful/StarRating",
 	"../../delite/TemplateBinderExtension"
-], function (bdd, expect, Observable, BindingTarget, buttonTemplate, starRatingTemplate) {
+], function (bdd, expect, Observable, BindingTarget, waitFor, buttonTemplate, starRatingTemplate) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {
@@ -32,20 +33,28 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				setTimeout(dfd.rejectOnError(function () {
+				waitFor(function () {
+					return (template.nextSibling || {}).textContent;
+				}).then(function () {
 					var w = template.nextSibling;
 					expect(w.textContent).to.equal("Foo");
 					expect(w.bindings.label.value).to.equal("Foo");
 					w.label = "Bar";
 					expect(model.label).to.equal("Bar");
-					setTimeout(dfd.rejectOnError(function () {
-						expect(w.textContent).to.equal("Bar");
-						model.set("label", "Baz");
-						setTimeout(dfd.callback(function () {
-							expect(w.textContent).to.equal("Baz");
-						}), 500);
-					}), 500);
-				}), 500);
+					return waitFor(function () {
+						return w.textContent !== "Foo";
+					});
+				}).then(function () {
+					var w = template.nextSibling;
+					expect(w.textContent).to.equal("Bar");
+					model.set("label", "Baz");
+					return waitFor(function () {
+						return w.textContent !== "Bar";
+					});
+				}).then(dfd.callback(function () {
+					var w = template.nextSibling;
+					expect(w.textContent).to.equal("Baz");
+				}), dfd.reject.bind(dfd));
 			});
 			it("Simple binding: <d-star-rating>", function () {
 				var dfd = this.async(10000),
@@ -60,17 +69,22 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				setTimeout(dfd.rejectOnError(function () {
+				waitFor(function () {
+					return ((template.nextSibling || {}).nextSibling || {}).value;
+				}).then(function () {
 					var w = template.nextSibling.nextSibling;
 					expect(w.value).to.equal(2);
 					expect(w.bindings.value.value).to.equal(2);
 					w.value = 4;
 					expect(model.rating).to.equal(4);
 					model.set("rating", 3);
-					setTimeout(dfd.callback(function () {
-						expect(w.value).to.equal(3);
-					}), 500);
-				}), 100);
+					return waitFor(function () {
+						return w.value !== 4;
+					});
+				}).then(dfd.callback(function () {
+					var w = template.nextSibling.nextSibling;
+					expect(w.value).to.equal(3);
+				}), dfd.reject.bind(dfd));
 			});
 		});
 	}

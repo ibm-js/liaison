@@ -2,11 +2,12 @@ define([
 	"intern!bdd",
 	"intern/chai!expect",
 	"delite/register",
-	"liaison/computed",
-	"liaison/wrapper",
-	"liaison/ObservablePath",
-	"liaison/delite/widgets/Widget"
-], function (bdd, expect, register, computed, wrapper, ObservablePath, Widget) {
+	"../../../computed",
+	"../../../wrapper",
+	"../../../ObservablePath",
+	"../../../delite/widgets/Widget",
+	"../../waitFor",
+], function (bdd, expect, register, computed, wrapper, ObservablePath, Widget, waitFor) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {
@@ -139,18 +140,22 @@ define([
 					}
 				});
 				elem.set("value", "value0");
-				setTimeout(dfd.rejectOnError(function () {
+				waitFor(function () {
+					return elem.getAttribute("aria-value") && elem.valueNode.value;
+				}).then(function () {
 					expect(elem.getAttribute("aria-value")).to.equal("value0");
 					expect(elem.valueNode.value).to.equal("value0");
 					elem.valueNode.value = "value1";
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					elem.valueNode.dispatchEvent(event);
-					setTimeout(dfd.callback(function () {
-						expect(elem.value).to.equal("value1");
-						expect(elem.getAttribute("aria-value")).to.equal("value1");
-					}), 500);
-				}), 500);
+					return waitFor(function () {
+						return elem.getAttribute("aria-value") !== "value0" && elem.valueNode.value !== "value0";
+					});
+				}).then(dfd.callback(function () {
+					expect(elem.value).to.equal("value1");
+					expect(elem.getAttribute("aria-value")).to.equal("value1");
+				}), dfd.reject.bind(dfd));
 			});
 			it("Attribute mapping with function", function () {
 				var dfd = this.async(10000);
@@ -181,18 +186,22 @@ define([
 					}
 				});
 				elem.set("value", "value0");
-				setTimeout(dfd.rejectOnError(function () {
+				waitFor(function () {
+					return elem.getAttribute("aria-value") && elem.valueNode.value;
+				}).then(function () {
 					expect(elem.getAttribute("aria-value")).to.equal("value0");
 					expect(elem.valueNode.value).to.equal("value0");
 					elem.valueNode.value = "value1";
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					elem.valueNode.dispatchEvent(event);
-					setTimeout(dfd.callback(function () {
-						expect(elem.value).to.equal("value1");
-						expect(elem.getAttribute("aria-value")).to.equal("value1");
-					}), 500);
-				}), 500);
+					return waitFor(function () {
+						return elem.getAttribute("aria-value") !== "value0" && elem.valueNode.value !== "value0";
+					});
+				}).then(dfd.callback(function () {
+					expect(elem.value).to.equal("value1");
+					expect(elem.getAttribute("aria-value")).to.equal("value1");
+				}), dfd.reject.bind(dfd));
 			});
 			it("Dispatch values at initialization", function () {
 				var gotValue;

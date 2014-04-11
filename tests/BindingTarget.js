@@ -3,8 +3,9 @@ define([
 	"intern/chai!expect",
 	"../Observable",
 	"../ObservablePath",
-	"../BindingTarget"
-], function (bdd, expect, Observable, ObservablePath, BindingTarget) {
+	"../BindingTarget",
+	"./waitFor"
+], function (bdd, expect, Observable, ObservablePath, BindingTarget, waitFor) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {
@@ -32,16 +33,17 @@ define([
 				handles.push(target = new BindingTarget(o, "Foo").bind(source), source);
 				expect(o.Foo).to.equal("Foo0");
 				observable.set("foo", "Foo1");
-				setTimeout(dfd.rejectOnError(function () {
+				waitFor(function () {
+					return target.value === "Foo1";
+				}).then(function () {
 					expect(o.Foo).to.equal("Foo1");
-					expect(target.value).to.equal("Foo1");
 					target.remove();
 					observable.set("foo", "Foo2");
-					setTimeout(dfd.callback(function () {
-						expect(o.Foo).to.equal("Foo1");
-						expect(target.value).to.equal("Foo1");
-					}), 100);
-				}), 100);
+					return waitFor.time(100);
+				}).then(dfd.callback(function () {
+					expect(o.Foo).to.equal("Foo1");
+					expect(target.value).to.equal("Foo1");
+				}), dfd.reject.bind(dfd));
 			});
 			it("Sending current value of BindingTarget to the bound source", function () {
 				var o = {},
@@ -67,10 +69,11 @@ define([
 				target.bind(source1);
 				observable.set("foo", "Foo1");
 				observable.set("bar", "Bar1");
-				setTimeout(dfd.callback(function () {
+				waitFor(function () {
+					return target.value === "Bar1";
+				}).then(dfd.callback(function () {
 					expect(o.Foo).to.equal("Bar1");
-					expect(target.value).to.equal("Bar1");
-				}), 100);
+				}), dfd.reject.bind(dfd));
 			});
 			it("Cleaning up BindingTarget references", function () {
 				var o = {},
