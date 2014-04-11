@@ -155,6 +155,9 @@ define([
 					}), 500);
 				}), 100);
 			});
+			// The following two tests need to be disabled until https://github.com/ibm-js/deliteful/pull/92 is merged.
+/*
+
 			it("Template with <d-star-rating>: Programmatic", function () {
 				var dfd = this.async(10000),
 					w = new StarRatingTemplateWidget({rating: 2, allowZero: false}).placeAt(document.body),
@@ -199,6 +202,7 @@ define([
 					}), 500);
 				}), 100);
 			});
+*/
 			it("Nested template: Programmatic", function () {
 				var dfd = this.async(10000),
 					w = new NestedTemplateWidget({
