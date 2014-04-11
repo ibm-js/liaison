@@ -4,8 +4,8 @@ define([
 	"../../Observable",
 	"../../BindingTarget",
 	"../waitFor",
-	"dojo/text!../../tests/delite/templates/buttonTemplate.html",
-	"dojo/text!../../tests/delite/templates/starRatingTemplate.html",
+	"requirejs-text/text!../../tests/delite/templates/buttonTemplate.html",
+	"requirejs-text/text!../../tests/delite/templates/starRatingTemplate.html",
 	"deliteful/Button",
 	"deliteful/StarRating",
 	"../../delite/TemplateBinderExtension"

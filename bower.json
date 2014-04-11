@@ -3,9 +3,10 @@
 	"version": "0.1.0-dev",
 	"dependencies": {
 		"requirejs": "2.1.x",
+		"requirejs-text": "2.0.x",
 		"dojo": ">=1.9.1",
-		"delite": "*",
-		"deliteful": "*",
+		"delite": "ibm-js/delite#master",
+		"deliteful": "ibm-js/deliteful#master",
 		"dcl": "1.1.x",
 		"polymer": "0.2.1"
 	},
@@ -15,5 +16,8 @@
 		".travis.yml",
 		"tests",
 		"CONTRIBUTING.md"
-	]
+	],
+	"resolutions": {
+		"delite": "master"
+	}
 }

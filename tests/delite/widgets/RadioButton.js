@@ -7,7 +7,7 @@ define([
 	"../../../ObservablePath",
 	"../../../delite/widgets/RadioButton",
 	"../../waitFor",
-	"dojo/text!./templates/basicRadioButton.html",
+	"requirejs-text/text!./templates/basicRadioButton.html",
 	"../../../delite/WidgetBindingTarget"
 ], function (bdd, expect, register, wrapper, Observable, ObservablePath, RadioButton, waitFor, basicRadioButtonTemplate) {
 	/* jshint withstmt: true */
