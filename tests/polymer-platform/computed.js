@@ -1,10 +1,12 @@
 define([
 	"intern!bdd",
 	"intern/chai!expect",
+	"dojo/Deferred",
 	"../../polymer/computed",
+	"../waitFor",
 	"dojo/text!./templates/computedTemplate.html",
 	"dojo/text!./templates/computedArrayTemplate.html"
-], function (bdd, expect, computed, computedTemplate, computedArrayTemplate) {
+], function (bdd, expect, Deferred, computed, waitFor, computedTemplate, computedArrayTemplate) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it, PathObserver */
 	with (bdd) {
@@ -93,24 +95,32 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				setTimeout(dfd.rejectOnError(function () {
+				waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
 					var divName = template.nextSibling,
 						divNameLength = divName.nextSibling;
 					expect(divName.firstChild.nodeValue).to.equal("John Doe");
 					expect(divNameLength.firstChild.nodeValue).to.equal("8");
 					template.model.first = "Ben";
-					setTimeout(dfd.rejectOnError(function () {
-						expect(divName.firstChild.nodeValue).to.equal("Ben Doe");
-						expect(divNameLength.firstChild.nodeValue).to.equal("7");
-						template.model = undefined;
-						setTimeout(dfd.rejectOnError(function () {
-							model.first = "Irene";
-							setTimeout(dfd.callback(function () {
-								expect(model.name).not.to.equal("Irene Doe");
-							}), 500);
-						}), 500);
-					}), 500);
-				}), 500);
+					return waitFor(function () {
+						return divName.firstChild.nodeValue !== "John Doe";
+					});
+				}).then(function () {
+					var divName = template.nextSibling,
+						divNameLength = divName.nextSibling;
+					expect(divName.firstChild.nodeValue).to.equal("Ben Doe");
+					expect(divNameLength.firstChild.nodeValue).to.equal("7");
+					template.model = undefined;
+					return waitFor(function () {
+						return !template.nextSibling;
+					});
+				}).then(function () {
+					model.first = "Irene";
+					return waitFor.time(100);
+				}).then(dfd.callback(function () {
+					expect(model.name).not.to.equal("Irene Doe");
+				}), dfd.reject.bind(dfd));
 			});
 			it("Computed array with template", function () {
 				var dfd = this.async(10000),
@@ -138,14 +148,19 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				setTimeout(dfd.rejectOnError(function () {
+				waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
 					var text = template.nextSibling;
 					expect(text.nodeValue).to.equal("45");
 					template.model.items.push({Name: "John Jacklin"});
-					setTimeout(dfd.callback(function () {
-						expect(text.nodeValue).to.equal("57");
-					}), 500);
-				}), 500);
+					return waitFor(function () {
+						return text.nodeValue !== "45";
+					});
+				}).then(dfd.callback(function () {
+					var text = template.nextSibling;
+					expect(text.nodeValue).to.equal("57");
+				}), dfd.reject.bind(dfd));
 			});
 			it("Prevent template from cleaning up computed property", function () {
 				var dfd = this.async(10000),
@@ -169,15 +184,29 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				setTimeout(dfd.rejectOnError(function () {
+				waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
 					template.model = undefined;
-					setTimeout(dfd.rejectOnError(function () {
-						model.first = "Irene";
-						setTimeout(dfd.callback(function () {
-							expect(model.name).to.equal("Irene Doe");
-						}), 500);
-					}), 500);
-				}), 500);
+					return waitFor(function () {
+						return !template.nextSibling;
+					});
+				}).then(function () {
+					model.first = "Irene";
+					return waitFor((function () {
+						var dfd = new Deferred(),
+							observer = new PathObserver(model, "name");
+						handles.push(observer);
+						observer.open(function (value) {
+							if (value !== "John") {
+								dfd.resolve(value);
+							}
+						});
+						return dfd.promise;
+					})());
+				}).then(dfd.callback(function (value) {
+					expect(value).to.equal("Irene Doe");
+				}), dfd.reject.bind(dfd));
 			});
 		});
 	}

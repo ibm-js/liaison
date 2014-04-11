@@ -116,7 +116,7 @@ define([
 				});
 				o.set("first", "Ben");
 				o.items.push({Name: "John Jacklin"});
-				setTimeout(dfd.callback(function () {}), 500);
+				setTimeout(dfd.callback(function () {}), 100);
 			});
 			it("Circular reference in an object tree", function () {
 				var o = {

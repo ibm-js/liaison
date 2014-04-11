@@ -29,7 +29,7 @@ define([
 					}));
 				handles.push(h);
 				h.remove();
-				setTimeout(dfd.callback(function () {}), 200);
+				setTimeout(dfd.callback(function () {}), 100);
 			});
 		});
 	}

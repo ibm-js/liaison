@@ -1,7 +1,7 @@
 define(["liaison/tests/sandbox/create"], function (create) {
 	create([
 		"liaison/tests/delite-polymer/createRenderer"
-	], "liaison/tests/delite-polymer/client.html", [
+	], "liaison/tests/polymer-platform/client.html", [
 		{
 			browserName: "internet explorer",
 			version: "9"

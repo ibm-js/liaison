@@ -3,8 +3,9 @@ define([
 	"intern/chai!expect",
 	"../../Observable",
 	"../../ObservablePath",
-	"../../BindingTarget"
-], function (bdd, expect, Observable, ObservablePath, BindingTarget) {
+	"../../BindingTarget",
+	"../waitFor"
+], function (bdd, expect, Observable, ObservablePath, BindingTarget, waitFor) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it, PathObserver */
 	with (bdd) {
@@ -24,14 +25,16 @@ define([
 				handles.push(h = new BindingTarget(o, "Foo").bind(observer));
 				expect(o.Foo).to.equal("Foo0");
 				observable.set("foo", "Foo1");
-				setTimeout(dfd.rejectOnError(function () {
+				waitFor(function () {
+					return o.Foo !== "Foo0";
+				}).then(function () {
 					expect(o.Foo).to.equal("Foo1");
 					h.remove();
 					observable.set("foo", "Foo2");
-					setTimeout(dfd.callback(function () {
-						expect(o.Foo).to.equal("Foo1");
-					}), 100);
-				}), 100);
+					return waitFor.time(100);
+				}).then(dfd.callback(function () {
+					expect(o.Foo).to.equal("Foo1");
+				}), dfd.reject.bind(dfd));
 			});
 		});
 	}
