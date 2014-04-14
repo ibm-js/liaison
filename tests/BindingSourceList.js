@@ -16,29 +16,32 @@ define([
 					handle.remove();
 				}
 			});
+			it("Non-observer in BindingSourceList", function () {
+				var thrown;
+				try {
+					new BindingSourceList(["foo"]).observe(function () {});
+				} catch (e) {
+					thrown = true;
+				}
+				expect(thrown).to.be.true;
+			});
 			it("Simple observation", function () {
 				var dfd = this.async(1000),
 					count = 0,
 					observable = new Observable({foo: "Foo0", bar: "Bar0", baz: "Baz0"}),
+					list = new BindingSourceList([
+						new ObservablePath(observable, "foo"),
+						new ObservablePath(observable, "bar"),
+						new ObservablePath(observable, "baz")
+					]),
 					callbacks = [
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
-						}),
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo1", "Bar0", "Baz0"]);
-						}),
 						dfd.callback(function (newValue, oldValue) {
 							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo1", "Bar1", "Baz0"]);
+							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
 						})
 					];
-				handles.push(new BindingSourceList([
-					new ObservablePath(observable, "foo"),
-					new ObservablePath(observable, "bar"),
-					new ObservablePath(observable, "baz")
-				]).observe(dfd.rejectOnError(function (newValue, oldValue) {
+				list.observe(function () {}).remove();
+				handles.push(list.observe(dfd.rejectOnError(function (newValue, oldValue) {
 					callbacks[count++](newValue, oldValue);
 				})));
 				observable.set("foo", "Foo1");
@@ -50,17 +53,9 @@ define([
 					count = 0,
 					observable = new Observable({foo: "Foo0", bar: "Bar0", baz: "Baz0"}),
 					callbacks = [
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.equal("Foo1,Bar1,Baz1");
-							expect(oldValue).to.equal("Foo0,Bar0,Baz0");
-						}),
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.equal("Foo1,Bar1,Baz1");
-							expect(oldValue).to.equal("Foo1,Bar0,Baz0");
-						}),
 						dfd.callback(function (newValue, oldValue) {
 							expect(newValue).to.equal("Foo1,Bar1,Baz1");
-							expect(oldValue).to.equal("Foo1,Bar1,Baz0");
+							expect(oldValue).to.equal("Foo0,Bar0,Baz0");
 						})
 					];
 				handles.push(new BindingSourceList([
@@ -82,17 +77,9 @@ define([
 					count = 0,
 					observable = new Observable({foo: "Foo0", bar: "Bar0", baz: "Baz0"}),
 					callbacks = [
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.equal("Foo1,Bar1,Baz1");
-							expect(oldValue).to.equal("Foo0,Bar0,Baz0");
-						}),
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.equal("Foo1,Bar1,Baz1");
-							expect(oldValue).to.equal("Foo1,Bar0,Baz0");
-						}),
 						dfd.callback(function (newValue, oldValue) {
 							expect(newValue).to.equal("Foo1,Bar1,Baz1");
-							expect(oldValue).to.equal("Foo1,Bar1,Baz0");
+							expect(oldValue).to.equal("Foo0,Bar0,Baz0");
 						})
 					];
 				handles.push(binding = new BindingSourceList([
@@ -118,17 +105,9 @@ define([
 					path2 = new ObservablePath(observable, "baz"),
 					source = new BindingSourceList([path0, path1, path2]),
 					callbacks = [
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.deep.equal(["Foo1", "Bar0", "Baz0"]);
-							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
-						}),
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo1", "Bar0", "Baz0"]);
-						}),
 						dfd.callback(function (newValue, oldValue) {
 							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo1", "Bar1", "Baz0"]);
+							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
 						})
 					];
 				handles.push(source.observe(dfd.rejectOnError(function (newValue, oldValue) {
@@ -153,17 +132,9 @@ define([
 					path2 = new ObservablePath(observable, "baz"),
 					source = new BindingSourceList([path0, path1, path2]),
 					callbacks = [
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
-						}),
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo1", "Bar0", "Baz0"]);
-						}),
 						dfd.callback(function (newValue, oldValue) {
 							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo1", "Bar1", "Baz0"]);
+							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
 						})
 					];
 				handles.push(path0.observe(dfd.rejectOnError(function () {
@@ -185,24 +156,16 @@ define([
 					observablePath2 = new ObservablePath(new Observable({baz: "Baz0"}), "baz"),
 					list = new BindingSourceList([observablePath0, observablePath1, observablePath2]),
 					callbacks = [
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
-						}),
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo1", "Bar0", "Baz0"]);
-						}),
 						dfd.callback(function (newValue, oldValue) {
 							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo1", "Bar1", "Baz0"]);
+							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
 						})
 					];
 				handles.push(observablePath0, observablePath1, observablePath2, list);
-				var h = list.observe(dfd.rejectOnError(function (newValue, oldValue) {
+				list.observe(dfd.rejectOnError(function (newValue, oldValue) {
 					callbacks[count++](newValue, oldValue);
 				}));
-				h.setValue(["Foo1", "Bar1", "Baz1"]);
+				list.setValue(["Foo1", "Bar1", "Baz1"]);
 			});
 			it("Exception in formatter/parser", function () {
 				var binding,
@@ -210,17 +173,9 @@ define([
 					count = 0,
 					observable = new Observable({foo: "Foo0", bar: "Bar0", baz: "Baz0"}),
 					callbacks = [
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
-						}),
-						dfd.rejectOnError(function (newValue, oldValue) {
-							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo1", "Bar0", "Baz0"]);
-						}),
 						dfd.callback(function (newValue, oldValue) {
 							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo1", "Bar1", "Baz0"]);
+							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
 						})
 					];
 				handles.push(binding = new BindingSourceList([
@@ -238,7 +193,7 @@ define([
 				binding.setTo(["Foo1", "Bar1", "Baz1"]);
 			});
 			it("Synchronous change delivery", function () {
-				var h0, h1, list, deliveredBoth, finishedMicrotask,
+				var list, deliveredBoth, finishedMicrotask,
 					dfd = this.async(1000),
 					count = 0,
 					observable = new Observable({foo: "Foo0", bar: "Bar0"}),
@@ -248,7 +203,7 @@ define([
 							expect(newValue).to.deep.equal(["Foo1", "Bar0"]);
 							expect(oldValue).to.deep.equal(["Foo0", "Bar0"]);
 						}),
-						dfd.rejectOnError(function (newValue, oldValue) {
+						dfd.callback(function (newValue, oldValue) {
 							expect(finishedMicrotask).not.to.be.true;
 							expect(newValue).to.deep.equal(["Foo1", "Bar1"]);
 							expect(oldValue).to.deep.equal(["Foo1", "Bar0"]);
@@ -256,37 +211,26 @@ define([
 						})
 					];
 				handles.push(list = new BindingSourceList([new ObservablePath(observable, "foo"), new ObservablePath(observable, "bar")]));
-				h0 = list.observe(dfd.callback(function (newValue, oldValue) {
-					expect(deliveredBoth).to.be.true;
-					expect(finishedMicrotask).to.be.true;
-					expect(newValue).to.deep.equal(["Foo1", "Bar1"]);
-					expect(oldValue).to.deep.equal(["Foo0", "Bar0"]);
-				}));
-				h1 = list.observe(dfd.rejectOnError(function (newValue, oldValue) {
+				list.observe(dfd.rejectOnError(function (newValue, oldValue) {
 					callbacks[count++](newValue, oldValue);
 				}));
 				observable.set("foo", "Foo1");
-				h1.deliver();
+				list.deliver();
 				observable.set("bar", "Bar1");
-				h1.deliver();
+				list.deliver();
 				finishedMicrotask = true;
 			});
 			it("Discarding change", function () {
-				var h0, h1, list, finishedMicrotask,
+				var list,
 					dfd = this.async(1000),
 					observable = new Observable({foo: "Foo0"});
 				handles.push(list = new BindingSourceList([new ObservablePath(observable, "foo")]));
-				h0 = list.observe(dfd.callback(function (newValue, oldValue) {
-					expect(finishedMicrotask).to.be.true;
-					expect(newValue).to.deep.equal(["Foo1"]);
-					expect(oldValue).to.deep.equal(["Foo0"]);
-				}));
-				h1 = list.observe(dfd.rejectOnError(function () {
+				list.observe(dfd.rejectOnError(function () {
 					throw new Error("Observer callback should never be called for changes being discarded.");
 				}));
 				observable.set("foo", "Foo1");
-				expect(h1.discardChanges()).to.deep.equal(["Foo1"]);
-				finishedMicrotask = true;
+				expect(list.discardChanges()).to.deep.equal(["Foo1"]);
+				dfd.resolve(1);
 			});
 			it("Round-trip of formatter/parser", function () {
 				var formatter = function () {},
@@ -307,10 +251,9 @@ define([
 				var h = list.observe(dfd.rejectOnError(function () {
 					throw new Error("Observer callback should never be called after removal.");
 				}));
-				h.remove();
-				expect(list.observers && list.observers.length > 0).not.to.be.true;
 				observable.set("foo", "Foo1");
-				h.deliver();
+				h.remove();
+				list.deliver();
 				observable.set("foo", "Foo2");
 				setTimeout(dfd.callback(function () {}), 100);
 			});

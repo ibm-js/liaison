@@ -80,6 +80,7 @@ define([
 							return length + entry.Name.length;
 						}, 0);
 					});
+				each.observe(function () {}).remove();
 				expect(each.getFrom()).to.equal(36);
 				handles.push(each.observe(dfd.callback(function (newValue) {
 					expect(newValue).to.equal(57);
@@ -137,11 +138,11 @@ define([
 				var dfd = this.async(1000),
 					each = new Each(new ObservableArray("a", "b", "c"));
 				handles.push(each);
-				var h = each.observe(dfd.callback(function (newValue, oldValue) {
+				each.observe(dfd.callback(function (newValue, oldValue) {
 					expect(newValue).to.deep.equal(["d", "e"]);
 					expect(oldValue).to.deep.equal(["a", "b", "c"]);
 				}));
-				h.setValue(["d", "e"]);
+				each.setValue(["d", "e"]);
 			});
 			it("Exception in observer callback", function () {
 				var each,
@@ -213,7 +214,7 @@ define([
 				each.setTo(new ObservableArray({Name: "Irene Ira"}, {Name: "John Jacklin"}));
 			});
 			it("Synchronous change delivery", function () {
-				var h0, h1, each, deliveredBoth, finishedMicrotask,
+				var each, finishedMicrotask,
 					dfd = this.async(1000),
 					count = 0,
 					observableArray = new ObservableArray(
@@ -234,7 +235,7 @@ define([
 								{Name: "Chad Chapman"}
 							]);
 						}),
-						dfd.rejectOnError(function (newValue, oldValue) {
+						dfd.callback(function (newValue, oldValue) {
 							expect(finishedMicrotask).not.to.be.true;
 							expect(newValue).to.deep.equal([
 								{Name: "Irene Ira"},
@@ -246,36 +247,20 @@ define([
 								{Name: "Irene Ira"},
 								{Name: "John Jacklin"}
 							]);
-							deliveredBoth = true;
 						})
 					];
 				handles.push(each = new Each(new ObservablePath(observable, "foo")));
-				h0 = each.observe(dfd.callback(function (newValue, oldValue) {
-					expect(deliveredBoth).to.be.true;
-					expect(finishedMicrotask).to.be.true;
-					expect(newValue).to.deep.equal([
-						{Name: "Irene Ira"},
-						{Name: "John Jacklin"},
-						{Name: "Anne Ackerman"},
-						{Name: "Ben Beckham"}
-					]);
-					expect(oldValue).to.deep.equal([
-						{Name: "Anne Ackerman"},
-						{Name: "Ben Beckham"},
-						{Name: "Chad Chapman"}
-					]);
-				}));
-				h1 = each.observe(dfd.rejectOnError(function (newValue, oldValue) {
+				each.observe(dfd.rejectOnError(function (newValue, oldValue) {
 					callbacks[count++](newValue, oldValue);
 				}));
 				observable.set("foo", new ObservableArray({Name: "Irene Ira"}, {Name: "John Jacklin"}));
-				h1.deliver();
+				each.deliver();
 				observable.foo.push({Name: "Anne Ackerman"}, {Name: "Ben Beckham"});
-				h1.deliver();
+				each.deliver();
 				finishedMicrotask = true;
 			});
 			it("Discarding change", function () {
-				var h0, h1, each, finishedMicrotask,
+				var each,
 					dfd = this.async(1000),
 					observableArray = new ObservableArray(
 						{Name: "Anne Ackerman"},
@@ -283,32 +268,18 @@ define([
 						{Name: "Chad Chapman"}),
 					observable = new Observable({foo: observableArray});
 				handles.push(each = new Each(new ObservablePath(observable, "foo")));
-				h0 = each.observe(dfd.callback(function (newValue, oldValue) {
-					expect(finishedMicrotask).to.be.true;
-					expect(newValue).to.deep.equal([
-						{Name: "Irene Ira"},
-						{Name: "John Jacklin"},
-						{Name: "Anne Ackerman"},
-						{Name: "Ben Beckham"}
-					]);
-					expect(oldValue).to.deep.equal([
-						{Name: "Anne Ackerman"},
-						{Name: "Ben Beckham"},
-						{Name: "Chad Chapman"}
-					]);
-				}));
-				h1 = each.observe(dfd.rejectOnError(function () {
+				each.observe(dfd.rejectOnError(function () {
 					throw new Error("Observer callback should never be called for changes being discarded.");
 				}));
 				observable.set("foo", new ObservableArray({Name: "Irene Ira"}, {Name: "John Jacklin"}));
 				observable.foo.push({Name: "Anne Ackerman"}, {Name: "Ben Beckham"});
-				expect(h1.discardChanges()).to.deep.equal([
+				expect(each.discardChanges()).to.deep.equal([
 					{Name: "Irene Ira"},
 					{Name: "John Jacklin"},
 					{Name: "Anne Ackerman"},
 					{Name: "Ben Beckham"}
 				]);
-				finishedMicrotask = true;
+				dfd.resolve(1);
 			});
 			it("Round-trip of formatter/parser", function () {
 				var formatter = function () {},
@@ -330,9 +301,8 @@ define([
 					throw new Error("Observer callback should never be called after removal.");
 				}));
 				h.remove();
-				expect(each.observers && each.observers.length > 0).not.to.be.true;
 				observable.set("foo", new ObservableArray({Name: "Irene Ira"}, {Name: "John Jacklin"}));
-				h.deliver();
+				each.deliver();
 				observable.foo.push({Name: "Anne Ackerman"}, {Name: "Ben Beckham"});
 				setTimeout(dfd.callback(function () {}), 100);
 			});

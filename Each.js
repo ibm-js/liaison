@@ -4,16 +4,15 @@
 (function (root, factory) {
 	// Module definition to support AMD, node.js and browser globals
 	if (typeof exports === "object") {
-		module.exports = factory(require("./Observable"), require("./ObservableArray"), require("./BindingSource"), require("./ObservablePath"));
+		module.exports = factory(require("./schedule"), require("./Observable"), require("./ObservableArray"),
+			require("./BindingSource"), require("./ObservablePath"));
 	} else if (typeof define === "function" && define.amd) {
-		define(["./Observable", "./ObservableArray", "./BindingSource", "./ObservablePath"], factory);
+		define(["./schedule", "./Observable", "./ObservableArray", "./BindingSource", "./ObservablePath"], factory);
 	} else {
-		root.Each = factory(root.Observable, root.ObservableArray, root.BindingSource, root.ObservablePath);
+		root.Each = factory(root.schedule, root.Observable, root.ObservableArray, root.BindingSource, root.ObservablePath);
 	}
-})(this, function (Observable, ObservableArray, BindingSource, ObservablePath) {
+})(this, function (schedule, Observable, ObservableArray, BindingSource, ObservablePath) {
 	"use strict";
-
-	/* global ArrayObserver */
 
 	var EMPTY_OBJECT = {};
 
@@ -34,63 +33,22 @@
 	 *     before being sent to source.
 	 */
 	function Each(source, formatter, parser) {
-		this.source = typeof (source || EMPTY_OBJECT).observe === "function" ? source : new ObservablePath(new Observable({a: source}), "a");
+		this.source = source;
 		this.formatter = formatter;
 		this.parser = parser;
-		this.observers = [];
 	}
 
 	Each.prototype = Object.create(BindingSource);
 
-	/**
-	 * Observes a change in a path of {@link module:liaison/Observable Observable}.
-	 * @method module:liaison/Each#observe
-	 * @param {module:liaison/BindingSource~ChangeCallback} callback The change callback.
-	 * @returns {Handle} The handle to stop observing.
-	 */
-	Each.prototype.observe = function (callback) {
-		if (this.removed) {
-			console.warn("Trying to start observing Each that has been removed already.");
-		} else {
-			var observer = new MiniEach(this.source);
-			observer.parent = this;
-			this.observers.push(observer);
-			observer.open(BindingSource.changeCallback.bind(this, callback));
-			return observer;
-		}
-	};
-
-	/**
-	 * @method module:liaison/Each#getFrom
-	 * @returns The current value of {@link module:liaison/Each Each}.
-	 */
-	Each.prototype.getFrom = function () {
-		var value = this.source.getFrom();
-		return this.boundFormatter ? this.boundFormatter(value) : value;
-	};
-
-	/**
-	 * Sets a value to {@link module:liaison/Each Each}.
-	 * @method module:liaison/Each#setTo
-	 * @param value The value to set.
-	 */
-	Each.prototype.setTo = Each.prototype.setValue = function (value) {
-		this.source.setTo(this.boundParser ? this.boundParser(value) : value);
-	};
-
-	/**
-	 * A synonym for {@link module:liaison/Each#setTo Each#setTo}.
-	 * @method module:liaison/Each#setValue
-	 */
-
-	function MiniEach(source) {
+	Each.Observer = function (source) {
 		this.source = source;
 		this.remove = this.close;
-	}
+	};
 
-	MiniEach.prototype = {
+	Each.Observer.prototype = {
 		open: (function () {
 			function observeSourceCallback(boundObserveArrayCallback, newValue) {
+				/* global ArrayObserver */
 				/* jshint validthis: true */
 				if (this.ha) {
 					this.ha.remove();
@@ -111,57 +69,71 @@
 			function observeArrayCallback(callback) {
 				/* jshint validthis: true */
 				if (!this.beingDiscarded && !this.closed) {
-					var newValue = this.a,
-						oldValue = Array.isArray(newValue) ? newValue.slice() : newValue;
-					callback(newValue, this.oldValue);
-					this.oldValue = oldValue;
+					var oldValue = this.value;
+					this.value = Array.isArray(this.a) ? this.a.slice() : this.a;
+					if (this.beingDelivered) {
+						this.hCallback && this.hCallback.remove();
+						invokeCallback.call(this, callback, oldValue);
+					} else if (!this.hCallback) {
+						this.hCallback = schedule(invokeCallback.bind(this, callback, oldValue));
+					}
 				}
 			}
+			function invokeCallback(callback, oldValue) {
+				callback(this.value, oldValue);
+				this.hCallback = null;
+			}
 			return function (callback, thisObject) {
-				var boundObserveSourceCallback = observeSourceCallback.bind(this, observeArrayCallback.bind(this, callback.bind(thisObject)));
-				this.hSource = this.source.observe(boundObserveSourceCallback);
-				var value = this.source.getFrom();
+				var boundObserveSourceCallback = observeSourceCallback.bind(this, observeArrayCallback.bind(this, callback.bind(thisObject))),
+					value = this.source.open(boundObserveSourceCallback);
 				boundObserveSourceCallback(value);
-				this.oldValue = Array.isArray(value) ? value.slice() : value;
+				this.value = Array.isArray(value) ? value.slice() : value;
 				this.opened = true;
 				return value;
 			};
 		})(),
 
 		deliver: function () {
-			this.hSource && this.hSource.deliver();
+			this.beingDelivered = true;
+			this.source.deliver();
 			this.ha && this.ha.deliver();
+			this.beingDelivered = false;
 		},
 
 		discardChanges: function () {
 			this.beingDiscarded = true;
-			this.hSource && this.hSource.deliver();
+			this.source.deliver();
 			this.ha && this.ha.deliver();
 			this.beingDiscarded = false;
 			return this.a;
 		},
 
 		setValue: function (value) {
-			this.source.setTo(value);
+			this.source.setValue(value);
 		},
 
 		close: function () {
-			if (this.hSource) {
-				this.hSource.remove();
-				this.hSource = null;
-			}
+			this.source.close();
 			if (this.ha) {
 				this.ha.remove();
 				this.ha = null;
 			}
-			if (this.parent) {
-				for (var index; (index = this.parent.observers.indexOf(this)) >= 0;) {
-					this.parent.observers.splice(index, 1);
-				}
-			}
 			this.closed = true;
 		}
 	};
+
+	Each.prototype._ensureObserver = (function () {
+		/* global PathObserver */
+		var Observer = typeof PathObserver !== "undefined" ? PathObserver : ObservablePath.Observer;
+		return function () {
+			if (!this.observer) {
+				var source = typeof (this.source || EMPTY_OBJECT).deliver === "function" ? this.source :
+					new Observer(new Observable({a: this.source}), "a");
+				this.observer = new Each.Observer(source);
+			}
+			return this.observer;
+		};
+	})();
 
 	return Each;
 });

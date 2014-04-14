@@ -2,13 +2,13 @@
 (function (root, factory) {
 	// Module definition to support AMD, node.js and browser globals
 	if (typeof exports === "object") {
-		module.exports = factory(require("./BindingSource"));
+		module.exports = factory(require("./schedule"), require("./BindingSource"));
 	} else if (typeof define === "function" && define.amd) {
-		define(["./BindingSource"], factory);
+		define(["./schedule", "./BindingSource"], factory);
 	} else {
-		root.BindingSourceList = factory(root.BindingSource);
+		root.BindingSourceList = factory(root.schedule, root.BindingSource);
 	}
-})(this, function (BindingSource) {
+})(this, function (schedule, BindingSource) {
 	"use strict";
 
 	/**
@@ -28,91 +28,48 @@
 		this.sources = sources;
 		this.formatter = formatter;
 		this.parser = parser;
-		this.observers = [];
 	}
 
 	BindingSourceList.prototype = Object.create(BindingSource);
 
-	/**
-	 * Observes a change in a list of {@link module:liaison/BindingSource BindingSource}.
-	 * @method module:liaison/BindingSourceList#observe
-	 * @param {module:liaison/BindingSource~ChangeCallback} callback The change callback.
-	 * @returns {Handle}
-	 *     The handle to stop observing.
-	 *     This handle also has deliver()/discardChanges() methods to deliver/discard change records just for this .observe() call.
-	 */
-	BindingSourceList.prototype.observe = function (callback) {
-		if (this.removed) {
-			console.warn("Trying to start observing BindingSourceList that has been removed already.");
-		} else {
-			var observer = new MiniBindingSourceList(this.sources);
-			observer.parent = this;
-			observer.open(BindingSource.changeCallback.bind(this, callback));
-			this.observers.push(observer);
-			return observer;
-		}
-	};
-
-	// Not using getter here.
-	// If we do so, the property defined won't be observable by Observable.observe() or Object.observe()
-	// given this class is not the only thing changing the path values
-	/**
-	 * @method module:liaison/BindingSourceList#getFrom
-	 * @returns The current value of {@link module:liaison/BindingSourceList BindingSourceList}.
-	 */
-	BindingSourceList.prototype.getFrom = function () {
-		var a = [];
-		for (var i = 0, l = this.sources.length; i < l; ++i) {
-			a.push(this.sources[i].getFrom());
-		}
-		return this.boundFormatter ? this.boundFormatter(a) : a;
-	};
-
-	// Not using setter here.
-	// If we do so, the property defined won't be observable by Observable.observe() or Object.observe()
-	// given this class is not the only thing changing the path values
-	/**
-	 * Sets a value to {@link module:liaison/BindingSourceList BindingSourceList}.
-	 * @method module:liaison/BindingSourceList#setTo
-	 * @param a The value to set.
-	 */
-	BindingSourceList.prototype.setTo = BindingSourceList.prototype.setValue = function (a) {
-		a = this.boundParser ? this.boundParser(a) : a;
-		for (var i = 0, l = a.length; i < l; ++i) {
-			this.sources[i].setTo(a[i]);
-		}
-	};
-
-	/**
-	 * A synonym for {@link module:liaison/BindingSourceList#setTo BindingSourceList#setTo}.
-	 * @method module:liaison/BindingSourceList#setValue
-	 */
-
-	function MiniBindingSourceList(sources) {
+	BindingSourceList.Observer = function (sources) {
 		this.sources = sources;
 		this.remove = this.close;
-	}
+	};
 
-	MiniBindingSourceList.prototype = {
+	BindingSourceList.Observer.prototype = {
 		open: (function () {
 			function miniBindingSourceListCallback(callback, changeIndex, newValue) {
-				if (!this.closed) {
-					var newValues = [],
-						oldValues = this.values.slice();
-					for (var i = 0, l = this.sources.length; i < l; ++i) {
-						newValues[i] = this.sources[i].getFrom();
-					}
-					this.values[changeIndex] = newValue;
-					callback(newValues, oldValues);
+				var newValues = [],
+					oldValues = this.values.slice();
+				for (var i = 0, l = this.sources.length; i < l; ++i) {
+					newValues[i] = i === changeIndex ? (this.values[i] = newValue) : this.values[i];
 				}
+				if (this.beingDelivered) {
+					this.hCallback && this.hCallback.remove();
+					invokeCallback.call(this, callback, oldValues);
+				} else if (!this.hCallback) {
+					this.hCallback = schedule(invokeCallback.bind(this, callback, oldValues));
+				}
+			}
+			function invokeCallback(callback, oldValues) {
+				callback(this.values, oldValues);
+				this.hCallback = null;
 			}
 			return function (callback, thisObject) {
 				var i, l = this.sources.length;
 				this.values = [];
 				this.handles = [];
 				for (i = 0; i < l; ++i) {
-					this.values[i] = this.sources[i].getFrom();
-					this.handles[i] = this.sources[i].observe(miniBindingSourceListCallback.bind(this, callback.bind(thisObject), i));
+					if (typeof this.sources[i].observe === "function") {
+						this.values[i] = this.sources[i].getFrom();
+						this.handles[i] = this.sources[i].observe(miniBindingSourceListCallback.bind(this, callback.bind(thisObject), i));
+					} else if (typeof this.sources[i].open === "function") {
+						this.handles[i] = this.sources[i];
+						this.values[i] = this.sources[i].open(miniBindingSourceListCallback.bind(this, callback.bind(thisObject), i));
+					} else {
+						throw new Error("Cannot observe source: " + this.sources[i] + " at index: " + i);
+					}
 				}
 				this.opened = true;
 				return this.values;
@@ -120,16 +77,19 @@
 		})(),
 
 		deliver: function () {
-			for (var i = 0, l = this.handles.length; i < l; ++i) {
-				this.handles[i].deliver();
+			this.beingDelivered = true;
+			for (var i = 0, l = this.sources.length; i < l; ++i) {
+				this.sources[i].deliver();
 			}
+			this.beingDelivered = false;
 		},
 
 		discardChanges: function () {
-			for (var i = 0, l = this.handles.length; i < l; ++i) {
-				this.values[i] = this.handles[i].discardChanges();
+			var values = [];
+			for (var i = 0, l = this.sources.length; i < l; ++i) {
+				values[i] = this.sources[i].discardChanges();
 			}
-			return this.values;
+			return values;
 		},
 
 		setValue: function (value) {
@@ -139,16 +99,20 @@
 		},
 
 		close: function () {
-			for (var h; (h = this.handles.shift());) {
-				h.remove();
-			}
-			if (this.parent) {
-				for (var index; (index = this.parent.observers.indexOf(this)) >= 0;) {
-					this.parent.observers.splice(index, 1);
+			if (this.handles) {
+				for (var h; (h = this.handles.shift());) {
+					typeof h.remove === "function" ? h.remove() : h.close();
 				}
 			}
 			this.closed = true;
 		}
+	};
+
+	BindingSourceList.prototype._ensureObserver = function () {
+		if (!this.observer) {
+			this.observer = new BindingSourceList.Observer(this.sources);
+		}
+		return this.observer;
 	};
 
 	return BindingSourceList;
