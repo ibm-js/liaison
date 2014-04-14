@@ -119,6 +119,9 @@
 			 */
 			function splice(index, removeCount) {
 				/* jshint validthis: true */
+				if (index < 0) {
+					index = this.length + index;
+				}
 				var oldLength = this.length,
 					changeRecord = {
 						type: Observable.CHANGETYPE_SPLICE,
@@ -175,7 +178,7 @@
 				 * @returns The element removed.
 				 */
 				pop: function () {
-					return splice.call(this, this.length - 1, 1)[0];
+					return splice.call(this, -1, 1)[0];
 				},
 
 				/**
