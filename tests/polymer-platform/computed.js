@@ -4,8 +4,8 @@ define([
 	"dojo/Deferred",
 	"../../polymer/computed",
 	"../waitFor",
-	"dojo/text!./templates/computedTemplate.html",
-	"dojo/text!./templates/computedArrayTemplate.html"
+	"requirejs-text/text!./templates/computedTemplate.html",
+	"requirejs-text/text!./templates/computedArrayTemplate.html"
 ], function (bdd, expect, Deferred, computed, waitFor, computedTemplate, computedArrayTemplate) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it, PathObserver */
