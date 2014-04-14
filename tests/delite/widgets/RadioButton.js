@@ -35,10 +35,9 @@ define([
 					expect(inputs[0].checked).not.to.be.true;
 					expect(inputs[2].checked).not.to.be.true;
 					observable.set("current", "foo");
-					return waitFor(function () {
-						return inputs[0].current === "foo";
-					});
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(function () {
+					return div.getElementsByTagName("input")[0].current === "foo";
+				})).then(dfd.callback(function () {
 					var inputs = div.getElementsByTagName("input");
 					expect(inputs[0].checked).to.be.true;
 					expect(inputs[1].checked).not.to.be.true;
@@ -62,10 +61,9 @@ define([
 					return inputs.length === 3 && inputs[1].checked;
 				}).then(function () {
 					observable.set("bazChecked", true);
-					return waitFor(function () {
-						return observable.current !== "bar";
-					});
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(function () {
+					return observable.current !== "bar";
+				})).then(dfd.callback(function () {
 					expect(observable.current).to.equal("baz");
 				}), dfd.reject.bind(dfd));
 			});
@@ -81,10 +79,9 @@ define([
 					return inputs.length === 3 && inputs[2].checked;
 				}).then(function () {
 					observable.set("bazValue", "BAZ");
-					return waitFor(function () {
-						return observable.current !== "baz";
-					});
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(function () {
+					return observable.current !== "baz";
+				})).then(dfd.callback(function () {
 					expect(observable.current).to.equal("BAZ");
 				}), dfd.reject.bind(dfd));
 			});

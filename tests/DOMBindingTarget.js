@@ -247,15 +247,13 @@ define([
 					return !binding0.value;
 				}).then(function () {
 					expect(radio0.checked).not.to.be.true;
-					return waitFor(function () {
-						return binding1.value;
-					});
-				}).then(function () {
+				}).then(waitFor.bind(function () {
+					return binding1.value;
+				})).then(function () {
 					expect(radio1.checked).to.be.true;
-					return waitFor(function () {
-						return !observable["0"];
-					});
-				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}).then(waitFor.bind(function () {
+					return !observable["0"];
+				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 			});
 			it("Model reflecting radio button", function () {
 				var radio0 = createInput("radio", "foo", "Foo0"),

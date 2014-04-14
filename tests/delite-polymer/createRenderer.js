@@ -236,19 +236,17 @@ define([
 					expect(w.childNodes[1].value).to.equal("John");
 					expect(w.childNodes[3].textContent).to.equal("Ben ");
 					expect(w.childNodes[4].value).to.equal("Ben");
+				}).then(waitFor.bind(function () {
+					var dfd = new Deferred();
+					handles.push(new ObservablePath(w, "first").observe(dfd.resolve.bind(dfd)));
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
-					var wait = waitFor((function () {
-						var dfd = new Deferred();
-						handles.push(new ObservablePath(w, "first").observe(dfd.resolve.bind(dfd)));
-						return dfd.promise;
-					})());
 					w.childNodes[1].value = "Anne";
 					w.childNodes[1].dispatchEvent(event);
 					w.childNodes[4].value = "Irene";
 					w.childNodes[4].dispatchEvent(event);
-					return wait;
-				}).then(waitFor.time.bind(undefined, 0)).then(dfd.callback(function () {
+					return dfd.promise;
+				})).then(waitFor.bind(0)).then(dfd.callback(function () {
 					// Make sure deliverAllByTimeout() finishes sending all change records before running below test
 					expect(w.childNodes[0].nodeValue).to.equal("Anne ");
 					expect(w.childNodes[3].textContent).to.equal("Irene ");
@@ -282,19 +280,18 @@ define([
 					expect(w.childNodes[1].value).to.equal("John");
 					expect(w.childNodes[3].textContent).to.equal("Ben ");
 					expect(w.childNodes[4].value).to.equal("Ben");
+				}).then(waitFor.bind(function () {
+					var w = div.querySelector("liaison-test-nested"),
+						dfd = new Deferred();
+					handles.push(new ObservablePath(w, "first").observe(dfd.resolve.bind(dfd)));
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
-					var wait = waitFor((function () {
-						var dfd = new Deferred();
-						handles.push(new ObservablePath(w, "first").observe(dfd.resolve.bind(dfd)));
-						return dfd.promise;
-					})());
 					w.childNodes[1].value = "Anne";
 					w.childNodes[1].dispatchEvent(event);
 					w.childNodes[4].value = "Irene";
 					w.childNodes[4].dispatchEvent(event);
-					return wait;
-				}).then(waitFor.time.bind(undefined, 0)).then(dfd.callback(function () {
+					return dfd.promise;
+				})).then(waitFor.bind(0)).then(dfd.callback(function () {
 					// Make sure deliverAllByTimeout() finishes sending all change records before running below test
 					var w = div.querySelector("liaison-test-nested");
 					expect(w.childNodes[0].nodeValue).to.equal("Anne ");
@@ -332,14 +329,12 @@ define([
 					expect(w.childNodes[8].value).to.equal("Irene");
 					expect(w.childNodes[9].textContent).to.equal("John ");
 					expect(w.childNodes[10].value).to.equal("John");
-					var wait = waitFor((function () {
-						var dfd = new Deferred();
-						handles.push(ObservableArray.observe(w.names, dfd.resolve.bind(dfd)));
-						return dfd.promise;
-					})());
+				}).then(waitFor.bind(function () {
+					var dfd = new Deferred();
+					handles.push(ObservableArray.observe(w.names, dfd.resolve.bind(dfd)));
 					w.names.reverse();
-					return wait;
-				}).then(waitFor.time.bind(undefined, 0)).then(dfd.callback(function () {
+					return dfd.promise;
+				})).then(waitFor.bind(0)).then(dfd.callback(function () {
 					// Make sure deliverAllByTimeout() finishes sending all change records before running below test
 					expect(w.childNodes[1].textContent).to.equal("John ");
 					expect(w.childNodes[2].value).to.equal("John");
@@ -392,14 +387,12 @@ define([
 					expect(w.childNodes[8].value).to.equal("Irene");
 					expect(w.childNodes[9].textContent).to.equal("John ");
 					expect(w.childNodes[10].value).to.equal("John");
-					var wait = waitFor((function () {
-						var dfd = new Deferred();
-						handles.push(ObservableArray.observe(observable.names, dfd.resolve.bind(dfd)));
-						return dfd.promise;
-					})());
+				}).then(waitFor.bind(function () {
+					var dfd = new Deferred();
+					handles.push(ObservableArray.observe(observable.names, dfd.resolve.bind(dfd)));
 					observable.names.reverse();
-					return wait;
-				}).then(waitFor.time.bind(undefined, 0)).then(dfd.callback(function () {
+					return dfd.promise;
+				})).then(waitFor.bind(0)).then(dfd.callback(function () {
 					// Make sure deliverAllByTimeout() finishes sending all change records before running below test
 					var w = div.querySelector("liaison-test-nestedrepeating");
 					expect(w.childNodes[1].textContent).to.equal("John ");
@@ -464,19 +457,16 @@ define([
 					}
 					expect(w.firstChild.textContent).to.equal("*John* ");
 					expect(input.value).to.equal("John");
+				}).then(waitFor.bind(function () {
+					var dfd = new Deferred();
+					handles.push(new ObservablePath(w, "first").observe(dfd.resolve.bind(dfd)));
 					input.value = "Anne";
-					var wait = waitFor((function () {
-						var dfd = new Deferred();
-						handles.push(new ObservablePath(w, "first").observe(dfd.resolve.bind(dfd)));
-						return dfd.promise;
-					})());
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
-					return wait;
-				}).then(function () {
-					return waitFor.time(0); // Make sure deliverAllByTimeout() finishes sending all change records
-				}).then(dfd.callback(function () {
+					return dfd.promise;
+				})).then(waitFor.bind(0)).then(dfd.callback(function () {
+					// Make sure deliverAllByTimeout() finishes sending all change records before running below test
 					expect(w.firstChild.textContent).to.equal("*Anne* ");
 				}), dfd.reject.bind(dfd));
 			});
@@ -499,26 +489,23 @@ define([
 						w.destroy();
 					}
 				});
-				waitFor.time(500).then(function () {
+				waitFor(500).then(function () {
 					senderDiv = w.firstChild;
 					targetDiv = senderDiv.firstChild;
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
-					return waitFor(dfd1stClick);
-				}).then(function (data) {
+				}).then(waitFor.bind(dfd1stClick.promise)).then(function (data) {
 					var event = data[0],
 						sender = data[2];
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(senderDiv);
 					w.set("handleClick", createDeclarativeEventResolver(dfd2ndClick));
-					return waitFor.time(500);
-				}).then(function () {
+				}).then(waitFor.bind(500)).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
-					return waitFor(dfd2ndClick);
-				}).then(dfd.callback(function (data) {
+				}).then(waitFor.bind(dfd2ndClick.promise)).then(dfd.callback(function (data) {
 					var event = data[0],
 						sender = data[2];
 					expect(event.type).to.equal("click");

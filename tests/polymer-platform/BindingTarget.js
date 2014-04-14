@@ -31,8 +31,7 @@ define([
 					expect(o.Foo).to.equal("Foo1");
 					h.remove();
 					observable.set("foo", "Foo2");
-					return waitFor.time(100);
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(100)).then(dfd.callback(function () {
 					expect(o.Foo).to.equal("Foo1");
 				}), dfd.reject.bind(dfd));
 			});
