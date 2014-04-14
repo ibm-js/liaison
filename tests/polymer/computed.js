@@ -37,16 +37,14 @@ define([
 					});
 					expect(elem.name).to.equal("John Doe");
 					elem.first = "Ben";
-					return waitFor(function () {
-						return elem.name !== "John Doe";
-					});
-				}).then(function () {
+				}).then(waitFor.bind(function () {
+					return elem.name !== "John Doe";
+				})).then(function () {
 					expect(elem.name).to.equal("Ben Doe");
 					document.body.removeChild(elem);
-					return waitFor(function () {
-						return !elem.computed;
-					});
-				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}).then(waitFor.bind(function () {
+					return !elem.computed;
+				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 			});
 			it("Computed array", function () {
 				var dfd = this.async(10000),
@@ -61,10 +59,9 @@ define([
 					var elem = document.createElement("liaison-test-computedarray");
 					expect(elem.totalNameLength).to.equal(45);
 					elem.items.push({Name: "John Jacklin"});
-					return waitFor(function () {
-						return elem.totalNameLength !== 45;
-					});
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(function () {
+					return document.createElement("liaison-test-computedarray").totalNameLength !== 45;
+				})).then(dfd.callback(function () {
 					var elem = document.createElement("liaison-test-computedarray");
 					expect(elem.totalNameLength).to.equal(57);
 				}), dfd.reject.bind(dfd));

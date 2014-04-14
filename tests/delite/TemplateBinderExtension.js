@@ -41,17 +41,15 @@ define([
 					expect(w.bindings.label.value).to.equal("Foo");
 					w.label = "Bar";
 					expect(model.label).to.equal("Bar");
-					return waitFor(function () {
-						return w.textContent !== "Foo";
-					});
-				}).then(function () {
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.textContent !== "Foo";
+				})).then(function () {
 					var w = template.nextSibling;
 					expect(w.textContent).to.equal("Bar");
 					model.set("label", "Baz");
-					return waitFor(function () {
-						return w.textContent !== "Bar";
-					});
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.textContent !== "Bar";
+				})).then(dfd.callback(function () {
 					var w = template.nextSibling;
 					expect(w.textContent).to.equal("Baz");
 				}), dfd.reject.bind(dfd));
@@ -78,10 +76,9 @@ define([
 					w.value = 4;
 					expect(model.rating).to.equal(4);
 					model.set("rating", 3);
-					return waitFor(function () {
-						return w.value !== 4;
-					});
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.nextSibling.value !== 4;
+				})).then(dfd.callback(function () {
 					var w = template.nextSibling.nextSibling;
 					expect(w.value).to.equal(3);
 				}), dfd.reject.bind(dfd));

@@ -149,10 +149,9 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					elem.valueNode.dispatchEvent(event);
-					return waitFor(function () {
-						return elem.getAttribute("aria-value") !== "value0" && elem.valueNode.value !== "value0";
-					});
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(function () {
+					return elem.getAttribute("aria-value") !== "value0" && elem.valueNode.value !== "value0";
+				})).then(dfd.callback(function () {
 					expect(elem.value).to.equal("value1");
 					expect(elem.getAttribute("aria-value")).to.equal("value1");
 				}), dfd.reject.bind(dfd));
@@ -195,10 +194,9 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					elem.valueNode.dispatchEvent(event);
-					return waitFor(function () {
-						return elem.getAttribute("aria-value") !== "value0" && elem.valueNode.value !== "value0";
-					});
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(function () {
+					return elem.getAttribute("aria-value") !== "value0" && elem.valueNode.value !== "value0";
+				})).then(dfd.callback(function () {
 					expect(elem.value).to.equal("value1");
 					expect(elem.getAttribute("aria-value")).to.equal("value1");
 				}), dfd.reject.bind(dfd));

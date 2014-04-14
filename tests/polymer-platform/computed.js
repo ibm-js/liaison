@@ -103,22 +103,19 @@ define([
 					expect(divName.firstChild.nodeValue).to.equal("John Doe");
 					expect(divNameLength.firstChild.nodeValue).to.equal("8");
 					template.model.first = "Ben";
-					return waitFor(function () {
-						return divName.firstChild.nodeValue !== "John Doe";
-					});
-				}).then(function () {
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.firstChild.nodeValue !== "John Doe";
+				})).then(function () {
 					var divName = template.nextSibling,
 						divNameLength = divName.nextSibling;
 					expect(divName.firstChild.nodeValue).to.equal("Ben Doe");
 					expect(divNameLength.firstChild.nodeValue).to.equal("7");
 					template.model = undefined;
-					return waitFor(function () {
-						return !template.nextSibling;
-					});
-				}).then(function () {
+				}).then(waitFor.bind(function () {
+					return !template.nextSibling;
+				})).then(function () {
 					model.first = "Irene";
-					return waitFor.time(100);
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(100)).then(dfd.callback(function () {
 					expect(model.name).not.to.equal("Irene Doe");
 				}), dfd.reject.bind(dfd));
 			});
@@ -154,10 +151,9 @@ define([
 					var text = template.nextSibling;
 					expect(text.nodeValue).to.equal("45");
 					template.model.items.push({Name: "John Jacklin"});
-					return waitFor(function () {
-						return text.nodeValue !== "45";
-					});
-				}).then(dfd.callback(function () {
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.nodeValue !== "45";
+				})).then(dfd.callback(function () {
 					var text = template.nextSibling;
 					expect(text.nodeValue).to.equal("57");
 				}), dfd.reject.bind(dfd));
@@ -188,22 +184,19 @@ define([
 					return template.nextSibling;
 				}).then(function () {
 					template.model = undefined;
-					return waitFor(function () {
-						return !template.nextSibling;
+				}).then(waitFor.bind(function () {
+					return !template.nextSibling;
+				})).then(function () {
+					var dfd = new Deferred(),
+						observer = new PathObserver(model, "name");
+					handles.push(observer);
+					observer.open(function (value) {
+						if (value !== "John") {
+							dfd.resolve(value);
+						}
 					});
-				}).then(function () {
 					model.first = "Irene";
-					return waitFor((function () {
-						var dfd = new Deferred(),
-							observer = new PathObserver(model, "name");
-						handles.push(observer);
-						observer.open(function (value) {
-							if (value !== "John") {
-								dfd.resolve(value);
-							}
-						});
-						return dfd.promise;
-					})());
+					return dfd.promise;
 				}).then(dfd.callback(function (value) {
 					expect(value).to.equal("Irene Doe");
 				}), dfd.reject.bind(dfd));
