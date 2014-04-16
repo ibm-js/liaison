@@ -5,6 +5,25 @@
 		<title>Test runner sandbox</title>
 		<script type="text/javascript">
 			(function(){
+				// Early setup of error handler before Intern sets one up
+				window.onerror = function (message, url, lineNumber, columnNumber, error) {
+					var data = {
+						message: message,
+						url: url,
+						lineNumber: lineNumber
+					};
+					if (columnNumber !== undefined) {
+						data.columnNumber = columnNumber;
+					}
+					if (error) {
+						data.name = error.name;
+						data.stack = "" + (error.stack || error);
+					}
+					window.sandboxResult = {
+						state: "/error",
+						data: data
+					};
+				};
 				if (!window.console) {
 					// IE9 in Sauce Labs environment does not seems to have console object unless dev tools is turned on.
 					// It causes an error in intern/lib/realClient.js:28
@@ -36,10 +55,7 @@
 		<script type="text/javascript" src="./config.js"></script>
 		<script type="text/javascript">
 			(function(){
-				require(this.__internConfig, ["liaison/tests/sandbox/monitor"], function (monitor) {
-					monitor();
-					require(["intern/client"]);
-				});
+				require(this.__internConfig, ["intern/client"]);
 			})();
 		</script>
 	</head>

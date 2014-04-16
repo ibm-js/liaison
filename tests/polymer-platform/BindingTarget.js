@@ -4,7 +4,8 @@ define([
 	"../../Observable",
 	"../../ObservablePath",
 	"../../BindingTarget",
-	"../waitFor"
+	"../waitFor",
+	"../sandbox/monitor"
 ], function (bdd, expect, Observable, ObservablePath, BindingTarget, waitFor) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it, PathObserver */

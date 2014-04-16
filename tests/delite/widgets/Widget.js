@@ -7,6 +7,7 @@ define([
 	"../../../ObservablePath",
 	"../../../delite/widgets/Widget",
 	"../../waitFor",
+	"../../sandbox/monitor",
 ], function (bdd, expect, register, computed, wrapper, ObservablePath, Widget, waitFor) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */

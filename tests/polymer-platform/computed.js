@@ -5,7 +5,8 @@ define([
 	"../../polymer/computed",
 	"../waitFor",
 	"requirejs-text/text!./templates/computedTemplate.html",
-	"requirejs-text/text!./templates/computedArrayTemplate.html"
+	"requirejs-text/text!./templates/computedArrayTemplate.html",
+	"../sandbox/monitor"
 ], function (bdd, expect, Deferred, computed, waitFor, computedTemplate, computedArrayTemplate) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it, PathObserver */

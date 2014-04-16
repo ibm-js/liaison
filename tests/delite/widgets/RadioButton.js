@@ -8,7 +8,8 @@ define([
 	"../../../delite/widgets/RadioButton",
 	"../../waitFor",
 	"requirejs-text/text!./templates/basicRadioButton.html",
-	"../../../delite/WidgetBindingTarget"
+	"../../../delite/WidgetBindingTarget",
+	"../../sandbox/monitor"
 ], function (bdd, expect, register, wrapper, Observable, ObservablePath, RadioButton, waitFor, basicRadioButtonTemplate) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */

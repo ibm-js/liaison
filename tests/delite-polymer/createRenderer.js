@@ -22,7 +22,8 @@ define([
 	"../../delite/createRenderer!../delite/templates/simpleWithAlternateBindingTemplate.html",
 	"../../delite/createRenderer!../templates/eventTemplate.html",
 	"deliteful/StarRating",
-	"../../delite/TemplateBinderExtension"
+	"../../delite/TemplateBinderExtension",
+	"../sandbox/monitor"
 ], function (
 	bdd,
 	expect,
