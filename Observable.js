@@ -351,7 +351,7 @@
 					}
 				}
 				return function (observable, callback, accept) {
-					if (typeof observable !== "object" || observable == null) {
+					if (Object(observable) !== observable) {
 						throw new TypeError("Observable.observe() cannot be called on non-object.");
 					}
 					accept = accept || DEFAULT_ACCEPT_CHANGETYPES;

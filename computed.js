@@ -18,47 +18,7 @@
 		REGEXP_COMPUTED_MARKER = /^_computed/,
 		REGEXP_SHADOW_PROP = /^_.*Attr$/,
 		getPrototypeOf = Object.getPrototypeOf,
-		ObservablePathClass = typeof PathObserver === "undefined" ? ObservablePath : (function () {
-			function DirtyCheckableObservablePath() {
-				ObservablePath.apply(this, arguments);
-			}
-
-			DirtyCheckableObservablePath.prototype = Object.create(ObservablePath.prototype);
-
-			DirtyCheckableObservablePath.prototype.observe = (function () {
-				function iterateCallbacks() {
-					for (var i = 0, l = this.callbacks.length; i < l; ++i) {
-						try {
-							this.callbacks[i].apply(this.object, arguments);
-						} catch (e) {
-							console.error("Error occured in DirtyCheckableObservablePath callback: " + (e.stack || e));
-						}
-					}
-				}
-				function remove(callback) {
-					/* jshint validthis: true */
-					for (var index; (index = this.callbacks.indexOf(callback)) >= 0;) {
-						this.callbacks.splice(index, 1);
-					}
-					if (this.callbacks.length === 0) {
-						this.h.remove();
-						this.h = null;
-					}
-				}
-				return function (callback) {
-					(this.callbacks = this.callbacks || []).push(callback);
-					if (!this.h) {
-						(this.h = new PathObserver(this.object, this.path)).open(iterateCallbacks, this);
-						this.h.remove = this.h.close;
-					}
-					return {
-						remove: remove.bind(this)
-					};
-				};
-			})();
-
-			return DirtyCheckableObservablePath;
-		})();
+		ObservablePathClass = typeof PathObserver === "undefined" ? ObservablePath : PathObserver;
 
 	function set(name, value) {
 		this[name] = value;
@@ -92,8 +52,7 @@
 				var o = this.o;
 				if (typeof o._getProps !== "function" || !REGEXP_SHADOW_PROP.test(this.name)) {
 					this.source = new BindingSourceList(this.paths.map(mapPath, o), callComputedCallback.bind(o, this.callback));
-					this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name));
-					set.call(o, this.name, this.source.getFrom());
+					set.call(o, this.name, this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name)));
 				}
 				return this;
 			};
@@ -129,6 +88,7 @@
 	};
 
 	/**
+	 * @function module:liaison/computed
 	 * @param {Function} callback The function to calculate computed property value.
 	 * @param {...string} var_args The paths from the parent object.
 	 * @returns
@@ -155,6 +115,7 @@
 	};
 
 	/**
+	 * @function module:liaison/computed.array
 	 * @param {Function} callback The function to calculate computed property value.
 	 * @param {string} path The path from the parent object, which should point to an array.
 	 * @returns
@@ -187,6 +148,7 @@
 
 	/**
 	 * Look for computed properties under the given object and activate them by applying the object and the property name in thre tree.
+	 * @function module:liaison/computed.apply
 	 * @param o The object tree.
 	 */
 	computed.apply = function (o) {
@@ -227,6 +189,7 @@
 	};
 
 	/**
+	 * @function module:liaison/computed.test
 	 * @param o A value
 	 * @returns {boolean} True if the given value is a computed property.
 	 */
