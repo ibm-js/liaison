@@ -3,7 +3,8 @@ define([
 	"intern/chai!expect",
 	"dojo/Deferred",
 	"../../polymer/computed",
-	"../waitFor"
+	"../waitFor",
+	"../sandbox/monitor"
 ], function (bdd, expect, Deferred, computed, waitFor) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */

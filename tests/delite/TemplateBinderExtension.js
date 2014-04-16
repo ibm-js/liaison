@@ -8,7 +8,8 @@ define([
 	"requirejs-text/text!../../tests/delite/templates/starRatingTemplate.html",
 	"deliteful/Button",
 	"deliteful/StarRating",
-	"../../delite/TemplateBinderExtension"
+	"../../delite/TemplateBinderExtension",
+	"../sandbox/monitor"
 ], function (bdd, expect, Observable, BindingTarget, waitFor, buttonTemplate, starRatingTemplate) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
