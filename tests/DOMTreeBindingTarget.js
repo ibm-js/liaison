@@ -5,7 +5,6 @@ define([
 	"../Observable",
 	"../ObservablePath",
 	"../ObservableArray",
-	"../BindingTarget",
 	"../DOMTreeBindingTarget",
 	"../computed",
 	"./waitFor",
@@ -32,7 +31,6 @@ define([
 	Observable,
 	ObservablePath,
 	ObservableArray,
-	BindingTarget,
 	DOMTreeBindingTarget,
 	computed,
 	waitFor,
@@ -255,8 +253,8 @@ define([
 				}), dfd.reject.bind(dfd));
 			});
 			it("Simple binding with default alternate binding factory", function () {
-				var originalCreateBindingSourceFactory = BindingTarget.createBindingSourceFactory;
-				BindingTarget.createBindingSourceFactory = function (descriptor) {
+				var originalCreateBindingSourceFactory = Element.prototype.createBindingSourceFactory;
+				Element.prototype.createBindingSourceFactory = function (descriptor) {
 					var match = /(\w+):(.*)/.exec(descriptor),
 						key = (match || [])[1],
 						path = (match || [])[2];
@@ -270,7 +268,7 @@ define([
 				};
 				handles.push({
 					remove: function () {
-						BindingTarget.createBindingSourceFactory = originalCreateBindingSourceFactory;
+						Element.prototype.createBindingSourceFactory = originalCreateBindingSourceFactory;
 					}
 				});
 				var dfd = this.async(10000),

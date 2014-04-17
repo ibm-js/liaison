@@ -6,7 +6,6 @@
 		<script type="text/javascript">
 			require([
 				"liaison/ObservablePath",
-				"liaison/BindingTarget",
 				"liaison/computed",
 				"liaison/wrapper",
 				"deliteful/ProgressIndicator",
@@ -15,11 +14,11 @@
 				"liaison/delite/TemplateBinderExtension",
 				"liaison/delite/Widgets/RadioButton",
 				"liaison/delite/Widgets/StarRating"
-			], function (ObservablePath, BindingTarget, computed, wrapper) {
+			], function (ObservablePath, computed, wrapper) {
 				function startup() {
 					var REGEXP_NUMBER_BINDING = /^number:(.*)$/,
-						origCreateBindingSourceFactory = BindingTarget.createBindingSourceFactory;
-					BindingTarget.createBindingSourceFactory = function (target) {
+						origCreateBindingSourceFactory = Element.prototype.createBindingSourceFactory;
+					Element.prototype.createBindingSourceFactory = function (target) {
 						var factory = origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
 						if (!factory) {
 							var match = REGEXP_NUMBER_BINDING.exec(target);
