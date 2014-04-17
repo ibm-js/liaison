@@ -223,7 +223,9 @@ define([
 					}
 				});
 				waitFor(function () {
-					return w.getElementsByTagName("input").length === 2;
+					return Array.prototype.filter.call(w.getElementsByTagName("input"), function (input) {
+						return input.value;
+					}).length === 2;
 				}).then(function () {
 					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
 						w.removeChild(w.firstChild);
@@ -262,7 +264,9 @@ define([
 					}
 				});
 				waitFor(function () {
-					return div.getElementsByTagName("input").length === 2;
+					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
+						return input.value;
+					}).length === 2;
 				}).then(function () {
 					var w = div.querySelector("liaison-test-nested");
 					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
@@ -309,7 +313,9 @@ define([
 					}
 				});
 				waitFor(function () {
-					return w.getElementsByTagName("input").length === 5;
+					return Array.prototype.filter.call(w.getElementsByTagName("input"), function (input) {
+						return input.value;
+					}).length === 5;
 				}).then(function () {
 					expect(w.childNodes[1].textContent).to.equal("Anne ");
 					expect(w.childNodes[2].value).to.equal("Anne");
@@ -362,7 +368,9 @@ define([
 					}
 				});
 				waitFor(function () {
-					return div.getElementsByTagName("input").length === 5;
+					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
+						return input.value;
+					}).length === 5;
 				}).then(function () {
 					var w = div.querySelector("liaison-test-nestedrepeating");
 					expect(w.childNodes[1].textContent).to.equal("Anne ");
