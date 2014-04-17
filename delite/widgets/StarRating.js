@@ -14,7 +14,7 @@ define([
 	"../../ObservablePath",
 	"../../computed",
 	"dojo/i18n!deliteful/StarRating/nls/StarRating",
-	"delite/themes/load!deliteful/StarRating/themes/{{theme}}/StarRating_css"
+	"delite/theme!deliteful/StarRating/themes/{{theme}}/StarRating_css"
 ], function (dcl, domClass, domGeometry, keys, string, pointer, register, Widget, renderer,
 	Observable, ObservableArray, ObservablePath, computed, messages) {
 	/**
