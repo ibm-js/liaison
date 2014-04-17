@@ -112,8 +112,7 @@ define([
 				content = letTemplateCreateInstance ?
 					this.template.createInstance(model,
 						this.template.createBindingSourceFactory && {prepareBinding: this.template.createBindingSourceFactory}
-							|| this.template.bindingDelegate
-							|| BindingTarget.createBindingSourceFactory && {prepareBinding: BindingTarget.createBindingSourceFactory},
+							|| this.template.bindingDelegate,
 						undefined,
 						bindings) :
 					TemplateBinder.createContent(this.template, this.parsed, toBeBound);
@@ -258,14 +257,12 @@ define([
 	 * @param {Function} [createBindingSourceFactory]
 	 *     A function that takes object path of the model and target attribute name as parameters
 	 *     and returns a function to create the binding source given a model and a DOM node.
-	 *     {@link module:liaison/BindingTarget.createBindingSourceFactory BindingTarget.createBindingSourceFactory} works as its default.
 	 */
 	TemplateBinder.assignSources = function (model, toBeBound, createBindingSourceFactory) {
 		// Given this function works as a low-level one,
 		// it preferes regular loop over array extras,
 		// which makes cyclomatic complexity higher.
 		/* jshint maxcomplexity: 15 */
-		createBindingSourceFactory = createBindingSourceFactory || BindingTarget.createBindingSourceFactory;
 		for (var iToBeBound = 0, lToBeBound = toBeBound.length; iToBeBound < lToBeBound; iToBeBound += PARSED_ENTRY_LENGTH) {
 			var path,
 				factory,
@@ -448,13 +445,8 @@ define([
 		 *     A factory function to create binding source, given data model, mustache syntax, DOM node and attribute/property name.
 		 */
 
-		/**
-		 * The default binding source factory,
-		 * used if `<template>` does not have {@link HTMLTemplateElement#createBindingSourceFactory .createBindingSourceFactory property}.
-		 * @function module:liaison/BindingTarget.createBindingSourceFactory
-		 */
-		var origCreateBindingSourceFactory = BindingTarget.createBindingSourceFactory;
-		BindingTarget.createBindingSourceFactory = function (path, name) {
+		var origCreateBindingSourceFactory = Element.prototype.createBindingSourceFactory;
+		Element.prototype.createBindingSourceFactory = function (path, name) {
 			var factory = origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
 			if (!factory) {
 				var tokens = REGEXP_DECLARATIVE_EVENT.exec(name);
