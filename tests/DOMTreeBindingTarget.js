@@ -23,6 +23,7 @@ define([
 	"requirejs-text/text!./templates/svgTemplate.html",
 	"requirejs-text/text!./templates/svgNestedTemplate.html",
 	"requirejs-text/text!./templates/eventTemplate.html",
+	"requirejs-text/text!./templates/nestedEventTemplate.html",
 	"requirejs-text/text!./templates/irregularTemplate.html"
 ], function (
 	bdd,
@@ -49,6 +50,7 @@ define([
 	svgTemplate,
 	svgNestedTemplate,
 	eventTemplate,
+	nestedEventTemplate,
 	irregularTemplate
 ) {
 	/* jshint withstmt: true */
@@ -99,6 +101,13 @@ define([
 					}
 				};
 			})();
+			function createDeclarativeEventResolver(dfd) {
+				return function () {
+					var a = [].slice.call(arguments);
+					a.unshift(this);
+					dfd.resolve(a);
+				};
+			}
 			it("Assigning non-object/array", function () {
 				var dfd = this.async(10000),
 					observable = new Observable({foo: 0}),
@@ -928,11 +937,6 @@ define([
 				});
 			}
 			it("Declarative events", function () {
-				function createDeclarativeEventResolver(dfd) {
-					return function () {
-						dfd.resolve([].slice.call(arguments));
-					};
-				}
 				var senderDiv,
 					targetDiv,
 					dfd = this.async(10000),
@@ -952,29 +956,101 @@ define([
 				waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
+					// Make sure sending event before setting declarative event handler won't cause an exception, etc.
+					senderDiv = template.nextSibling;
+					targetDiv = senderDiv.firstChild;
+					var event = document.createEvent("MouseEvents");
+					event.initEvent("click", true, true);
+					targetDiv.dispatchEvent(event);
+				}).then(function () {
+					var source = template.nextSibling.bindings["on-click"].source;
+					source.setValue("Foo"); // Should be no-op
+					source.deliver(); // Should be no-op
+					expect(typeof source.discardChanges()).to.equal("function");
+				}).then(function () {
 					observable.set("handleClick", createDeclarativeEventResolver(dfd1stClick));
-				}).then(waitFor.bind(500)).then(function () {
+				}).then(waitFor.bind(1000)).then(function () {
 					senderDiv = template.nextSibling;
 					targetDiv = senderDiv.firstChild;
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
 				}).then(waitFor.bind(dfd1stClick.promise)).then(function (data) {
-					var event = data[0],
-						sender = data[2];
+					var event = data[1],
+						sender = data[3];
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(senderDiv);
 					observable.set("handleClick", createDeclarativeEventResolver(dfd2ndClick));
-				}).then(waitFor.bind(500)).then(function () {
+				}).then(waitFor.bind(1000)).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
 				}).then(waitFor.bind(dfd2ndClick.promise)).then(dfd.callback(function (data) {
-					var event = data[0],
-						sender = data[2];
+					var event = data[1],
+						sender = data[3];
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(senderDiv);
 				}), dfd.reject.bind(dfd));
+			});
+			it("Nested declarative events", function () {
+				var dfd = this.async(10000),
+					dfd1stClick = new Deferred(),
+					dfd2ndClick = new Deferred(),
+					dfd3rdClick = new Deferred(),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template")),
+					observable = new Observable({
+						handleClick: createDeclarativeEventResolver(dfd1stClick),
+						foo: new Observable({
+							bar: new Observable()
+						})
+					});
+				template.innerHTML = nestedEventTemplate;
+				handles.push(template.bind("bind", observable));
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				waitFor(function () {
+					return div.querySelector("div");
+				}).then(function () {
+					var event = document.createEvent("MouseEvents");
+					event.initEvent("click", true, true);
+					div.querySelector("div").dispatchEvent(event);
+				}).then(waitFor.bind(dfd1stClick.promise)).then(function (data) {
+					var thisObject = data[0],
+						event = data[1],
+						sender = data[3];
+					expect(thisObject).to.equal(observable);
+					expect(event.type).to.equal("click");
+					expect(sender).to.equal(div.querySelector("div"));
+					observable.foo.set("handleClick", createDeclarativeEventResolver(dfd2ndClick));
+				}).then(waitFor.bind(1000)).then(function () {
+					var event = document.createEvent("MouseEvents");
+					event.initEvent("click", true, true);
+					div.querySelector("div").dispatchEvent(event);
+				}).then(waitFor.bind(dfd2ndClick.promise)).then(function (data) {
+					var thisObject = data[0],
+						event = data[1],
+						sender = data[3];
+					expect(thisObject).to.equal(observable.foo);
+					expect(event.type).to.equal("click");
+					expect(sender).to.equal(div.querySelector("div"));
+					observable.foo.bar.set("handleClick", createDeclarativeEventResolver(dfd3rdClick));
+				}).then(waitFor.bind(1000)).then(function () {
+					var event = document.createEvent("MouseEvents");
+					event.initEvent("click", true, true);
+					div.querySelector("div").dispatchEvent(event);
+				}).then(waitFor.bind(dfd3rdClick.promise)).then(function (data) {
+					var thisObject = data[0],
+						event = data[1],
+						sender = data[3];
+					expect(thisObject).to.equal(observable.foo.bar);
+					expect(event.type).to.equal("click");
+					expect(sender).to.equal(div.querySelector("div"));
+				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 			});
 			it("Irregular template", function () {
 				var dfd = this.async(10000),

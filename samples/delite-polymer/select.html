@@ -89,7 +89,7 @@
 						select: function (event, detail, sender) {
 							var item = sender.getAttribute("data-item");
 							this.set("current", this[item]);
-							this.set("Selected", item);
+							this.set("Selected", sender.value);
 						}
 					}));
 				}

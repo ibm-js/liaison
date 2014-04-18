@@ -112,7 +112,24 @@ define([
 					buildRendering: renderEventsTemplate,
 					baseClass: "liaison-test-events",
 					handleClick: undefined
+				}),
+				NestedEventTemplateWidget = register("liaison-test-nested-events", [HTMLElement, Widget], {
+					buildRendering: createRenderer("<liaison-test-nested-events-inner></liaison-test-nested-events-inner>"),
+					baseClass: "liaison-test-nested-events",
+					handleClick: undefined
 				});
+			register("liaison-test-nested-events-inner", [HTMLElement, Widget], {
+				buildRendering: createRenderer("<liaison-test-events></liaison-test-events>"),
+				baseClass: "liaison-test-nested-events-inner",
+				handleClick: undefined
+			});
+			function createDeclarativeEventResolver(dfd) {
+				return function () {
+					var a = [].slice.call(arguments);
+					a.unshift(this);
+					dfd.resolve(a);
+				};
+			}
 			afterEach(function () {
 				for (var handle = null; (handle = handles.shift());) {
 					handle.remove();
@@ -481,11 +498,6 @@ define([
 				}), dfd.reject.bind(dfd));
 			});
 			it("Declarative events", function () {
-				function createDeclarativeEventResolver(dfd) {
-					return function () {
-						dfd.resolve([].slice.call(arguments));
-					};
-				}
 				var senderDiv,
 					targetDiv,
 					dfd = this.async(10000),
@@ -499,28 +511,84 @@ define([
 						w.destroy();
 					}
 				});
-				waitFor(500).then(function () {
+				waitFor(function () {
+					return ((w.querySelector("div").bindings || {})["on-click"] || {}).value;
+				}).then(function () {
 					senderDiv = w.firstChild;
 					targetDiv = senderDiv.firstChild;
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
 				}).then(waitFor.bind(dfd1stClick.promise)).then(function (data) {
-					var event = data[0],
-						sender = data[2];
+					var event = data[1],
+						sender = data[3];
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(senderDiv);
 					w.set("handleClick", createDeclarativeEventResolver(dfd2ndClick));
-				}).then(waitFor.bind(500)).then(function () {
+				}).then(waitFor.bind(function () {
+					return ((w.querySelector("div").bindings || {})["on-click"] || {}).value;
+				})).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
 				}).then(waitFor.bind(dfd2ndClick.promise)).then(dfd.callback(function (data) {
-					var event = data[0],
-						sender = data[2];
+					var event = data[1],
+						sender = data[3];
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(senderDiv);
 				}), dfd.reject.bind(dfd));
+			});
+			it("Nested declarative events", function () {
+				var dfd = this.async(10000),
+					dfd1stClick = new Deferred(),
+					dfd2ndClick = new Deferred(),
+					dfd3rdClick = new Deferred(),
+					w = new NestedEventTemplateWidget({
+						handleClick: createDeclarativeEventResolver(dfd1stClick)
+					}).placeAt(document.body);
+				handles.push({
+					remove: function () {
+						w.destroy();
+					}
+				});
+				waitFor(function () {
+					return ((w.querySelector("div").bindings || {})["on-click"] || {}).value;
+				}).then(function () {
+					var event = document.createEvent("MouseEvents");
+					event.initEvent("click", true, true);
+					w.querySelector("div").dispatchEvent(event);
+				}).then(waitFor.bind(dfd1stClick.promise)).then(function (data) {
+					var thisObject = data[0],
+						event = data[1],
+						sender = data[3];
+					expect(thisObject).to.equal(w);
+					expect(event.type).to.equal("click");
+					expect(sender).to.equal(w.querySelector("div"));
+					w.querySelector("liaison-test-nested-events-inner").set("handleClick", createDeclarativeEventResolver(dfd2ndClick));
+				}).then(function () {
+					var event = document.createEvent("MouseEvents");
+					event.initEvent("click", true, true);
+					w.querySelector("div").dispatchEvent(event);
+				}).then(waitFor.bind(dfd2ndClick.promise)).then(function (data) {
+					var thisObject = data[0],
+						event = data[1],
+						sender = data[3];
+					expect(thisObject).to.equal(w.querySelector("liaison-test-nested-events-inner"));
+					expect(event.type).to.equal("click");
+					expect(sender).to.equal(w.querySelector("div"));
+					w.querySelector("liaison-test-events").set("handleClick", createDeclarativeEventResolver(dfd3rdClick));
+				}).then(function () {
+					var event = document.createEvent("MouseEvents");
+					event.initEvent("click", true, true);
+					w.querySelector("div").dispatchEvent(event);
+				}).then(waitFor.bind(dfd3rdClick.promise)).then(function (data) {
+					var thisObject = data[0],
+						event = data[1],
+						sender = data[3];
+					expect(thisObject).to.equal(w.querySelector("liaison-test-events"));
+					expect(event.type).to.equal("click");
+					expect(sender).to.equal(w.querySelector("div"));
+				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 			});
 		});
 	}

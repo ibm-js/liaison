@@ -37,6 +37,9 @@ define([
 	 *     });
 	 */
 	var createRenderer = function (template) {
+		function getInstanceData() {
+			return this.instanceData;
+		}
 		return function () {
 			/* jshint validthis: true */
 			if (!this._observable) {
@@ -57,6 +60,12 @@ define([
 			}
 			this.binder = new TemplateBinder(templateElement.create(prefix + template, this.ownerDocument));
 			this.binder.template.createBindingSourceFactory = this.createBindingSourceFactory;
+			Object.defineProperty(this.binder.template, "instanceData", {
+				get: getInstanceData.bind(this)
+			});
+			if (this.instanceData) {
+				this.binder.template._instanceData = this.instanceData;
+			}
 			this.own(this.binder.create(this, this, "beforeEnd"));
 			forEach.call(this.querySelectorAll("[data-attach-point]"), function (elem) {
 				var value = elem.getAttribute("data-attach-point");

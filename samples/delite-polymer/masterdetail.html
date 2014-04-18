@@ -4,19 +4,14 @@
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
-		<script id="masterdetail-item-template" type="text/x-template">
-			<div>
-				Name:
-				<input type="text" value="{{First}}"></input>
-				<input type="button" value="Details" on-click="{{selectItem}}"></input>
-			</div>
-		</script>
 		<script id="masterdetail-template" type="text/x-template">
 			<div>
 				<div on-liaison-sample-masterdetail-item-selected="{{selectItem}}">
 					<template repeat="{{items}}">
 						<div>
-							<liaison-sample-masterdetail-item First="{{First}}" itemid="{{id}}"></liaison-sample-masterdetail-item>
+							Name:
+							<input type="text" value="{{First}}"></input>
+							<input type="button" value="Details" on-click="{{selectItem}}"></input>
 						</div>
 					</template>
 					<div><span class="cell">First name:</span> <input type="text" value="{{current.First}}"></div>
@@ -38,17 +33,6 @@
 			], function (register, wrapper, createRenderer, Widget) {
 				function startup() {
 					var seq = 0;
-					register("liaison-sample-masterdetail-item", [HTMLElement, Widget], {
-						buildRendering: createRenderer(document.getElementById("masterdetail-item-template").innerHTML),
-						baseClass: "liaison-sample-masterdetail-item",
-						itemid: undefined, // IE9 throws an error if we use "id" here
-						First: undefined,
-						selectItem: function () {
-							var event = document.createEvent("CustomEvent");
-							event.initCustomEvent("liaison-sample-masterdetail-item-selected", true, true, {id: this.itemid});
-							this.dispatchEvent(event);
-						}
-					});
 					register("liaison-sample-masterdetail", [HTMLElement, Widget], wrapper.wrap({
 						buildRendering: createRenderer(document.getElementById("masterdetail-template").innerHTML),
 						baseClass: "liaison-sample-masterdetail",
@@ -105,10 +89,8 @@
 							}
 						],
 						current: undefined,
-						selectItem: function (event, detail) {
-							this.set("current", this.items.filter(function (item) {
-								return item.id == detail.id;
-							})[0]);
+						selectItem: function (event, detail, sender) {
+							this.set("current", sender.instanceData.model);
 						}
 					}));
 				}

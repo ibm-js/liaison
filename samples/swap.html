@@ -4,14 +4,14 @@
 		<link rel="stylesheet" type="text/css" href="./css/examples.css">
 		<script type="text/javascript" src="../../requirejs/require.js" data-main="../../"></script>
 		<script type="text/javascript">
-			var ctrl;
-
 			require([
 				"liaison/wrapper",
 				"liaison/DOMTreeBindingTarget"
 			], function(wrapper){
 				function startup(){
-					document.getElementById("main-template").bind("bind", ctrl = wrapper.wrap({
+					var model;
+
+					document.getElementById("main-template").bind("bind", model = wrapper.wrap({
 						data: [
 							{
 								title: "Model1",
@@ -53,14 +53,14 @@
 								]
 							}
 						],
-						select: function(title){
-							ctrl.set("current", ctrl.data.filter(function(entry){
-								return entry.title == title;
+						select: function(event, detail, sender){
+							this.set("current", this.data.filter(function(entry){
+								return entry.title == sender.value;
 							})[0].names);
 						}
 					}));
 
-					ctrl.set("current", ctrl.data[0].names);
+					model.set("current", model.data[0].names);
 				}
 
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
@@ -70,7 +70,7 @@
 	<body>
 		<template id="main-template">
 			<div>
-				<select onchange="ctrl.select(this.value);">
+				<select on-change="{{select}}">
 					<option template repeat="{{data}}" value="{{title}}">{{title}}</option>
 				</select>
 			</div>

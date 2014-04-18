@@ -4,15 +4,13 @@
 		<link rel="stylesheet" type="text/css" href="./css/examples.css">
 		<script type="text/javascript" src="../../requirejs/require.js" data-main="../../"></script>
 		<script type="text/javascript">
-			var ctrl;
-
 			require([
 				"liaison/wrapper",
 				"liaison/DOMTreeBindingTarget"
 			], function(wrapper){
 				function startup(){
 					var seq = 0;
-					document.getElementById("main-template").bind("bind", ctrl = wrapper.wrap({
+					document.getElementById("main-template").bind("bind", wrapper.wrap({
 						items: [
 							{
 								id: seq++,
@@ -65,14 +63,11 @@
 								Fax: "408-764-4321"
 							}
 						],
-						selectItem: function(id){
-							ctrl.set("current", ctrl.items.filter(function(item){
-								return item.id == id;
-							})[0]);
+						selectItem: function(event, detail, sender){
+							this.set("current", sender.instanceData.model);
 						}
 					}));
 				}
-
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
 			});
 		</script>
@@ -83,7 +78,7 @@
 				<div>
 					Name:
 					<input type="text" value="{{First}}">
-					<input type="button" value="Details" onclick="ctrl.selectItem({{id}});">
+					<input type="button" value="Details" on-click="{{selectItem}}">
 				</div>
 			</template>
 			<div>
