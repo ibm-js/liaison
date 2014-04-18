@@ -17,6 +17,12 @@
 		return path === "" ? [] : typeof path.splice !== "function" ? path.split(".") : create ? path.slice() : path;
 	}
 
+	/**
+	 * @method module:liaison/ObservablePath.getObjectPath
+	 * @param {object} o An object.
+	 * @param {string} path The path from object, either dot-concatenated string or an array.
+	 * @returns The value of the object path.
+	 */
 	function getObjectPath(o, path) {
 		for (var comps = getPathComps(path), i = 0, l = comps.length; i < l; ++i) {
 			var comp = comps[i];
@@ -25,6 +31,13 @@
 		return o;
 	}
 
+	/**
+	 * Sets a value to an object path.
+	 * @method module:liaison/ObservablePath.setObjectPath
+	 * @param {object} o An object.
+	 * @param {string} path The path from object, either dot-concatenated string or an array.
+	 * @returns The value set. Undefined if value cannot be set.
+	 */
 	function setObjectPath(o, path, value) {
 		var comps = getPathComps(path, true),
 			prop = comps.pop();
@@ -166,6 +179,9 @@
 			return this.observer;
 		};
 	})();
+
+	ObservablePath.getObjectPath = getObjectPath;
+	ObservablePath.setObjectPath = setObjectPath;
 
 	return ObservablePath;
 });

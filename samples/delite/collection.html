@@ -14,7 +14,7 @@
 				list-style-type: none;
 			}
 
-			ul.namelist liaison-sample-collection-item {
+			ul.namelist li {
 				display: inline-block;
 				border: solid #4080ff 1px;
 				margin: 2px;
@@ -26,12 +26,6 @@
 			}
 		</style>
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
-		<script id="collection-item-template" type="text/x-template">
-			<li>
-				{{item.Name}}
-				<span class="close-button" on-click="{{removeItem}}">X</span>
-			</li>
-		</script>
 		<script id="collection-template" type="text/x-template">
 			<div>
 				<form on-submit="{{addItem}}">
@@ -39,7 +33,10 @@
 				</form>
 				<ul class="namelist" on-liaison-sample-collection-item-remove-requested="{{removeItem}}">
 					<template repeat="{{items}}">
-						<liaison-sample-collection-item item="{{}}"></liaison-sample-collection-item>
+						<li>
+							{{Name}}
+							<span class="close-button" on-click="{{removeItem}}">X</span>
+						</li>
 					</template>
 				</ul>
 				<div>Sum of lengths of names: {{totalNameLength}}</div>
@@ -56,28 +53,17 @@
 			], function (register, computed, wrapper, createRenderer, Widget) {
 				function startup(){
 					var seq = 0;
-					register("liaison-sample-collection-item", [HTMLLIElement, Widget], {
-						buildRendering: createRenderer(document.getElementById("collection-item-template").innerHTML),
-						baseClass: "liaison-sample-collection-item",
-						item: undefined,
-						removeItem: function () {
-							var event = document.createEvent("CustomEvent");
-							event.initCustomEvent("liaison-sample-collection-item-remove-requested", true, true, {id: this.item.id});
-							this.dispatchEvent(event);
-						}
-					});
 					register("liaison-sample-collection", [HTMLElement, Widget], wrapper.wrap({
 						buildRendering: createRenderer(document.getElementById("collection-template").innerHTML),
 						baseClass: "liaison-sample-collection",
 						addItem: function (event, detail, sender) {
-							sender.querySelector("input").blur(); // IE9 does not blur <input> at onsubmit. TODO(asudoh): Switch to oninput
 							this.items.push({id: seq++, Name: this.newName});
 							this.set("newName", "");
 							event.preventDefault();
 						},
-						removeItem: function (event, detail) {
-							var index = this.items.indexOf(this.items.filter(function(entry){ return entry.id == detail.id; })[0]);
-							if(index >= 0){
+						removeItem: function (event, detail, sender) {
+							var index = this.items.indexOf(sender.instanceData.model);
+							if (index >= 0) {
 								this.items.splice(index, 1);
 							}
 						},

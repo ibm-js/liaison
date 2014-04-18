@@ -28,7 +28,9 @@ define(["dojo/Deferred"], function (Deferred) {
 			}
 			function timeoutWaiting() {
 				if (!dfd.isFulfilled()) {
-					dfd.reject(new Error("Timeout (" + timeout + ") happened while waiting for a condition."));
+					var message
+						= "Timeout (" + timeout + ") happened while waiting for a condition" + (typeof test === "function" ? ": " + test : ".");
+					dfd.reject(new Error(message));
 				}
 			}
 			if (typeof test === "number") {

@@ -8,13 +8,13 @@ define([
 	"./BindingSourceList",
 	"./BindingTarget",
 	"./computed",
-	"./DOMBindingTarget"
+	"./DOMBindingTarget",
+	"./EventBindingSource"
 ], function (templateElement, ObservablePath, BindingSourceList, BindingTarget, computed) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},
 		REGEXP_TEMPLATE_TYPE = /template$/i,
-		REGEXP_DECLARATIVE_EVENT = /^on\-(.+)$/i,
 		ATTRIBUTE_IF = "if",
 		ATTRIBUTE_BIND = "bind",
 		ATTRIBUTE_REPEAT = "repeat",
@@ -57,6 +57,14 @@ define([
 		return tokens.join("");
 	}
 
+	Object.defineProperty(Node.prototype, "instanceData", {
+		get: function () {
+			/* jshint camelcase: false */
+			return this._instanceData || this.templateInstance_ || (this.parentNode || EMPTY_OBJECT).instanceData;
+		},
+		configurable: true
+	});
+
 	/**
 	 * A class working as an internal logic of {HTMLTemplateElement#bind HTMLTemplateElement.bind()}
 	 * to stamp out a template with data binding.
@@ -89,7 +97,7 @@ define([
 	 * @returns {TemplateBinder} This object.
 	 */
 	TemplateBinder.prototype.create = (function () {
-		function remove(bound) {
+		function remove(bound, computed) {
 			for (var target = null; (target = bound.shift());) {
 				target.remove();
 			}
@@ -98,11 +106,14 @@ define([
 					node.parentNode.removeChild(node);
 				}
 			}
-			if (!this.preventRemoveComputed) {
-				for (var c; (c = this.computed.shift());) {
+			if (computed) {
+				for (var c; (c = computed.shift());) {
 					c.remove();
 				}
 			}
+		}
+		function getInstanceData() {
+			return this.instanceData;
 		}
 		return function (model, referenceNode, position) {
 			var letTemplateCreateInstance = typeof this.template.createInstance === "function";
@@ -111,25 +122,32 @@ define([
 				bindings = [],
 				content = letTemplateCreateInstance ?
 					this.template.createInstance(model,
-						this.template.createBindingSourceFactory && {prepareBinding: this.template.createBindingSourceFactory}
-							|| this.template.bindingDelegate,
+						this.template.createBindingSourceFactory && {prepareBinding: this.template.createBindingSourceFactory},
 						undefined,
 						bindings) :
 					TemplateBinder.createContent(this.template, this.parsed, toBeBound);
 			!letTemplateCreateInstance && TemplateBinder.assignSources(model, toBeBound, this.template.createBindingSourceFactory);
-			var instantiated = {
-				childNodes: TemplateBinder.insert(content, referenceNode, position),
-				computed: computed.apply(model),
-				preventRemoveComputed: this.template.preventRemoveComputed
-			};
-			instantiated.remove = remove.bind(instantiated,
+			var instanceData = {
+					model: model,
+					childNodes: TemplateBinder.insert(content, referenceNode, position)
+				},
+				applied = computed.apply(model);
+			Object.defineProperty(instanceData, "instanceData", {
+				get: getInstanceData.bind(this.template),
+				configurable: true
+			});
+			instanceData.remove = remove.bind(instanceData,
 				letTemplateCreateInstance ?
 					bindings.map(function (binding) {
 						binding.remove = binding.close;
 						return binding;
 					}) :
-					TemplateBinder.bind(toBeBound));
-			return instantiated;
+					TemplateBinder.bind(toBeBound),
+				!this.template.preventRemoveComputed && applied);
+			instanceData.childNodes.forEach(function (node) {
+				node._instanceData = instanceData;
+			});
+			return instanceData;
 		};
 	})();
 
@@ -349,117 +367,24 @@ define([
 		return bound;
 	};
 
-	(function () {
-		function EventBindingTarget(object, property) {
-			this.object = object;
-			this.eventName = REGEXP_DECLARATIVE_EVENT.exec(this.property = property)[1];
-		}
+	/**
+	 * A factory function to create binding source, given data model, mustache syntax, DOM node and attribute/property name.
+	 * @callback HTMLTemplateElement~bindingSourceFactory
+	 * @param {Object} model The data model the mustache syntax refers to.
+	 * @param {DOMNode} node The DOM node where the mustache syntax is declared.
+	 * @returns {module:liaison/BindingSource}
+	 *     The binding source created.
+	 *     If nothing is returned, the default binding source corresponding to the mustache syntax will be created.
+	 */
 
-		// Not inherting the entire BindingTarget, just BindingTarget#bind for observation
-		EventBindingTarget.prototype = {
-			bind: BindingTarget.prototype.bind,
-			remove: function () {
-				if (this.handler) {
-					this.object.removeEventListener(this.eventName, this.handler);
-				}
-				if (this.h) {
-					this.h.remove();
-					this.h = null;
-				}
-			}
-		};
-
-		Object.defineProperty(EventBindingTarget.prototype, "value", {
-			get: function () {
-				return this.handler;
-			},
-			set: (function () {
-				function decoratedHandler(handler, event) {
-					handler(event, event.detail, this);
-				}
-				return function (value) {
-					if (this.handler) {
-						this.object.removeEventListener(this.eventName, this.handler);
-					}
-					if (value != null) {
-						if (typeof value === "function") {
-							this.object.addEventListener(this.eventName, this.handler = decoratedHandler.bind(this.object, value));
-						} else {
-							console.warn("A non-function (" + value + ") is assigned to EventBindingTarget's value. Ignoring.");
-						}
-					}
-				};
-			})(),
-			enumeable: true,
-			configurable: true
-		});
-
-		var EventBindingSource = (function () {
-			function declarativeEventFormatter(fn) {
-				return typeof fn === "function" && fn.bind(this);
-			}
-			return function (o, path, node, name) {
-				this.source = new ObservablePath(o, path, declarativeEventFormatter.bind(o));
-				this.node = node;
-				this.name = name;
-			};
-		})();
-
-		EventBindingSource.prototype = {
-			open: function () {
-				this.h = new EventBindingTarget(this.node, this.name).bind(this.source);
-				return this.node.getAttribute(this.name);
-			},
-			deliver: function () {
-				this.source.deliver();
-			},
-			discardChanges: function () {
-				this.source.discardChanges();
-				return this.node.getAttribute(this.name);
-			},
-			setValue: function () {},
-			close: function () {
-				if (this.h) {
-					this.h.remove();
-					this.h = null;
-				}
-			}
-		};
-
-		/**
-		 * A factory function to create binding source, given data model, mustache syntax, DOM node and attribute/property name.
-		 * @callback HTMLTemplateElement~bindingSourceFactory
-		 * @param {Object} model The data model the mustache syntax refers to.
-		 * @param {DOMNode} node The DOM node where the mustache syntax is declared.
-		 * @returns {module:liaison/BindingSource}
-		 *     The binding source created.
-		 *     If nothing is returned, the default binding source corresponding to the mustache syntax will be created.
-		 */
-
-		/**
-		 * Returns a factory function to create binding source, given data model, mustache syntax, DOM node and attribute/property name.
-		 * @function HTMLTemplateElement#createBindingSourceFactory
-		 * @param {string} path What's in the mustache syntax.
-		 * @param {string} name The attribute/property name where the mustache syntax is declared.
-		 * @returns {HTMLTemplateElement~bindingSourceFactory}
-		 *     A factory function to create binding source, given data model, mustache syntax, DOM node and attribute/property name.
-		 */
-
-		var origCreateBindingSourceFactory = Element.prototype.createBindingSourceFactory;
-		Element.prototype.createBindingSourceFactory = function (path, name) {
-			var factory = origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
-			if (!factory) {
-				var tokens = REGEXP_DECLARATIVE_EVENT.exec(name);
-				if (tokens) {
-					return function (model, node) {
-						return new EventBindingSource(model, path, node, name);
-					};
-				}
-			} else {
-				return factory;
-			}
-		};
-	})();
+	/**
+	 * Returns a factory function to create binding source, given data model, mustache syntax, DOM node and attribute/property name.
+	 * @function HTMLTemplateElement#createBindingSourceFactory
+	 * @param {string} path What's in the mustache syntax.
+	 * @param {string} name The attribute/property name where the mustache syntax is declared.
+	 * @returns {HTMLTemplateElement~bindingSourceFactory}
+	 *     A factory function to create binding source, given data model, mustache syntax, DOM node and attribute/property name.
+	 */
 
 	return TemplateBinder;
 });

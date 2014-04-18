@@ -78,7 +78,7 @@
 					select: function (event, detail, sender) {
 						var item = sender.getAttribute("data-item");
 						this.current = this[item];
-						this.Selected = item;
+						this.Selected = sender.value;
 					}
 				});
 			</script>

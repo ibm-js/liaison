@@ -4,14 +4,12 @@
 		<link rel="stylesheet" type="text/css" href="./css/examples.css">
 		<script type="text/javascript" src="../../requirejs/require.js" data-main="../../"></script>
 		<script type="text/javascript">
-			var ctrl;
-
 			require([
 				"liaison/wrapper",
 				"liaison/DOMTreeBindingTarget"
 			], function(wrapper){
 				function startup(){
-					document.getElementById("main-template").bind("bind", ctrl = wrapper.wrap({
+					document.getElementById("main-template").bind("bind", wrapper.wrap({
 						Serial: "360324",
 						First: "John",
 						Last: "Doe",
@@ -54,13 +52,12 @@
 								}
 							}
 						},
-						select: function(item){
-							ctrl.set("current", ctrl[item]);
-							ctrl.set("Selected", item);
+						select: function(event, detail, sender){
+							this.set("current", this[sender.getAttribute("data-item")]);
+							this.set("Selected", sender.value);
 						}
 					}));
 				}
-
 				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
 			});
 		</script>
@@ -71,8 +68,8 @@
 			<div><span class="cell">Last name:</span> <input type="text" value="{{Last}}"></div>
 			<div><span class="cell">Email:</span> <input type="text" value="{{Email}}"></div>
 			<div>
-				<input type="button" value="Ship To" onclick="ctrl.select('ShipTo');">
-				<input type="button" value="Bill To" onclick="ctrl.select('BillTo');">
+				<input type="button" value="Ship To" data-item="ShipTo" on-click="{{select}}">
+				<input type="button" value="Bill To" data-item="BillTo" on-click="{{select}}">
 			</div>
 			<div><span class="cell">Selected Address:</span> <input type="text" value="{{Selected}}"></div>
 			<template bind="{{current}}">
