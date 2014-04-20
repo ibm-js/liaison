@@ -83,19 +83,19 @@ define([
 					expect(inputs[i * 2 + 1].value).to.equal(a[i].name.first);
 				}
 			}
-			var testRGB = (function () {
+			var getRGB = (function () {
 				var REGEXP_HEXCOLOR = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/,
 					REGEXP_DECIMALCOLOR = /^rgb\((\d+), *(\d+), *(\d+)\)$/;
-				return function (str, r, g, b) {
+				return function (str) {
 					var match;
 					if ((match = REGEXP_HEXCOLOR.exec(str))) {
-						expect(parseInt(match[1], 16)).to.equal(r);
-						expect(parseInt(match[2], 16)).to.equal(g);
-						expect(parseInt(match[3], 16)).to.equal(b);
+						return match.slice(1).map(function (elem) {
+							return parseInt(elem, 16);
+						});
 					} else if ((match = REGEXP_DECIMALCOLOR.exec(str))) {
-						expect(parseInt(match[1], 10)).to.equal(r);
-						expect(parseInt(match[2], 10)).to.equal(g);
-						expect(parseInt(match[3], 10)).to.equal(b);
+						return match.slice(1).map(function (elem) {
+							return parseInt(elem, 10);
+						});
 					} else {
 						throw new Error("Wrong RGB string: " + str);
 					}
@@ -883,23 +883,32 @@ define([
 						}
 					});
 					waitFor(function () {
-						var rect = div.querySelector("rect");
-						return rect && rect.width.baseVal.value > 0;
+						var rect = div.querySelector("rect"),
+							rgb = rect && getRGB(document.defaultView.getComputedStyle(rect).fill);
+						return rect && rect.width.baseVal.value > 0 && rgb[0] > 0;
 					}).then(function () {
 						var rect = div.querySelector("rect");
 						expect(rect.width.baseVal.value).to.equal(250);
 						expect(rect.height.baseVal.value).to.equal(150);
-						testRGB(document.defaultView.getComputedStyle(rect).fill, 128, 255, 0);
+						var rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
+						expect(rgb[0]).to.equal(128);
+						expect(rgb[1]).to.equal(255);
+						expect(rgb[2]).to.equal(0);
 						observable.set("width", 150);
 						observable.set("height", 250);
 						observable.set("blue", 128);
 					}).then(waitFor.bind(function () {
-						return div.querySelector("rect").width.baseVal.value !== 250;
+						var rect = div.querySelector("rect"),
+							rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
+						return rect.width.baseVal.value !== 250 && rgb[2] > 0;
 					})).then(dfd.callback(function () {
 						var rect = div.querySelector("rect");
 						expect(rect.width.baseVal.value).to.equal(150);
 						expect(rect.height.baseVal.value).to.equal(250);
-						testRGB(document.defaultView.getComputedStyle(rect).fill, 128, 255, 128);
+						var rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
+						expect(rgb[0]).to.equal(128);
+						expect(rgb[1]).to.equal(255);
+						expect(rgb[2]).to.equal(128);
 					}), dfd.reject.bind(dfd));
 				});
 				it("SVG - Nested", function () {
@@ -916,13 +925,17 @@ define([
 						}
 					});
 					waitFor(function () {
-						var rect = div.querySelector("rect");
-						return rect && rect.width.baseVal.value > 0;
+						var rect = div.querySelector("rect"),
+							rgb = rect && getRGB(document.defaultView.getComputedStyle(rect).fill);
+						return rect && rect.width.baseVal.value > 0 && rgb[0] > 0;
 					}).then(function () {
 						var rect = div.querySelector("rect");
 						expect(rect.width.baseVal.value).to.equal(250);
 						expect(rect.height.baseVal.value).to.equal(150);
-						testRGB(document.defaultView.getComputedStyle(rect).fill, 128, 255, 0);
+						var rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
+						expect(rgb[0]).to.equal(128);
+						expect(rgb[1]).to.equal(255);
+						expect(rgb[2]).to.equal(0);
 						observable.set("width", 150);
 						observable.set("height", 250);
 						observable.set("blue", 128);
@@ -932,7 +945,10 @@ define([
 						var rect = div.querySelector("rect");
 						expect(rect.width.baseVal.value).to.equal(150);
 						expect(rect.height.baseVal.value).to.equal(250);
-						testRGB(document.defaultView.getComputedStyle(rect).fill, 128, 255, 128);
+						var rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
+						expect(rgb[0]).to.equal(128);
+						expect(rgb[1]).to.equal(255);
+						expect(rgb[2]).to.equal(128);
 					}), dfd.reject.bind(dfd));
 				});
 			}
@@ -981,7 +997,7 @@ define([
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(senderDiv);
 					observable.set("handleClick", createDeclarativeEventResolver(dfd2ndClick));
-				}).then(waitFor.bind(1000)).then(function () {
+				}).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
@@ -1014,7 +1030,11 @@ define([
 					}
 				});
 				waitFor(function () {
-					return div.querySelector("div");
+					var divInner = div.querySelector("div");
+					return divInner
+						&& (divInner.parentNode || {}).nodeType === Node.ELEMENT_NODE
+						&& ((divInner.parentNode || {}).parentNode || {}).nodeType === Node.ELEMENT_NODE
+						&& (((divInner.parentNode || {}).parentNode || {}).parentNode || {}).nodeType === Node.ELEMENT_NODE;
 				}).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
@@ -1027,7 +1047,7 @@ define([
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(div.querySelector("div"));
 					observable.foo.set("handleClick", createDeclarativeEventResolver(dfd2ndClick));
-				}).then(waitFor.bind(1000)).then(function () {
+				}).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					div.querySelector("div").dispatchEvent(event);
@@ -1039,7 +1059,7 @@ define([
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(div.querySelector("div"));
 					observable.foo.bar.set("handleClick", createDeclarativeEventResolver(dfd3rdClick));
-				}).then(waitFor.bind(1000)).then(function () {
+				}).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					div.querySelector("div").dispatchEvent(event);
