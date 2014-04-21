@@ -1,9 +1,8 @@
 /** @module liaison/delite/createRenderer */
 define([
 	"../wrapStateful",
-	"../templateElement",
-	"../TemplateBinder"
-], function (wrapStateful, templateElement, TemplateBinder) {
+	"../DOMTreeBindingTarget"
+], function (wrapStateful) {
 	"use strict";
 
 	var forEach = [].forEach;
@@ -36,7 +35,7 @@ define([
 	 *         register.parse();
 	 *     });
 	 */
-	var createRenderer = function (template) {
+	var createRenderer = function (templateString) {
 		function getInstanceData() {
 			return this.instanceData;
 		}
@@ -46,7 +45,7 @@ define([
 				wrapStateful(this);
 			}
 			var prefix = "";
-			if (document.all && template[0] === "{") {
+			if (document.all && templateString[0] === "{") {
 				// Template string beginning with '{' seems to hang IE9/10 when the widget gets into another element (with appendChild(), etc.).
 				// Adding "<!---->" to template string seems to work around that.
 				var ieVer = parseFloat(navigator.appVersion.split("MSIE ")[1]) || undefined,
@@ -58,15 +57,17 @@ define([
 					prefix = "<!---->";
 				}
 			}
-			this.binder = new TemplateBinder(templateElement.create(prefix + template, this.ownerDocument));
-			this.binder.template.createBindingSourceFactory = this.createBindingSourceFactory;
-			Object.defineProperty(this.binder.template, "instanceData", {
+			var template = this.ownerDocument.createElement("template");
+			template.innerHTML = prefix + templateString;
+			template.upgradeToTemplate();
+			template.createBindingSourceFactory = this.createBindingSourceFactory;
+			Object.defineProperty(template, "instanceData", {
 				get: getInstanceData.bind(this)
 			});
 			if (this.instanceData) {
-				this.binder.template._instanceData = this.instanceData;
+				template._instanceData = this.instanceData;
 			}
-			this.own(this.binder.create(this, this, "beforeEnd"));
+			this.appendChild(this.own(template.instantiate(this))[0].content);
 			forEach.call(this.querySelectorAll("[data-attach-point]"), function (elem) {
 				var value = elem.getAttribute("data-attach-point");
 				if (value) {

@@ -7,9 +7,9 @@ define([
 	"../../wrapper",
 	"../../wrapStateful",
 	"../../ObservablePath",
-	"../../TemplateBinder",
-	"../TemplateBinderExtension"
-], function (dcl, Stateful, Widget, computed, wrapper, wrapStateful, ObservablePath, TemplateBinder) {
+	"../../templateBinder",
+	"../templateBinderExtension"
+], function (dcl, Stateful, Widget, computed, wrapper, wrapStateful, ObservablePath, templateBinder) {
 	var MUSTACHE_BEGIN = "{{",
 		REGEXP_CHAGED_CALLBACK = /^(.+)Changed$/;
 
@@ -96,8 +96,8 @@ define([
 				}
 			});
 
-			TemplateBinder.assignSources(this, toBeBound, this.createBindingSourceFactory);
-			this.own.apply(this, TemplateBinder.bind(toBeBound));
+			templateBinder.assignSources(this, toBeBound, this.createBindingSourceFactory);
+			this.own.apply(this, templateBinder.bind(toBeBound));
 
 			if (!this.preventDispatchValuesAtInitialization) {
 				var tokens;

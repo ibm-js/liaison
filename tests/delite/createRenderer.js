@@ -23,7 +23,7 @@ define([
 	"../../delite/createRenderer!./templates/simpleWithAlternateBindingTemplate.html",
 	"../../delite/createRenderer!../templates/eventTemplate.html",
 	"deliteful/StarRating",
-	"../../delite/TemplateBinderExtension",
+	"../../delite/templateBinderExtension",
 	"../sandbox/monitor"
 ], function (
 	bdd,
@@ -261,7 +261,9 @@ define([
 					w.childNodes[4].value = "Irene";
 					w.childNodes[4].dispatchEvent(event);
 					return dfd.promise;
-				})).then(waitFor.bind(0)).then(dfd.callback(function () {
+				})).then(waitFor.bind(function () {
+					return w.childNodes[0].nodeValue !== "John " && w.childNodes[3].textContent !== "Ben ";
+				})).then(dfd.callback(function () {
 					// Make sure deliverAllByTimeout() finishes sending all change records before running below code
 					expect(w.childNodes[0].nodeValue).to.equal("Anne ");
 					expect(w.childNodes[3].textContent).to.equal("Irene ");
@@ -304,7 +306,10 @@ define([
 					w.childNodes[4].value = "Irene";
 					w.childNodes[4].dispatchEvent(event);
 					return dfd.promise;
-				})).then(waitFor.bind(0)).then(dfd.callback(function () {
+				})).then(waitFor.bind(function () {
+					var w = div.querySelector("liaison-test-nested");
+					return w.childNodes[0].nodeValue !== "John " && w.childNodes[3].textContent !== "Ben ";
+				})).then(dfd.callback(function () {
 					// Make sure deliverAllByTimeout() finishes sending all change records before running below code
 					var w = div.querySelector("liaison-test-nested");
 					expect(w.childNodes[0].nodeValue).to.equal("Anne ");
