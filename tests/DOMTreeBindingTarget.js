@@ -883,9 +883,11 @@ define([
 						}
 					});
 					waitFor(function () {
-						var rect = div.querySelector("rect"),
-							rgb = rect && getRGB(document.defaultView.getComputedStyle(rect).fill);
-						return rect && rect.width.baseVal.value > 0 && rgb[0] > 0;
+						try {
+							var rect = div.querySelector("rect"),
+								rgb = rect && getRGB(document.defaultView.getComputedStyle(rect).fill);
+							return rect && rect.width.baseVal.value > 0 && rgb[0] > 0;
+						} catch (e) {}
 					}).then(function () {
 						var rect = div.querySelector("rect");
 						expect(rect.width.baseVal.value).to.equal(250);
@@ -898,9 +900,11 @@ define([
 						observable.set("height", 250);
 						observable.set("blue", 128);
 					}).then(waitFor.bind(function () {
-						var rect = div.querySelector("rect"),
-							rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
-						return rect.width.baseVal.value !== 250 && rgb[2] > 0;
+						try {
+							var rect = div.querySelector("rect"),
+								rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
+							return rect.width.baseVal.value !== 250 && rgb[2] > 0;
+						} catch (e) {}
 					})).then(dfd.callback(function () {
 						var rect = div.querySelector("rect");
 						expect(rect.width.baseVal.value).to.equal(150);
@@ -925,9 +929,11 @@ define([
 						}
 					});
 					waitFor(function () {
-						var rect = div.querySelector("rect"),
-							rgb = rect && getRGB(document.defaultView.getComputedStyle(rect).fill);
-						return rect && rect.width.baseVal.value > 0 && rgb[0] > 0;
+						try {
+							var rect = div.querySelector("rect"),
+								rgb = rect && getRGB(document.defaultView.getComputedStyle(rect).fill);
+							return rect && rect.width.baseVal.value > 0 && rgb[0] > 0;
+						} catch (e) {}
 					}).then(function () {
 						var rect = div.querySelector("rect");
 						expect(rect.width.baseVal.value).to.equal(250);
@@ -940,7 +946,11 @@ define([
 						observable.set("height", 250);
 						observable.set("blue", 128);
 					}).then(waitFor.bind(function () {
-						return div.querySelector("rect").width.baseVal.value !== 250;
+						try {
+							var rect = div.querySelector("rect"),
+								rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
+							return rect.width.baseVal.value !== 250 && rgb[2] > 0;
+						} catch (e) {}
 					})).then(dfd.callback(function () {
 						var rect = div.querySelector("rect");
 						expect(rect.width.baseVal.value).to.equal(150);
