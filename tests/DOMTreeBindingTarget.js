@@ -1041,10 +1041,13 @@ define([
 				});
 				waitFor(function () {
 					var divInner = div.querySelector("div");
-					return divInner
-						&& (divInner.parentNode || {}).nodeType === Node.ELEMENT_NODE
-						&& ((divInner.parentNode || {}).parentNode || {}).nodeType === Node.ELEMENT_NODE
-						&& (((divInner.parentNode || {}).parentNode || {}).parentNode || {}).nodeType === Node.ELEMENT_NODE;
+					return divInner && [
+						divInner.parentNode,
+						(divInner.parentNode || {}).parentNode,
+						((divInner.parentNode || {}).parentNode || {}).parentNode
+					].every(function (div) {
+						return (div || {}).nodeType === Node.ELEMENT_NODE && (div || {}).tagName !== "TEMPLATE";
+					});
 				}).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
