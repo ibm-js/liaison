@@ -241,12 +241,12 @@ define([
 				});
 				waitFor(function () {
 					return [
-						w.childNodes[0].nodeValue,
-						w.childNodes[1].value,
-						w.childNodes[3].textContent,
-						w.childNodes[4].value
+						(w.childNodes[0] || {}).nodeValue,
+						(w.childNodes[1] || {}).value,
+						(w.childNodes[3] || {}).textContent,
+						(w.childNodes[4] || {}).value
 					].every(function (value) {
-						return value.trim();
+						return value && value.trim();
 					});
 				}).then(function () {
 					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
@@ -290,12 +290,12 @@ define([
 				waitFor(function () {
 					var w = div.querySelector("liaison-test-nested");
 					return [
-						w.childNodes[0].nodeValue,
-						w.childNodes[1].value,
-						w.childNodes[3].textContent,
-						w.childNodes[4].value
+						(w.childNodes[0] || {}).nodeValue,
+						(w.childNodes[1] || {}).value,
+						(w.childNodes[3] || {}).textContent,
+						(w.childNodes[4] || {}).value
 					].every(function (value) {
-						return value.trim();
+						return value && value.trim();
 					});
 				}).then(function () {
 					var w = div.querySelector("liaison-test-nested");
