@@ -240,9 +240,14 @@ define([
 					}
 				});
 				waitFor(function () {
-					return Array.prototype.filter.call(w.getElementsByTagName("input"), function (input) {
-						return input.value;
-					}).length === 2;
+					return [
+						w.childNodes[0].nodeValue,
+						w.childNodes[1].value,
+						w.childNodes[3].textContent,
+						w.childNodes[4].value
+					].every(function (value) {
+						return value.trim();
+					});
 				}).then(function () {
 					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
 						w.removeChild(w.firstChild);
@@ -283,9 +288,15 @@ define([
 					}
 				});
 				waitFor(function () {
-					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
-						return input.value;
-					}).length === 2;
+					var w = div.querySelector("liaison-test-nested");
+					return [
+						w.childNodes[0].nodeValue,
+						w.childNodes[1].value,
+						w.childNodes[3].textContent,
+						w.childNodes[4].value
+					].every(function (value) {
+						return value.trim();
+					});
 				}).then(function () {
 					var w = div.querySelector("liaison-test-nested");
 					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
