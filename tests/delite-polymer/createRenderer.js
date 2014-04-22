@@ -20,9 +20,10 @@ define([
 	"../../delite/createRenderer!../delite/templates/nestedWidgetTemplate.html",
 	"../../delite/createRenderer!../delite/templates/complexAttributeTemplate.html",
 	"../../delite/createRenderer!../delite/templates/simpleWithAlternateBindingTemplate.html",
+	"../../delite/createRenderer!./templates/attributeTemplate.html",
 	"../../delite/createRenderer!../templates/eventTemplate.html",
 	"deliteful/StarRating",
-	"../../delite/TemplateBinderExtension",
+	"../../delite/templateBinderExtension",
 	"../sandbox/monitor"
 ], function (
 	bdd,
@@ -46,6 +47,7 @@ define([
 	renderNestedWidgetTemplate,
 	renderComplexAttributeTemplate,
 	renderAlternateBindingTemplate,
+	renderAttributeTemplate,
 	renderEventsTemplate
 ) {
 	/* jshint withstmt: true */
@@ -103,6 +105,11 @@ define([
 						}
 					},
 					first: undefined
+				}),
+				AttributeTemplateWidget = register("liaison-test-attributetempate", [HTMLElement, Widget], {
+					buildRendering: renderAttributeTemplate,
+					baseClass: "liaison-test-attributetempate",
+					handleClick: undefined
 				}),
 				EventTemplateWidget = register("liaison-test-events", [HTMLElement, Widget], {
 					buildRendering: renderEventsTemplate,
@@ -486,6 +493,83 @@ define([
 				})).then(waitFor.bind(0)).then(dfd.callback(function () {
 					// Make sure deliverAllByTimeout() finishes sending all change records before running below test
 					expect(w.firstChild.textContent).to.equal("*Anne* ");
+				}), dfd.reject.bind(dfd));
+			});
+			it("Attribute template in widget template", function () {
+				var dfd = this.async(10000),
+					w = new AttributeTemplateWidget({
+						a: new ObservableArray(new ObservableArray("foo0", "foo1", "foo2"),
+							new ObservableArray("bar0", "bar1", "bar2"),
+							new ObservableArray("baz0", "baz1", "baz2"))
+					}).placeAt(document.body);
+				handles.push({
+					remove: function () {
+						w.destroy();
+					}
+				});
+				waitFor(function () {
+					return w.getElementsByTagName("td").length === 9;
+				}).then(dfd.callback(function () {
+					var count = 0,
+						iterator = document.createNodeIterator(document.body, NodeFilter.SHOW_ELEMENT, function (node) {
+							return (/^(TABLE|TBODY|TR|TD)$/).test(node.tagName) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+						}, false),
+						inspectCallbacks = [
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TABLE");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TBODY");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TR");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("foo0");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("foo1");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("foo2");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TR");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("bar0");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("bar1");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("bar2");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TR");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("baz0");
+							}),
+							dfd.rejectOnError(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("baz1");
+							}),
+							dfd.callback(function (node) {
+								expect(node.tagName).to.equal("TD");
+								expect(node.innerHTML).to.equal("baz2");
+							})
+						];
+					for (var node; (node = iterator.nextNode());) {
+						inspectCallbacks[count++](node);
+					}
 				}), dfd.reject.bind(dfd));
 			});
 			it("Declarative events", function () {

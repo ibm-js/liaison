@@ -108,6 +108,37 @@ define([
 					dfd.resolve(a);
 				};
 			}
+			it("Upgrading template", function () {
+				var caught,
+					script = document.createElement("script");
+				script.type = "text/javascript";
+				try {
+					script.upgradeToTemplate();
+				} catch (e) {
+					caught = true;
+				}
+				expect(caught).to.be.true;
+				caught = false;
+				var div = document.createElement("div");
+				div.innerHTML = "<template><span>Foo</span></template>";
+				try {
+					div.upgradeToTemplate();
+				} catch (e) {
+					caught = true;
+				}
+				expect(caught).to.be.true;
+				caught = false;
+				var template = div.firstChild;
+				template.upgradeToTemplate();
+				expect(template.content.firstChild.tagName).to.equal("SPAN");
+				expect(template.content.firstChild.firstChild.nodeValue).to.equal("Foo");
+				script = document.createElement("script");
+				script.type = "text/x-template";
+				script.innerHTML = "<span>Foo</span>";
+				script.upgradeToTemplate();
+				expect(script.content.firstChild.tagName).to.equal("SPAN");
+				expect(script.content.firstChild.firstChild.nodeValue).to.equal("Foo");
+			});
 			it("Assigning non-object/array", function () {
 				var dfd = this.async(10000),
 					observable = new Observable({foo: 0}),

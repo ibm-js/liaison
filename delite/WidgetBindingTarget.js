@@ -11,10 +11,10 @@ define([
 
 	/**
 	 * Binding target for a widget property/attribute.
-	 * Created with {@link external:Widget#bind Widget.bind()}.
+	 * Created with {@link module:delite/Widget#bind Widget.bind()}.
 	 * @class module:liaison/delite/WidgetBindingTarget
 	 * @augments module:liaison/BindingTarget
-	 * @param {external:Widget} object The widget.
+	 * @param {module:delite/Widget} object The widget.
 	 * @param {string} property The property/attribute name.
 	 * @param {Object} [options]
 	 *     The parameters governing
@@ -60,10 +60,9 @@ define([
 		configurable: true
 	});
 
-	/** @class external:Widget */
 	/**
 	 * Establishes data binding between widget property/attribute and {@link module:liaison/BindingSource BindingSource}.
-	 * @method external:Widget#bind
+	 * @method module:delite/Widget#bind
 	 * @param {string} property Property/attribute name in widget.
 	 * @param {BindingSource} source The {@link module:liaison/BindingSource BindingSource} to bind the widget property/attribute to.
 	 * @returns {module:liaison/BindingTarget}
@@ -71,10 +70,14 @@ define([
 	 *     representing the widget property/attribute.
 	 */
 
-	// TODO(asudoh): Should we hook HTMLTemplateElement, HTMLScriptElement and/or HTMLUnknownElement, too?
-	[HTMLInputElement, HTMLSelectElement, HTMLTextAreaElement, HTMLElement].forEach(function (elementClass) {
-		var origBind = elementClass.prototype.bind;
-		elementClass.prototype.bind = (function () {
+	/* global HTMLTemplateElement, HTMLUnknownElement */
+	var ElementClassList = [HTMLScriptElement, HTMLInputElement, HTMLSelectElement, HTMLTextAreaElement, HTMLUnknownElement, HTMLElement];
+	if (typeof HTMLTemplateElement !== "undefined") {
+		ElementClassList.unshift(HTMLTemplateElement);
+	}
+	ElementClassList.forEach(function (ElementClass) {
+		var origBind = ElementClass.prototype.bind;
+		ElementClass.prototype.bind = (function () {
 			// HTMLElements#attributes in Chrome has attribute names in lower case
 			function findProperty(name) {
 				for (var s in this) {

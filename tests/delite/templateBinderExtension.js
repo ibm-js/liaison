@@ -8,13 +8,13 @@ define([
 	"requirejs-text/text!../../tests/delite/templates/starRatingTemplate.html",
 	"deliteful/Button",
 	"deliteful/StarRating",
-	"../../delite/TemplateBinderExtension",
+	"../../delite/templateBinderExtension",
 	"../sandbox/monitor"
 ], function (bdd, expect, Observable, BindingTarget, waitFor, buttonTemplate, starRatingTemplate) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {
-		describe("Test liaison/delite/TemplateBinderExtension", function () {
+		describe("Test liaison/delite/templateBinderExtension", function () {
 			var handles = [];
 			afterEach(function () {
 				for (var handle = null; (handle = handles.shift());) {
