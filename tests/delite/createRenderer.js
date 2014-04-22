@@ -249,9 +249,6 @@ define([
 						return value && value.trim();
 					});
 				}).then(function () {
-					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
-						w.removeChild(w.firstChild);
-					}
 					expect(w.childNodes[0].nodeValue).to.equal("John ");
 					expect(w.childNodes[1].value).to.equal("John");
 					expect(w.childNodes[3].textContent).to.equal("Ben ");
@@ -269,7 +266,6 @@ define([
 				})).then(waitFor.bind(function () {
 					return w.childNodes[0].nodeValue !== "John " && w.childNodes[3].textContent !== "Ben ";
 				})).then(dfd.callback(function () {
-					// Make sure deliverAllByTimeout() finishes sending all change records before running below code
 					expect(w.childNodes[0].nodeValue).to.equal("Anne ");
 					expect(w.childNodes[3].textContent).to.equal("Irene ");
 				}), dfd.reject.bind(dfd));
@@ -289,7 +285,7 @@ define([
 				});
 				waitFor(function () {
 					var w = div.querySelector("liaison-test-nested");
-					return [
+					return w && [
 						(w.childNodes[0] || {}).nodeValue,
 						(w.childNodes[1] || {}).value,
 						(w.childNodes[3] || {}).textContent,
@@ -299,9 +295,6 @@ define([
 					});
 				}).then(function () {
 					var w = div.querySelector("liaison-test-nested");
-					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
-						w.removeChild(w.firstChild);
-					}
 					expect(w.childNodes[0].nodeValue).to.equal("John ");
 					expect(w.childNodes[1].value).to.equal("John");
 					expect(w.childNodes[3].textContent).to.equal("Ben ");
@@ -321,7 +314,6 @@ define([
 					var w = div.querySelector("liaison-test-nested");
 					return w.childNodes[0].nodeValue !== "John " && w.childNodes[3].textContent !== "Ben ";
 				})).then(dfd.callback(function () {
-					// Make sure deliverAllByTimeout() finishes sending all change records before running below code
 					var w = div.querySelector("liaison-test-nested");
 					expect(w.childNodes[0].nodeValue).to.equal("Anne ");
 					expect(w.childNodes[3].textContent).to.equal("Irene ");
@@ -346,9 +338,21 @@ define([
 					}
 				});
 				waitFor(function () {
-					return Array.prototype.filter.call(w.getElementsByTagName("input"), function (input) {
-						return input.value;
-					}).length === 5;
+					/* jshint maxcomplexity: 15 */
+					return [
+						(w.childNodes[1] || {}).textContent,
+						(w.childNodes[2] || {}).value,
+						(w.childNodes[3] || {}).textContent,
+						(w.childNodes[4] || {}).value,
+						(w.childNodes[5] || {}).textContent,
+						(w.childNodes[6] || {}).value,
+						(w.childNodes[7] || {}).textContent,
+						(w.childNodes[8] || {}).value,
+						(w.childNodes[9] || {}).textContent,
+						(w.childNodes[10] || {}).value
+					].every(function (value) {
+						return value && value.trim();
+					});
 				}).then(function () {
 					expect(w.childNodes[1].textContent).to.equal("Anne ");
 					expect(w.childNodes[2].value).to.equal("Anne");
@@ -365,8 +369,16 @@ define([
 					handles.push(ObservableArray.observe(w.names, dfd.resolve.bind(dfd)));
 					w.names.reverse();
 					return dfd.promise;
-				})).then(waitFor.bind(0)).then(dfd.callback(function () {
-					// Make sure deliverAllByTimeout() finishes sending all change records before running below code
+				})).then(waitFor.bind(function () {
+					return w.childNodes[1].textContent !== "Anne "
+						&& w.childNodes[2].value !== "Anne"
+						&& w.childNodes[3].textContent !== "Ben "
+						&& w.childNodes[4].value !== "Ben"
+						&& w.childNodes[7].textContent !== "Irene "
+						&& w.childNodes[8].value !== "Irene"
+						&& w.childNodes[9].textContent !== "John "
+						&& w.childNodes[10].value !== "John";
+				})).then(dfd.callback(function () {
 					expect(w.childNodes[1].textContent).to.equal("John ");
 					expect(w.childNodes[2].value).to.equal("John");
 					expect(w.childNodes[3].textContent).to.equal("Irene ");
@@ -401,9 +413,22 @@ define([
 					}
 				});
 				waitFor(function () {
-					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
-						return input.value;
-					}).length === 5;
+					/* jshint maxcomplexity: 15 */
+					var w = div.querySelector("liaison-test-nestedrepeating");
+					return w && [
+						(w.childNodes[1] || {}).textContent,
+						(w.childNodes[2] || {}).value,
+						(w.childNodes[3] || {}).textContent,
+						(w.childNodes[4] || {}).value,
+						(w.childNodes[5] || {}).textContent,
+						(w.childNodes[6] || {}).value,
+						(w.childNodes[7] || {}).textContent,
+						(w.childNodes[8] || {}).value,
+						(w.childNodes[9] || {}).textContent,
+						(w.childNodes[10] || {}).value
+					].every(function (value) {
+						return value && value.trim();
+					});
 				}).then(function () {
 					var w = div.querySelector("liaison-test-nestedrepeating");
 					expect(w.childNodes[1].textContent).to.equal("Anne ");
@@ -422,8 +447,17 @@ define([
 					handles.push(ObservableArray.observe(w.names, dfd.resolve.bind(dfd)));
 					observable.names.reverse();
 					return dfd.promise;
-				})).then(waitFor.bind(0)).then(dfd.callback(function () {
-					// Make sure deliverAllByTimeout() finishes sending all change records before running below code
+				})).then(waitFor.bind(function () {
+					var w = div.querySelector("liaison-test-nestedrepeating");
+					return w.childNodes[1].textContent !== "Anne "
+						&& w.childNodes[2].value !== "Anne"
+						&& w.childNodes[3].textContent !== "Ben "
+						&& w.childNodes[4].value !== "Ben"
+						&& w.childNodes[7].textContent !== "Irene "
+						&& w.childNodes[8].value !== "Irene"
+						&& w.childNodes[9].textContent !== "John "
+						&& w.childNodes[10].value !== "John";
+				})).then(dfd.callback(function () {
 					var w = div.querySelector("liaison-test-nestedrepeating");
 					expect(w.childNodes[1].textContent).to.equal("John ");
 					expect(w.childNodes[2].value).to.equal("John");
@@ -495,9 +529,6 @@ define([
 					var input = w.querySelector("input");
 					return input && input.value === "John";
 				}).then(function () {
-					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
-						w.removeChild(w.firstChild);
-					}
 					expect(w.firstChild.textContent).to.equal("*John* ");
 				}).then(waitFor.bind(function () {
 					var dfd = new Deferred();
@@ -508,8 +539,9 @@ define([
 					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
 					return dfd.promise;
-				})).then(waitFor.bind(0)).then(dfd.callback(function () {
-					// Make sure deliverAllByTimeout() finishes sending all change records
+				})).then(waitFor.bind(function () {
+					return w.firstChild.textContent !== "*John* ";
+				})).then(dfd.callback(function () {
 					expect(w.firstChild.textContent).to.equal("*Anne* ");
 				}), dfd.reject.bind(dfd));
 			});
