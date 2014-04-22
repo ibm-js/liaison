@@ -252,11 +252,15 @@ define([
 					}
 				});
 				waitFor(function () {
-					return w.getElementsByTagName("input").length === 2;
+					return [
+						(w.childNodes[0] || {}).nodeValue,
+						(w.childNodes[1] || {}).value,
+						(w.childNodes[3] || {}).textContent,
+						(w.childNodes[4] || {}).value
+					].every(function (value) {
+						return value && value.trim();
+					});
 				}).then(function () {
-					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
-						w.removeChild(w.firstChild);
-					}
 					expect(w.childNodes[0].nodeValue).to.equal("John ");
 					expect(w.childNodes[1].value).to.equal("John");
 					expect(w.childNodes[3].textContent).to.equal("Ben ");
@@ -295,12 +299,17 @@ define([
 					}
 				});
 				waitFor(function () {
-					return div.getElementsByTagName("input").length === 2;
+					var w = div.querySelector("liaison-test-nested");
+					return w && [
+						(w.childNodes[0] || {}).nodeValue,
+						(w.childNodes[1] || {}).value,
+						(w.childNodes[3] || {}).textContent,
+						(w.childNodes[4] || {}).value
+					].every(function (value) {
+						return value && value.trim();
+					});
 				}).then(function () {
 					var w = div.querySelector("liaison-test-nested");
-					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
-						w.removeChild(w.firstChild);
-					}
 					expect(w.childNodes[0].nodeValue).to.equal("John ");
 					expect(w.childNodes[1].value).to.equal("John");
 					expect(w.childNodes[3].textContent).to.equal("Ben ");
@@ -342,7 +351,21 @@ define([
 					}
 				});
 				waitFor(function () {
-					return w.getElementsByTagName("input").length === 5;
+					/* jshint maxcomplexity: 15 */
+					return [
+						(w.childNodes[1] || {}).textContent,
+						(w.childNodes[2] || {}).value,
+						(w.childNodes[3] || {}).textContent,
+						(w.childNodes[4] || {}).value,
+						(w.childNodes[5] || {}).textContent,
+						(w.childNodes[6] || {}).value,
+						(w.childNodes[7] || {}).textContent,
+						(w.childNodes[8] || {}).value,
+						(w.childNodes[9] || {}).textContent,
+						(w.childNodes[10] || {}).value
+					].every(function (value) {
+						return value && value.trim();
+					});
 				}).then(function () {
 					expect(w.childNodes[1].textContent).to.equal("Anne ");
 					expect(w.childNodes[2].value).to.equal("Anne");
@@ -399,7 +422,22 @@ define([
 					}
 				});
 				waitFor(function () {
-					return div.getElementsByTagName("input").length === 5;
+					/* jshint maxcomplexity: 15 */
+					var w = div.querySelector("liaison-test-nestedrepeating");
+					return w && [
+						(w.childNodes[1] || {}).textContent,
+						(w.childNodes[2] || {}).value,
+						(w.childNodes[3] || {}).textContent,
+						(w.childNodes[4] || {}).value,
+						(w.childNodes[5] || {}).textContent,
+						(w.childNodes[6] || {}).value,
+						(w.childNodes[7] || {}).textContent,
+						(w.childNodes[8] || {}).value,
+						(w.childNodes[9] || {}).textContent,
+						(w.childNodes[10] || {}).value
+					].every(function (value) {
+						return value && value.trim();
+					});
 				}).then(function () {
 					var w = div.querySelector("liaison-test-nestedrepeating");
 					expect(w.childNodes[1].textContent).to.equal("Anne ");
@@ -477,9 +515,6 @@ define([
 					var input = w.querySelector("input");
 					return input && input.value === "John";
 				}).then(function () {
-					if (w.firstChild.nodeType === Node.COMMENT_NODE) {
-						w.removeChild(w.firstChild);
-					}
 					expect(w.firstChild.textContent).to.equal("*John* ");
 					expect(input.value).to.equal("John");
 				}).then(waitFor.bind(function () {
