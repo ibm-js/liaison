@@ -75,7 +75,7 @@ define([
 						{Name: "Anne Ackerman"},
 						{Name: "Ben Beckham"},
 						{Name: "Chad Chapman"}),
-					each = new Each(observableArray, function (a) {
+					each = new Each(observableArray, undefined, function (a) {
 						return a.reduce(function (length, entry) {
 							return length + entry.Name.length;
 						}, 0);
@@ -94,7 +94,7 @@ define([
 						{Name: "Anne Ackerman"},
 						{Name: "Ben Beckham"},
 						{Name: "Chad Chapman"})}),
-					each = new Each(new ObservablePath(observable, "foo"), function (a) {
+					each = new Each(new ObservablePath(observable, "foo"), undefined, function (a) {
 						return a.reduce(function (length, entry) {
 							return length + entry.Name.length;
 						}, 0);
@@ -110,10 +110,10 @@ define([
 					count = 0,
 					values = [45, 57],
 					observable = new Observable({foo: new ObservableArray(
-						{Name: "Anne Ackerman"},
-						{Name: "Ben Beckham"},
-						{Name: "Chad Chapman"})}),
-					each = new Each(new ObservablePath(observable, "foo"), function (a) {
+						new Observable({Name: "Anne Ackerman"}),
+						new Observable({Name: "Ben Beckham"}),
+						new Observable({Name: "Chad Chapman"}))}),
+					each = new Each(new ObservablePath(observable, "foo"), "Name", function (a) {
 						return a.reduce(function (length, entry) {
 							return length + entry.Name.length;
 						}, 0);
@@ -125,14 +125,15 @@ define([
 					expect(newValue).to.equal(values[count++]);
 					if (count < values.length) {
 						setTimeout(function () {
-							observable.foo.push({Name: "Chad Chapman"});
+							observable.foo.push(new Observable({Name: "Chad Chapman"}));
 						}, 0);
 					} else {
 						dfd.resolve(1);
 					}
 				})));
-				observable.set("foo", new ObservableArray({Name: "Irene Ira"}, {Name: "John Jacklin"}));
-				observable.foo.push({Name: "Anne Ackerman"}, {Name: "Ben Beckham"});
+				observable.foo.push(new Observable({Name: "Anne Ackerman"}), new Observable({Name: "Ben Beckham"})); // Should be no-op
+				observable.set("foo", new ObservableArray(new Observable({Name: "Irene Ira"}), new Observable({Name: "John Jacklin"})));
+				observable.foo.push(new Observable({Name: "Anne Ackerman"}), new Observable({Name: "Ben Beckham"}));
 			});
 			it("Setting value to Each", function () {
 				var dfd = this.async(1000),
@@ -143,6 +144,36 @@ define([
 					expect(oldValue).to.deep.equal(["a", "b", "c"]);
 				}));
 				each.setValue(["d", "e"]);
+			});
+			it("Observing for sub-properties in each array entry", function () {
+				var count = 0,
+					dfd = this.async(1000),
+					observableArray = new ObservableArray(
+						new Observable({Name: "Anne Ackerman"}),
+						new Observable({Name: "Ben Beckham"}),
+						new Observable({Name: "Chad Chapman"})),
+					each = new Each(observableArray, "Name", function (a) {
+						return a.reduce(function (length, entry) {
+							return length + entry.Name.length;
+						}, 0);
+					}),
+					callbacks = [
+						dfd.rejectOnError(function (newValue) {
+							expect(newValue).to.equal(72);
+							observableArray[0].set("Name", "Irene Ira");
+						}),
+						dfd.callback(function (newValue) {
+							expect(newValue).to.equal(69);
+						})
+					];
+				each.observe(function () {}).remove();
+				expect(each.getFrom()).to.equal(36);
+				handles.push(each.observe(dfd.rejectOnError(function (newValue) {
+					callbacks[count++](newValue);
+				})));
+				observableArray.push(new Observable({Name: "John Jacklin"}));
+				observableArray.splice(2, 0, new Observable({Name: "John Jacklin"}));
+				observableArray.unshift(new Observable({Name: "John Jacklin"}));
 			});
 			it("Exception in observer callback", function () {
 				var each,
@@ -195,7 +226,7 @@ define([
 						{Name: "Ben Beckham"},
 						{Name: "Chad Chapman"}),
 					observable = new Observable({foo: observableArray});
-				handles.push(each = new Each(new ObservablePath(observable, "foo"), function () {
+				handles.push(each = new Each(new ObservablePath(observable, "foo"), undefined, function () {
 					throw pseudoError;
 				}, function () {
 					throw pseudoError;
@@ -263,28 +294,28 @@ define([
 				var each,
 					dfd = this.async(1000),
 					observableArray = new ObservableArray(
-						{Name: "Anne Ackerman"},
-						{Name: "Ben Beckham"},
-						{Name: "Chad Chapman"}),
+						new Observable({Name: "Anne Ackerman"}),
+						new Observable({Name: "Ben Beckham"}),
+						new Observable({Name: "Chad Chapman"})),
 					observable = new Observable({foo: observableArray});
-				handles.push(each = new Each(new ObservablePath(observable, "foo")));
+				handles.push(each = new Each(new ObservablePath(observable, "foo"), "Name"));
 				each.observe(dfd.rejectOnError(function () {
 					throw new Error("Observer callback should never be called for changes being discarded.");
 				}));
-				observable.set("foo", new ObservableArray({Name: "Irene Ira"}, {Name: "John Jacklin"}));
-				observable.foo.push({Name: "Anne Ackerman"}, {Name: "Ben Beckham"});
+				observable.set("foo", new ObservableArray(new Observable({Name: "Irene Ira"}), new Observable({Name: "John Jacklin"})));
+				observable.foo.push(new Observable({Name: "Anne Ackerman"}), new Observable({Name: "Ben Beckham"}));
 				expect(each.discardChanges()).to.deep.equal([
-					{Name: "Irene Ira"},
-					{Name: "John Jacklin"},
-					{Name: "Anne Ackerman"},
-					{Name: "Ben Beckham"}
+					new Observable({Name: "Irene Ira"}),
+					new Observable({Name: "John Jacklin"}),
+					new Observable({Name: "Anne Ackerman"}),
+					new Observable({Name: "Ben Beckham"})
 				]);
 				dfd.resolve(1);
 			});
 			it("Round-trip of formatter/parser", function () {
 				var formatter = function () {},
 					parser = function () {},
-					each = new Each(new ObservablePath(new Observable({foo: new ObservableArray(0, 1, 2)}), "foo"), formatter, parser);
+					each = new Each(new ObservablePath(new Observable({foo: new ObservableArray(0, 1, 2)}), "foo"), undefined, formatter, parser);
 				expect(each.formatter).to.equal(formatter);
 				expect(each.parser).to.equal(parser);
 			});
