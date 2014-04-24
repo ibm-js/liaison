@@ -46,7 +46,8 @@ define([
 				o.set("first", "Ben");
 			});
 			it("Computed array", function () {
-				var dfd = this.async(10000),
+				var count = 0,
+					dfd = this.async(10000),
 					o = wrapper.wrap({
 						items: [
 							{Name: "Anne Ackerman"},
@@ -58,14 +59,24 @@ define([
 							return a.reduce(function (length, entry) {
 								return length + entry.Name.length;
 							}, 0);
-						}, "items")
-					});
+						}, "items", "Name")
+					}),
+					callbacks = [
+						dfd.rejectOnError(function (length, oldLength) {
+							expect(length).to.equal(57);
+							expect(oldLength).to.equal(45);
+							o.items[4].set("Name", "John Doe");
+						}),
+						dfd.callback(function (length, oldLength) {
+							expect(length).to.equal(53);
+							expect(oldLength).to.equal(57);
+						})
+					];
 				handles.push.apply(handles, computed.apply(o));
-				handles.push(new ObservablePath(o, "totalNameLength").observe(dfd.callback(function (length, oldLength) {
-					expect(length).to.equal(57);
-					expect(oldLength).to.equal(45);
+				handles.push(new ObservablePath(o, "totalNameLength").observe(dfd.rejectOnError(function (newValue, oldValue) {
+					callbacks[count++](newValue, oldValue);
 				})));
-				o.items.push({Name: "John Jacklin"});
+				o.items.push(wrapper.wrap({Name: "John Jacklin"}));
 			});
 			it("Computed property in array", function () {
 				var dfd = this.async(10000),

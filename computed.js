@@ -65,22 +65,23 @@
 		}
 	};
 
-	function ComputedArray(callback, path) {
+	function ComputedArray(callback, path, entryPath) {
 		this.callback = callback;
 		this.path = path;
+		this.entryPath = entryPath;
 	}
 
 	ComputedArray.prototype = Object.create(Computed.prototype);
 	ComputedArray.prototype._computedMarker = "_computedArray";
 
 	ComputedArray.prototype.clone = function () {
-		return new ComputedArray(this.callback, this.path).init(this.o, this.name);
+		return new ComputedArray(this.callback, this.path, this.entryPath).init(this.o, this.name);
 	};
 
 	ComputedArray.prototype.activate = function () {
 		var o = this.o;
 		if (typeof o._getProps !== "function" || !REGEXP_SHADOW_PROP.test(this.name)) {
-			this.source = new Each(new ObservablePathClass(o, this.path), this.callback);
+			this.source = new Each(new ObservablePathClass(o, this.path), this.entryPath, this.callback);
 			this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name));
 			set.call(o, this.name, this.source.getFrom());
 		}
@@ -118,6 +119,7 @@
 	 * @function module:liaison/computed.array
 	 * @param {Function} callback The function to calculate computed property value.
 	 * @param {string} path The path from the parent object, which should point to an array.
+	 * @param {string} [entryPath] The path from each array entry to observer.
 	 * @returns
 	 *     The computed property object.
 	 *     The computed property is calculated every time the array changes.
@@ -142,8 +144,8 @@
 	 *     });
 	 *     o.items.push({Name: "John Jacklin"});
 	 */
-	computed.array = function (callback, path) {
-		return new ComputedArray(callback, path);
+	computed.array = function (callback, path, entryPath) {
+		return new ComputedArray(callback, path, entryPath);
 	};
 
 	/**
