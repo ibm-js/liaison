@@ -55,11 +55,13 @@ define([
 							{Name: "Chad Chapman"},
 							{Name: "Irene Ira"}
 						],
-						totalNameLength: computed.array(function (a) {
+						countShortFirst: true,
+						totalNameLength: computed.array(function (a, countShortFirst) {
 							return a.reduce(function (length, entry) {
-								return length + entry.Name.length;
+								var first = entry.Name.split(" ")[0];
+								return length + (countShortFirst || first.length >= 4 ? entry.Name.length : 0);
 							}, 0);
-						}, "items", "Name")
+						}, "items", "@Name", "countShortFirst")
 					}),
 					callbacks = [
 						dfd.rejectOnError(function (length, oldLength) {
@@ -67,9 +69,14 @@ define([
 							expect(oldLength).to.equal(45);
 							o.items[4].set("Name", "John Doe");
 						}),
-						dfd.callback(function (length, oldLength) {
+						dfd.rejectOnError(function (length, oldLength) {
 							expect(length).to.equal(53);
 							expect(oldLength).to.equal(57);
+							o.set("countShortFirst", false);
+						}),
+						dfd.callback(function (length, oldLength) {
+							expect(length).to.equal(42);
+							expect(oldLength).to.equal(53);
 						})
 					];
 				handles.push.apply(handles, computed.apply(o));
