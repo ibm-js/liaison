@@ -105,9 +105,17 @@ define([
 					path2 = new ObservablePath(observable, "baz"),
 					source = new BindingSourceList([path0, path1, path2]),
 					callbacks = [
+						dfd.rejectOnError(function (newValue, oldValue) {
+							expect(newValue).to.deep.equal(["Foo1", "Bar0", "Baz0"]);
+							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
+						}),
+						dfd.rejectOnError(function (newValue, oldValue) {
+							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz0"]);
+							expect(oldValue).to.deep.equal(["Foo1", "Bar0", "Baz0"]);
+						}),
 						dfd.callback(function (newValue, oldValue) {
 							expect(newValue).to.deep.equal(["Foo1", "Bar1", "Baz1"]);
-							expect(oldValue).to.deep.equal(["Foo0", "Bar0", "Baz0"]);
+							expect(oldValue).to.deep.equal(["Foo1", "Bar1", "Baz0"]);
 						})
 					];
 				handles.push(source.observe(dfd.rejectOnError(function (newValue, oldValue) {

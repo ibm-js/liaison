@@ -2,13 +2,13 @@
 (function (root, factory) {
 	// Module definition to support AMD, node.js and browser globals
 	if (typeof exports === "object") {
-		module.exports = factory(require("./schedule"), require("./BindingSource"));
+		module.exports = factory(require("./BindingSource"));
 	} else if (typeof define === "function" && define.amd) {
-		define(["./schedule", "./BindingSource"], factory);
+		define(["./BindingSource"], factory);
 	} else {
-		root.BindingSourceList = factory(root.schedule, root.BindingSource);
+		root.BindingSourceList = factory(root.BindingSource);
 	}
-})(this, function (schedule, BindingSource) {
+})(this, function (BindingSource) {
 	"use strict";
 
 	/**
@@ -39,34 +39,34 @@
 
 	BindingSourceList.Observer.prototype = {
 		open: (function () {
-			function miniBindingSourceListCallback(callback, changeIndex, newValue) {
-				var newValues = [],
-					oldValues = this.values.slice();
-				for (var i = 0, l = this.sources.length; i < l; ++i) {
-					newValues[i] = i === changeIndex ? (this.values[i] = newValue) : this.values[i];
+			function miniBindingSourceListCallback(changeIndex, newValue, oldValue) {
+				if (!this.deliveringRest) {
+					this.oldValues = this.values.slice();
 				}
-				if (this.beingDelivered) {
-					this.hCallback && this.hCallback.remove();
-					invokeCallback.call(this, callback, oldValues);
-				} else if (!this.hCallback) {
-					this.hCallback = schedule(invokeCallback.bind(this, callback, oldValues));
+				this.values[changeIndex] = newValue;
+				this.oldValues[changeIndex] = oldValue;
+				if (!this.deliveringRest) {
+					this.deliveringRest = true;
+					this.sources.forEach(function (source, i) {
+						if (i !== changeIndex) {
+							source.deliver();
+						}
+					});
+					this.callback(this.values, this.oldValues);
+					this.deliveringRest = false;
 				}
-			}
-			function invokeCallback(callback, oldValues) {
-				callback(this.values, oldValues);
-				this.hCallback = null;
 			}
 			return function (callback, thisObject) {
-				var i, l = this.sources.length;
+				this.callback = callback.bind(thisObject);
 				this.values = [];
 				this.handles = [];
-				for (i = 0; i < l; ++i) {
+				for (var i = 0, l = this.sources.length; i < l; ++i) {
 					if (typeof this.sources[i].observe === "function") {
 						this.values[i] = this.sources[i].getFrom();
-						this.handles[i] = this.sources[i].observe(miniBindingSourceListCallback.bind(this, callback.bind(thisObject), i));
+						this.handles[i] = this.sources[i].observe(miniBindingSourceListCallback.bind(this, i));
 					} else if (typeof this.sources[i].open === "function") {
 						this.handles[i] = this.sources[i];
-						this.values[i] = this.sources[i].open(miniBindingSourceListCallback.bind(this, callback.bind(thisObject), i));
+						this.values[i] = this.sources[i].open(miniBindingSourceListCallback.bind(this, i));
 					} else {
 						throw new Error("Cannot observe source: " + this.sources[i] + " at index: " + i);
 					}
@@ -78,9 +78,9 @@
 
 		deliver: function () {
 			this.beingDelivered = true;
-			for (var i = 0, l = this.sources.length; i < l; ++i) {
-				this.sources[i].deliver();
-			}
+			this.sources.forEach(function (source) {
+				source.deliver();
+			});
 			this.beingDelivered = false;
 		},
 

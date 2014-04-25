@@ -15,6 +15,7 @@
 
 	/* global PathObserver */
 	var EMPTY_OBJECT = {},
+		EMPTY_ARRAY = [],
 		REGEXP_COMPUTED_MARKER = /^_computed/,
 		REGEXP_SHADOW_PROP = /^_.*Attr$/,
 		getPrototypeOf = Object.getPrototypeOf,
@@ -22,6 +23,14 @@
 
 	function set(name, value) {
 		this[name] = value;
+	}
+
+	function callComputedCallback(callback, a) {
+		return callback.apply(this, a);
+	}
+
+	function mapPath(path) {
+		return new ObservablePathClass(this, path);
 	}
 
 	function Computed(callback, paths) {
@@ -41,22 +50,16 @@
 			name !== undefined && (this.name = name);
 			return this;
 		},
-		activate: (function () {
-			function callComputedCallback(callback, a) {
-				return callback.apply(this, a);
+		activate: function () {
+			var o = this.o;
+			if (typeof o._getProps !== "function" || !REGEXP_SHADOW_PROP.test(this.name)) {
+				var sources = this.paths.map(mapPath, o),
+					callback = callComputedCallback.bind(o, this.callback);
+				this.source = new BindingSourceList(sources, callback);
+				set.call(o, this.name, this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name)));
 			}
-			function mapPath(path) {
-				return new ObservablePathClass(this, path);
-			}
-			return function () {
-				var o = this.o;
-				if (typeof o._getProps !== "function" || !REGEXP_SHADOW_PROP.test(this.name)) {
-					this.source = new BindingSourceList(this.paths.map(mapPath, o), callComputedCallback.bind(o, this.callback));
-					set.call(o, this.name, this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name)));
-				}
-				return this;
-			};
-		})(),
+			return this;
+		},
 		remove: function () {
 			if (this.source) {
 				this.source.remove();
@@ -65,25 +68,35 @@
 		}
 	};
 
-	function ComputedArray(callback, path, entryPath) {
+	function ComputedArray(callback, paths) {
 		this.callback = callback;
-		this.path = path;
-		this.entryPath = entryPath;
+		this.paths = paths;
 	}
 
 	ComputedArray.prototype = Object.create(Computed.prototype);
 	ComputedArray.prototype._computedMarker = "_computedArray";
 
 	ComputedArray.prototype.clone = function () {
-		return new ComputedArray(this.callback, this.path, this.entryPath).init(this.o, this.name);
+		return new ComputedArray(this.callback, this.paths).init(this.o, this.name);
 	};
 
 	ComputedArray.prototype.activate = function () {
 		var o = this.o;
 		if (typeof o._getProps !== "function" || !REGEXP_SHADOW_PROP.test(this.name)) {
-			this.source = new Each(new ObservablePathClass(o, this.path), this.entryPath, this.callback);
-			this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name));
-			set.call(o, this.name, this.source.getFrom());
+			var sourcePaths = [],
+				entryPaths = [];
+			this.paths.forEach(function (path) {
+				if (path[0] !== "@") {
+					sourcePaths.push(path);
+				} else {
+					var index = sourcePaths.length - 1;
+					(entryPaths[index] = entryPaths[index] || []).push(path.substr(1));
+				}
+			}, this);
+			var sources = sourcePaths.map(mapPath, o),
+				callback = callComputedCallback.bind(o, this.callback);
+			this.source = new Each(sources, entryPaths, callback);
+			set.call(o, this.name, this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name)));
 		}
 		return this;
 	};
@@ -111,15 +124,15 @@
 	 *     o.set("first", "Ben");
 	 */
 	var computed = function (callback) {
-		var result = new Computed(callback, [].slice.call(arguments, 1));
-		return result;
+		return new Computed(callback, EMPTY_ARRAY.slice.call(arguments, 1));
 	};
 
 	/**
 	 * @function module:liaison/computed.array
 	 * @param {Function} callback The function to calculate computed property value.
-	 * @param {string} path The path from the parent object, which should point to an array.
-	 * @param {string} [entryPath] The path from each array entry to observer.
+	 * @param {...string} var_args
+	 *     The paths from the parent object.
+	 *     Entries beginning with '@' are paths relative to each array entries.
 	 * @returns
 	 *     The computed property object.
 	 *     The computed property is calculated every time the array changes.
@@ -131,21 +144,23 @@
 	 *             {Name: "Chad Chapman"},
 	 *             {Name: "Irene Ira"}
 	 *         ],
-	 *         totalNameLength: computed.array(function (a) {
+	 *         includeShortName: false,
+	 *         totalNameLength: computed.array(function (a, includeShortName) {
 	 *             return a.reduce(function (length, entry) {
-	 *                 return length + entry.Name.length;
+	 *                 return length + (includeShortName || entry.Name.length >= 10 ? entry.Name.length : 0);
 	 *             }, 0);
-	 *         }, "items")
+	 *         }, "items", "@Name", "includeShortName") // "@Name" let the computed array observe Name property in each array entries in o.items
 	 *     });
 	 *     computed.apply(o); // Makes computed properties under o active
 	 *     new ObservablePath(o, "totalNameLength").observe(function (newValue, oldValue) {
 	 *         // 57 comes to newValue
-	 *         // 45 comes to oldValue
+	 *         // 36 comes to oldValue
 	 *     });
 	 *     o.items.push({Name: "John Jacklin"});
+	 *     o.set("includeShortName", true);
 	 */
-	computed.array = function (callback, path, entryPath) {
-		return new ComputedArray(callback, path, entryPath);
+	computed.array = function (callback) {
+		return new ComputedArray(callback, EMPTY_ARRAY.slice.call(arguments, 1));
 	};
 
 	/**

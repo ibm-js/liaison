@@ -34,18 +34,23 @@
 			_openObserver: function () {
 				if (!this.observerIsOpen) {
 					// Calling observe() against closed observer will end up with an error thrown in here
-					this.value = this._ensureObserver().open(function (newValue, oldValue) {
+					var value = this._ensureObserver().open(function (newValue, oldValue) {
+						if (this.boundFormatter) {
+							newValue = this.boundFormatter(newValue);
+							// If oldValue is non-scalar and cached value is scalar, use it as the old value (Non-scalar oldValue may be stale)
+							oldValue = Object(oldValue) !== oldValue || Object(this.value) === this.value ? this.boundFormatter(oldValue) :
+								this.value;
+						}
 						this.value = newValue;
 						for (var i = 0, l = this.callbacks.length; i < l; ++i) {
 							try {
-								this.callbacks[i](
-									this.boundFormatter ? this.boundFormatter(newValue) : newValue,
-									this.boundFormatter ? this.boundFormatter(oldValue) : oldValue);
+								this.callbacks[i](newValue, oldValue);
 							} catch (e) {
 								console.error("Error occured in BindingSource callback: " + (e.stack || e));
 							}
 						}
 					}, this);
+					this.value = this.boundFormatter ? this.boundFormatter(value) : value;
 					this.observerIsOpen = true;
 				}
 			},
@@ -93,7 +98,7 @@
 					this.callbacks.length = 0;
 				}
 				this.observe(callback.bind(thisObject));
-				return this.boundFormatter ? this.boundFormatter(this.value) : this.value;
+				return this.value;
 			},
 
 			/**
@@ -102,7 +107,7 @@
 			getFrom: function () {
 				this._openObserver();
 				this.deliver();
-				return this.boundFormatter ? this.boundFormatter(this.value) : this.value;
+				return this.value;
 			},
 
 			/**
