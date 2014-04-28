@@ -7,7 +7,9 @@ define([
 ], function (register, wrapStateful, BindingTarget) {
 	"use strict";
 
-	var EMPTY_OBJECT = {};
+	var EMPTY_OBJECT = {},
+		EMPTY_ARRAY = [],
+		REGEXP_ATTRIBUTE_POINTER = /^(.*)@$/;
 
 	/**
 	 * Binding target for a widget property/attribute.
@@ -27,14 +29,16 @@ define([
 			}
 		}
 		return function () {
-			BindingTarget.apply(this, arguments);
+			var args = EMPTY_ARRAY.slice.call(arguments);
+			BindingTarget.apply(this, args);
+			this.targetProperty = (REGEXP_ATTRIBUTE_POINTER.exec(args[1]) || EMPTY_ARRAY)[1] || args[1];
 			// Defining HTMLInputElement#value, etc. in prototype breaks <input> in IE.
 			// Also Safari throws if we try to set up a "shadow property" for something like HTMLInputElement#value.
 			// Therefore rather than relying 100% on delite/Stateful to trigger emitting change record,
 			// we make the widget a "pseudo Obserable"
 			// and use its pseudo .set() API to make sure a change record is emitted when a widget property gets a new value.
 			wrapStateful(this.object);
-			this.hw = this.object.own(this.object.watch(this.property, setTo.bind(this)))[0];
+			this.hw = this.object.own(this.object.watch(this.targetProperty, setTo.bind(this)))[0];
 		};
 	})();
 
@@ -51,10 +55,10 @@ define([
 
 	Object.defineProperty(WidgetBindingTarget.prototype, "value", {
 		get: function () {
-			return this.object[this.property];
+			return this.object[this.targetProperty];
 		},
 		set: function (value) {
-			this.object.set(this.property, value);
+			this.object.set(this.targetProperty, value);
 		},
 		enumeable: true,
 		configurable: true
@@ -79,10 +83,17 @@ define([
 		var origBind = ElementClass.prototype.bind;
 		ElementClass.prototype.bind = (function () {
 			// HTMLElements#attributes in Chrome has attribute names in lower case
-			function findProperty(name) {
-				for (var s in this) {
-					if (s.toLowerCase() === name.toLowerCase()) {
-						return s;
+			function getWidgetProperty(property) {
+				if (typeof this.buildRendering === "function") {
+					var tokens = REGEXP_ATTRIBUTE_POINTER.exec(property),
+						targetProperty = tokens ? tokens[1] : property;
+					if (this.alwaysUseWidgetAttribute || (this._invalidatingProperties || EMPTY_OBJECT)[targetProperty] || targetProperty in this) {
+						return property;
+					}
+					for (var s in this) {
+						if (s.toLowerCase() === targetProperty.toLowerCase()) {
+							return s + (tokens ? "@" : "");
+						}
 					}
 				}
 			}
@@ -93,19 +104,10 @@ define([
 				}
 				var target = this.bindings && this.bindings[property];
 				if (!target) {
-					var convertedProperty,
-						useWidgetAttribute = typeof this.buildRendering === "function"
-							&& (this.alwaysUseWidgetAttribute
-								|| (this._invalidatingProperties || EMPTY_OBJECT)[property]
-								|| property in this // Fast path for findProperty()
-								|| (convertedProperty = findProperty.call(this, property)));
-					if (useWidgetAttribute) {
-						target = new WidgetBindingTarget(this, convertedProperty || property);
-					} else {
-						return origBind.call(this, property, source);
-					}
+					var widgetProperty = getWidgetProperty.call(this, property);
+					target = widgetProperty && new WidgetBindingTarget(this, widgetProperty);
 				}
-				return target.bind(source);
+				return target && target.bind(source) || origBind.call(this, property, source);
 			};
 		})();
 	});
