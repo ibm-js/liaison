@@ -9,6 +9,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		REGEXP_ATTRIBUTE_VALUE = /^value$/i,
 		REGEXP_ATTRIBUTE_CHECKED = /^checked$/i,
 		REGEXP_ATTRIBUTES_SELECT = /^(value|selectedIndex)$/i,
+		REGEXP_ATTRIBUTE_POINTER = /^(.*)@$/,
 		useExisting = typeof HTMLElement.prototype.bind === "function";
 
 	/**
@@ -25,7 +26,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		var args = EMPTY_ARRAY.slice.call(arguments);
 		args[1] = args[1].toLowerCase();
 		BindingTarget.apply(this, args);
-		this.targetProperty = this.property;
+		this.targetProperty = (REGEXP_ATTRIBUTE_POINTER.exec(args[1]) || EMPTY_ARRAY)[1] || args[1];
 	}
 
 	DOMBindingTarget.prototype = Object.create(BindingTarget.prototype);
@@ -42,23 +43,6 @@ define(["./BindingTarget"], function (BindingTarget) {
 	});
 
 	DOMBindingTarget.useExisting = useExisting;
-
-	/**
-	 * Binding target for a DOM attribute, for ones that don't accept data binding syntax as attribute value.
-	 * Created with {@link HTMLElement#bind HTMLElement.bind()}.
-	 * @class module:liaison/DOMBindingTarget~DOMPointerBindingTarget
-	 * @augments module:liaison/BindingTarget
-	 * @param {Object} object The DOM element.
-	 * @param {string} property The attribute name.
-	 * @param {Object} [options]
-	 *     The parameters governing this {@link module:liaison/DOMBindingTarget~DOMPointerBindingTarget DOMPointerBindingTarget}'s behavior.
-	 */
-	function DOMPointerBindingTarget() {
-		DOMBindingTarget.apply(this, arguments);
-		this.targetProperty = this.property.substr(0, this.property.length - 1);
-	}
-
-	DOMPointerBindingTarget.prototype = Object.create(DOMBindingTarget.prototype);
 
 	/**
 	 * Binding target for a conditional DOM attribute.
@@ -114,7 +98,6 @@ define(["./BindingTarget"], function (BindingTarget) {
 			var target = (this.bindings || EMPTY_OBJECT)[property];
 			target = target
 				|| (property.lastIndexOf("?") === property.length - 1 ? new ConditionalDOMBindingTarget(this, property) :
-					property.lastIndexOf("@") === property.length - 1 ? new DOMPointerBindingTarget(this, property) :
 					new DOMBindingTarget(this, property));
 			return target.bind(source);
 		};
@@ -151,17 +134,19 @@ define(["./BindingTarget"], function (BindingTarget) {
 	 *     this {@link module:liaison/DOMBindingTarget~DOMPropertyBindingTarget DOMPropertyBindingTarget}'s behavior.
 	 */
 	function DOMPropertyBindingTarget() {
-		BindingTarget.apply(this, arguments);
+		var args = EMPTY_ARRAY.slice.call(arguments);
+		BindingTarget.apply(this, args);
+		this.targetProperty = (REGEXP_ATTRIBUTE_POINTER.exec(args[1]) || EMPTY_ARRAY)[1] || args[1];
 	}
 
 	DOMPropertyBindingTarget.prototype = Object.create(BindingTarget.prototype);
 
 	Object.defineProperty(DOMPropertyBindingTarget.prototype, "value", {
 		get: function () {
-			return this.object[this.property];
+			return this.object[this.targetProperty];
 		},
 		set: function (value) {
-			this.object[this.property] = value != null ? value : "";
+			this.object[this.targetProperty] = value != null ? value : "";
 		},
 		enumeable: true,
 		configurable: true
