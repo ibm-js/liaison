@@ -94,7 +94,7 @@ define([
 						{Name: "Chad Chapman"},
 						{Name: "Irene Ira"}
 					],
-					totalNameLength: computed.array(function (a) {
+					totalNameLength: computed(function (a) {
 						return a.reduce(function (length, entry) {
 							return length + entry.Name.length;
 						}, 0);
