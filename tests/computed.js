@@ -56,7 +56,7 @@ define([
 							{Name: "Irene Ira"}
 						],
 						countShortFirst: true,
-						totalNameLength: computed.array(function (a, countShortFirst) {
+						totalNameLength: computed(function (a, countShortFirst) {
 							return a.reduce(function (length, entry) {
 								var first = entry.Name.split(" ")[0];
 								return length + (countShortFirst || first.length >= 4 ? entry.Name.length : 0);
@@ -115,7 +115,7 @@ define([
 						name: computed(function (first, last) {
 							return first + " " + last;
 						}, "first", "last"),
-						totalNameLength: computed.array(function (a) {
+						totalNameLength: computed(function (a) {
 							return a.reduce(function (length, entry) {
 								return length + entry.Name.length;
 							}, 0);

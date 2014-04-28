@@ -4,13 +4,13 @@
 (function (root, factory) {
 	// Module definition to support AMD, node.js and browser globals
 	if (typeof exports === "object") {
-		module.exports = factory("./Observable", "./ObservablePath", "./BindingSourceList", "./Each");
+		module.exports = factory("./Observable", "./ObservablePath", "./Each");
 	} else if (typeof define === "function" && define.amd) {
-		define(["./Observable", "./ObservablePath", "./BindingSourceList", "./Each"], factory);
+		define(["./Observable", "./ObservablePath", "./Each"], factory);
 	} else {
-		root.computed = factory(root.Observable, root.ObservablePath, root.BindingSourceList, root.Each);
+		root.computed = factory(root.Observable, root.ObservablePath, root.Each);
 	}
-})(this, function (Observable, ObservablePath, BindingSourceList, Each) {
+})(this, function (Observable, ObservablePath, Each) {
 	"use strict";
 
 	/* global PathObserver */
@@ -53,9 +53,19 @@
 		activate: function () {
 			var o = this.o;
 			if (typeof o._getProps !== "function" || !REGEXP_SHADOW_PROP.test(this.name)) {
-				var sources = this.paths.map(mapPath, o),
+				var sourcePaths = [],
+					entryPaths = [];
+				this.paths.forEach(function (path) {
+					if (path[0] !== "@") {
+						sourcePaths.push(path);
+					} else {
+						var index = sourcePaths.length - 1;
+						(entryPaths[index] = entryPaths[index] || []).push(path.substr(1));
+					}
+				}, this);
+				var sources = sourcePaths.map(mapPath, o),
 					callback = callComputedCallback.bind(o, this.callback);
-				this.source = new BindingSourceList(sources, callback);
+				this.source = new Each(sources, entryPaths, callback);
 				set.call(o, this.name, this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name)));
 			}
 			return this;
@@ -66,39 +76,6 @@
 				this.source = null;
 			}
 		}
-	};
-
-	function ComputedArray(callback, paths) {
-		this.callback = callback;
-		this.paths = paths;
-	}
-
-	ComputedArray.prototype = Object.create(Computed.prototype);
-	ComputedArray.prototype._computedMarker = "_computedArray";
-
-	ComputedArray.prototype.clone = function () {
-		return new ComputedArray(this.callback, this.paths).init(this.o, this.name);
-	};
-
-	ComputedArray.prototype.activate = function () {
-		var o = this.o;
-		if (typeof o._getProps !== "function" || !REGEXP_SHADOW_PROP.test(this.name)) {
-			var sourcePaths = [],
-				entryPaths = [];
-			this.paths.forEach(function (path) {
-				if (path[0] !== "@") {
-					sourcePaths.push(path);
-				} else {
-					var index = sourcePaths.length - 1;
-					(entryPaths[index] = entryPaths[index] || []).push(path.substr(1));
-				}
-			}, this);
-			var sources = sourcePaths.map(mapPath, o),
-				callback = callComputedCallback.bind(o, this.callback);
-			this.source = new Each(sources, entryPaths, callback);
-			set.call(o, this.name, this.source.open((typeof o.set === "function" ? o.set : set).bind(o, this.name)));
-		}
-		return this;
 	};
 
 	/**
@@ -122,20 +99,6 @@
 	 *         // "Ben Doe" comes to oldValue
 	 *     });
 	 *     o.set("first", "Ben");
-	 */
-	var computed = function (callback) {
-		return new Computed(callback, EMPTY_ARRAY.slice.call(arguments, 1));
-	};
-
-	/**
-	 * @function module:liaison/computed.array
-	 * @param {Function} callback The function to calculate computed property value.
-	 * @param {...string} var_args
-	 *     The paths from the parent object.
-	 *     Entries beginning with '@' are paths relative to each array entries.
-	 * @returns
-	 *     The computed property object.
-	 *     The computed property is calculated every time the array changes.
 	 * @example
 	 *     var o = wrapper.wrap({
 	 *         items: [
@@ -145,7 +108,7 @@
 	 *             {Name: "Irene Ira"}
 	 *         ],
 	 *         includeShortName: false,
-	 *         totalNameLength: computed.array(function (a, includeShortName) {
+	 *         totalNameLength: computed(function (a, includeShortName) {
 	 *             return a.reduce(function (length, entry) {
 	 *                 return length + (includeShortName || entry.Name.length >= 10 ? entry.Name.length : 0);
 	 *             }, 0);
@@ -159,8 +122,8 @@
 	 *     o.items.push({Name: "John Jacklin"});
 	 *     o.set("includeShortName", true);
 	 */
-	computed.array = function (callback) {
-		return new ComputedArray(callback, EMPTY_ARRAY.slice.call(arguments, 1));
+	var computed = function (callback) {
+		return new Computed(callback, EMPTY_ARRAY.slice.call(arguments, 1));
 	};
 
 	/**
