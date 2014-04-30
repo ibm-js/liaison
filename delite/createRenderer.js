@@ -88,7 +88,7 @@ define([
 	 *     });
 	 */
 	createRenderer.load = function (mid, parentRequire, loaded) {
-		parentRequire(["dojo/text!" + mid], function (template) {
+		parentRequire(["requirejs-text/text!" + mid], function (template) {
 			loaded(createRenderer(template));
 		});
 	};

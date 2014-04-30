@@ -48,20 +48,22 @@ define(["liaison/ObservablePath"], function (ObservablePath) {
 		}
 	};
 
-	var origCreateBindingSourceFactory = Element.prototype.createBindingSourceFactory;
-	Element.prototype.createBindingSourceFactory = function (path, name) {
-		var factory = origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
-		if (!factory) {
-			var tokens = REGEXP_DECLARATIVE_EVENT.exec(name);
-			if (tokens) {
-				return function (model, node) {
-					return new EventBindingSource(model, path, node, name);
-				};
+	if (typeof Element !== "undefined") {
+		var origCreateBindingSourceFactory = Element.prototype.createBindingSourceFactory;
+		Element.prototype.createBindingSourceFactory = function (path, name) {
+			var factory = origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
+			if (!factory) {
+				var tokens = REGEXP_DECLARATIVE_EVENT.exec(name);
+				if (tokens) {
+					return function (model, node) {
+						return new EventBindingSource(model, path, node, name);
+					};
+				}
+			} else {
+				return factory;
 			}
-		} else {
-			return factory;
-		}
-	};
+		};
+	}
 
 	(function () {
 		/* global HTMLTemplateElement */

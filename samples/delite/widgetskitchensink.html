@@ -2,6 +2,40 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="../css/examples.css">
+		<style type="text/css">
+			/* customize stars */
+
+			.d-star-rating-star-icon:before {
+				content: url("../../../deliteful/samples/images/star-orange.png");
+			}
+			
+			.d-star-rating-star-icon {
+				height: 14px;
+				width: 13px;
+			}
+
+			.d-star-rating-empty-star:before {
+				margin-left: -13px;
+			}
+
+			.d-star-rating-half-star:before {
+				margin-left: -26px;
+			}
+
+			.d-star-rating.d-rtl .d-star-rating-full-star:before {
+				margin-left: 0px;
+				margin-right: -39px;
+			}
+
+			.d-star-rating.d-rtl .d-star-rating-empty-star:before {
+				margin-left: 0px;
+				margin-right: -26px;
+			}
+
+			.d-star-rating.d-rtl .d-star-rating-half-star:before {
+				margin-left: 0px;
+			}
+		</style>
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
 		<script type="text/javascript">
 			require([
@@ -12,8 +46,8 @@
 				"deliteful/Slider",
 				"liaison/DOMTreeBindingTarget",
 				"liaison/delite/templateBinderExtension",
-				"liaison/delite/Widgets/RadioButton",
-				"liaison/delite/Widgets/StarRating"
+				"liaison/delite/widgets/RadioButton",
+				"liaison/delite/widgets/StarRating"
 			], function (ObservablePath, computed, wrapper) {
 				function startup() {
 					var REGEXP_NUMBER_BINDING = /^number:(.*)$/,

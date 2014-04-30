@@ -10,7 +10,8 @@ define(["./BindingTarget"], function (BindingTarget) {
 		REGEXP_ATTRIBUTE_CHECKED = /^checked(@?)$/i,
 		REGEXP_ATTRIBUTE_SELECTEDINDEX = /^selectedIndex(@?)$/i,
 		REGEXP_ATTRIBUTE_POINTER = /^(.*)@$/,
-		useExisting = typeof HTMLElement.prototype.bind === "function";
+		hasElement = typeof Element !== "undefined",
+		useExisting = hasElement && typeof HTMLElement.prototype.bind === "function";
 
 	/**
 	 * Binding target for a DOM attribute.
@@ -79,7 +80,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		configurable: true
 	});
 
-	if (!useExisting) {
+	if (!useExisting && hasElement) {
 		Node.prototype.bind = Node.prototype.unbind = function () {
 			throw new TypeError("Cannot bind/unbind to/from this node type: " + this.nodeType);
 		};
@@ -112,6 +113,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 				this.bindings[property].remove();
 			}
 		};
+
 		if (typeof SVGElement !== undefined) {
 			/**
 			 * @class SVGElement
@@ -310,7 +312,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		}
 	});
 
-	if (!useExisting) {
+	if (!useExisting && hasElement) {
 		/**
 		 * @class HTMLInputElement
 		 * @augments HTMLElement
@@ -374,7 +376,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 
 	TextNodeValueBindingTarget.prototype = Object.create(DOMPropertyBindingTarget.prototype);
 
-	if (!useExisting) {
+	if (!useExisting && hasElement) {
 		/* global Text */
 		/** @class Text */
 		/**

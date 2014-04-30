@@ -75,7 +75,10 @@ define([
 	 */
 
 	/* global HTMLTemplateElement, HTMLUnknownElement */
-	var ElementClassList = [HTMLScriptElement, HTMLInputElement, HTMLSelectElement, HTMLTextAreaElement, HTMLUnknownElement, HTMLElement];
+	var ElementClassList = [];
+	if (typeof Element !== "undefined") {
+		ElementClassList.push(HTMLScriptElement, HTMLInputElement, HTMLSelectElement, HTMLTextAreaElement, HTMLUnknownElement, HTMLElement);
+	}
 	if (typeof HTMLTemplateElement !== "undefined") {
 		ElementClassList.unshift(HTMLTemplateElement);
 	}
