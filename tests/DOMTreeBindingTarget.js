@@ -9,6 +9,7 @@ define([
 	"../computed",
 	"./waitFor",
 	"requirejs-text/text!./templates/simpleBindingTemplate.html",
+	"requirejs-text/text!./templates/pointerBindingTemplate.html",
 	"requirejs-text/text!./templates/simpleObjectPathBindingTemplate.html",
 	"requirejs-text/text!./templates/simpleWithAlternateBindingTemplate.html",
 	"requirejs-text/text!./templates/nestedTemplate.html",
@@ -35,7 +36,8 @@ define([
 	DOMTreeBindingTarget,
 	computed,
 	waitFor,
-	basicTemplate,
+	simpleTemplate,
+	pointerTemplate,
 	objectPathTemplate,
 	alternateBindingTemplate,
 	nestedTemplate,
@@ -162,7 +164,7 @@ define([
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({first: "John"});
-				template.innerHTML = basicTemplate;
+				template.innerHTML = simpleTemplate;
 				var binding = template.bind("bind", observable);
 				handles.push(binding);
 				document.body.appendChild(div);
@@ -195,7 +197,7 @@ define([
 					template = div.appendChild(document.createElement("script")),
 					observable = new Observable({first: "John"});
 				template.setAttribute("type", "text/x-template");
-				template.innerHTML = basicTemplate;
+				template.innerHTML = simpleTemplate;
 				var binding = template.bind("bind", observable);
 				handles.push(binding);
 				document.body.appendChild(div);
@@ -220,6 +222,47 @@ define([
 					return template.nextSibling.nodeValue !== "John ";
 				})).then(dfd.callback(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
+				}), dfd.reject.bind(dfd));
+			});
+			it("Pointer binding: <template>", function () {
+				var dfd = this.async(10000),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template")),
+					observable = new Observable({
+						value: "Foo0",
+						checked: true,
+						index: 1,
+					});
+				template.innerHTML = pointerTemplate;
+				var binding = template.bind("bind", observable);
+				handles.push(binding);
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					expect(template.nextSibling.getElementsByTagName("input")[0].value).to.equal("Foo0");
+					expect(template.nextSibling.getElementsByTagName("input")[1].checked).to.be.true;
+					expect(template.nextSibling.getElementsByTagName("option")[0].selected).to.be.true;
+					expect(template.nextSibling.getElementsByTagName("option")[1].selected).to.be.false;
+					expect(template.nextSibling.getElementsByTagName("option")[2].selected).to.be.false;
+					expect(template.nextSibling.getElementsByTagName("option")[3].selected).to.be.true;
+					observable.set("value", "Foo1");
+					observable.set("checked", false);
+					observable.set("index", 0);
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.getElementsByTagName("input")[0].value !== "Foo0";
+				})).then(dfd.callback(function () {
+					expect(template.nextSibling.getElementsByTagName("input")[0].value).to.equal("Foo1");
+					expect(template.nextSibling.getElementsByTagName("input")[1].checked).to.be.false;
+					expect(template.nextSibling.getElementsByTagName("option")[0].selected).to.be.false;
+					expect(template.nextSibling.getElementsByTagName("option")[1].selected).to.be.true;
+					expect(template.nextSibling.getElementsByTagName("option")[2].selected).to.be.true;
+					expect(template.nextSibling.getElementsByTagName("option")[3].selected).to.be.false;
 				}), dfd.reject.bind(dfd));
 			});
 			it("Simple object path binding", function () {
@@ -507,7 +550,7 @@ define([
 						{first: "Chad"},
 						{first: "Irene"}
 					]);
-				template.innerHTML = basicTemplate;
+				template.innerHTML = simpleTemplate;
 				var binding = template.bind("repeat", observableArray);
 				handles.push(binding);
 				document.body.appendChild(div);
@@ -578,7 +621,7 @@ define([
 					observableArray1 = ObservableArray.apply(undefined, observableArray0.slice(1)),
 					observable = new Observable({a: observableArray0}),
 					observablePath = new ObservablePath(observable, "a");
-				template.innerHTML = basicTemplate;
+				template.innerHTML = simpleTemplate;
 				handles.push(template.bind("repeat", observablePath));
 				document.body.appendChild(div);
 				handles.push({
@@ -617,7 +660,7 @@ define([
 				var dfd = this.async(10000),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
-				template.innerHTML = basicTemplate;
+				template.innerHTML = simpleTemplate;
 				template.bind("repeat", new ObservableArray());
 				handles.push(template.bind("repeat", new ObservableArray("a", "b", "c")));
 				waitFor(function () {
@@ -1161,7 +1204,7 @@ define([
 						div.parentNode.removeChild(div);
 					}
 				});
-				template0.innerHTML = basicTemplate;
+				template0.innerHTML = simpleTemplate;
 				template0.id = "template0";
 				template1.type = "text/x-template";
 				template1.innerHTML = "<div></div>";
@@ -1196,7 +1239,7 @@ define([
 						div.parentNode.removeChild(div);
 					}
 				});
-				template0.innerHTML = basicTemplate;
+				template0.innerHTML = simpleTemplate;
 				template0.id = "template0";
 				template1.type = "text/x-template";
 				template1.innerHTML = "<div></div>";

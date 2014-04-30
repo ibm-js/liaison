@@ -5,12 +5,13 @@ define([
 	"../../BindingTarget",
 	"../waitFor",
 	"requirejs-text/text!../../tests/delite/templates/buttonTemplate.html",
+	"requirejs-text/text!../../tests/delite/templates/buttonPointerTemplate.html",
 	"requirejs-text/text!../../tests/delite/templates/starRatingTemplate.html",
 	"deliteful/Button",
 	"deliteful/StarRating",
 	"../../delite/templateBinderExtension",
 	"../sandbox/monitor"
-], function (bdd, expect, Observable, BindingTarget, waitFor, buttonTemplate, starRatingTemplate) {
+], function (bdd, expect, Observable, BindingTarget, waitFor, buttonTemplate, buttonPointerTemplate, starRatingTemplate) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {
@@ -40,6 +41,40 @@ define([
 					var w = template.nextSibling;
 					expect(w.textContent).to.equal("Foo");
 					expect(w.bindings.label.value).to.equal("Foo");
+					w.label = "Bar";
+					expect(model.label).to.equal("Bar");
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.textContent !== "Foo";
+				})).then(function () {
+					var w = template.nextSibling;
+					expect(w.textContent).to.equal("Bar");
+					model.set("label", "Baz");
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.textContent !== "Bar";
+				})).then(dfd.callback(function () {
+					var w = template.nextSibling;
+					expect(w.textContent).to.equal("Baz");
+				}), dfd.reject.bind(dfd));
+			});
+			it("Pointer binding: <d-button>", function () {
+				var dfd = this.async(10000),
+					model = new Observable({label: "Foo"}),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template"));
+				template.innerHTML = buttonPointerTemplate;
+				handles.push(template.bind("bind", model));
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				waitFor(function () {
+					return (template.nextSibling || {}).textContent;
+				}).then(function () {
+					var w = template.nextSibling;
+					expect(w.textContent).to.equal("Foo");
+					expect(w.bindings["label@"].value).to.equal("Foo");
 					w.label = "Bar";
 					expect(model.label).to.equal("Bar");
 				}).then(waitFor.bind(function () {
