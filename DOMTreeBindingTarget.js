@@ -23,6 +23,7 @@ define([
 		REGEXP_ATTRIBUTE_REF = /^ref$/i,
 		REGEXP_TEMPLATE_TAG = /^template$/i,
 		REGEXP_TEMPLATE_TYPE = /template$/i,
+		hasElement = typeof Element !== "undefined",
 		defineProperty = Object.defineProperty;
 
 	/**
@@ -288,9 +289,14 @@ define([
 	});
 
 	/* global HTMLUnknownElement */
-	var PossibleTemplateElementClassList = [typeof HTMLTemplateElement !== "undefined" ? HTMLTemplateElement : HTMLUnknownElement, HTMLScriptElement];
-	typeof Element !== "undefined" && PossibleTemplateElementClassList.push(Element); // <template> in <svg>
-	typeof SVGElement !== "undefined" && PossibleTemplateElementClassList.push(SVGElement); // <template> in <svg>
+	var PossibleTemplateElementClassList = [];
+	if (hasElement) {
+		PossibleTemplateElementClassList.push(
+			typeof HTMLTemplateElement !== "undefined" ? HTMLTemplateElement : HTMLUnknownElement,
+			HTMLScriptElement);
+		typeof Element !== "undefined" && PossibleTemplateElementClassList.push(Element); // <template> in <svg>
+		typeof SVGElement !== "undefined" && PossibleTemplateElementClassList.push(SVGElement); // <template> in <svg>
+	}
 
 	/** @class HTMLTemplateElement */
 
@@ -532,13 +538,15 @@ define([
 	 * @property {DocumentFragment} content
 	 *     The instantiated template, typically used by the caller of {@link HTMLTemplateElement#instantiate} to put it in DOM.
 	 */
-	defineProperty(Node.prototype, "instanceData", {
-		get: function () {
-			/* jshint camelcase: false */
-			return this._instanceData || this.templateInstance_ || (this.parentNode || EMPTY_OBJECT).instanceData;
-		},
-		configurable: true
-	});
+	if (typeof Node !== "undefined") {
+		defineProperty(Node.prototype, "instanceData", {
+			get: function () {
+				/* jshint camelcase: false */
+				return this._instanceData || this.templateInstance_ || (this.parentNode || EMPTY_OBJECT).instanceData;
+			},
+			configurable: true
+		});
+	}
 
 	return DOMTreeBindingTarget;
 });
