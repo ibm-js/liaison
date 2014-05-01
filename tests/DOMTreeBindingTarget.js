@@ -23,6 +23,8 @@ define([
 	"requirejs-text/text!./templates/emptyBindingTemplate.html",
 	"requirejs-text/text!./templates/svgTemplate.html",
 	"requirejs-text/text!./templates/svgNestedTemplate.html",
+	"requirejs-text/text!./templates/styleBindingTemplate.html",
+	"requirejs-text/text!./templates/styleWithAlternateBindingTemplate.html",
 	"requirejs-text/text!./templates/eventTemplate.html",
 	"requirejs-text/text!./templates/nestedEventTemplate.html",
 	"requirejs-text/text!./templates/irregularTemplate.html"
@@ -51,6 +53,8 @@ define([
 	emptyBindingTemplate,
 	svgTemplate,
 	svgNestedTemplate,
+	styleTemplate,
+	styleWithAlternateBindingTemplate,
 	eventTemplate,
 	nestedEventTemplate,
 	irregularTemplate
@@ -1036,6 +1040,100 @@ define([
 					}), dfd.reject.bind(dfd));
 				});
 			}
+			it("Style binding", function () {
+				var dfd = this.async(10000),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template")),
+					observable = new Observable({
+						show: true,
+						hide: false,
+						color: true,
+						weight: true
+					});
+				template.innerHTML = styleTemplate;
+				var binding = template.bind("bind", observable);
+				handles.push(binding);
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					var span = template.nextSibling;
+					expect(span.style.display).to.equal("");
+					expect(span.className).to.equal("color weight");
+					observable.set("hide", true);
+					observable.set("color", false);
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "none";
+				})).then(function () {
+					var span = template.nextSibling;
+					expect(span.className).to.equal(" weight");
+					observable.set("hide", false);
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "";
+				})).then(function () {
+					observable.set("show", false);
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "none";
+				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+			});
+			it("Style binding with alternate binding source factory", function () {
+				var dfd = this.async(10000),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template")),
+					observable = new Observable({
+						show: 1,
+						hide: 0,
+						color: 1,
+						weight: 1
+					}),
+					origCreateBindingSourceFactory = template.createBindingSourceFactory;
+				template.createBindingSourceFactory = function (expression, name) {
+					var match;
+					if (!/^(l\-show|l\-hide|class)$/.test(name) && (match = /^boolean:(.*)$/i.exec(expression))) {
+						return function (model) {
+							return new ObservablePath(model, match[1], function (value) {
+								return !!value;
+							});
+						};
+					}
+					return origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
+				};
+				template.innerHTML = styleWithAlternateBindingTemplate;
+				var binding = template.bind("bind", observable);
+				handles.push(binding);
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					var span = template.nextSibling;
+					expect(span.style.display).to.equal("");
+					expect(span.className).to.equal("color weight");
+					observable.set("hide", 1);
+					observable.set("color", 0);
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "none";
+				})).then(function () {
+					var span = template.nextSibling;
+					expect(span.className).to.equal(" weight");
+					observable.set("hide", 0);
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "";
+				})).then(function () {
+					observable.set("show", 0);
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "none";
+				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+			});
 			it("Declarative events", function () {
 				var senderDiv,
 					targetDiv,

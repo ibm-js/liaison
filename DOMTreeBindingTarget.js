@@ -487,14 +487,15 @@ define([
 
 			var toBeBound = [],
 				bindings = [],
+				boundCreateBindingSourceFactory = this.createBindingSourceFactory.bind(this),
 				content = letTemplateCreateInstance ?
 					this.createInstance(model,
-						this.createBindingSourceFactory && {prepareBinding: this.createBindingSourceFactory},
+						this.createBindingSourceFactory && {prepareBinding: boundCreateBindingSourceFactory},
 						undefined,
 						bindings) :
 					templateBinder.createContent(this, this.content.parsed, toBeBound);
 
-			!letTemplateCreateInstance && templateBinder.assignSources(model, toBeBound, this.createBindingSourceFactory);
+			!letTemplateCreateInstance && templateBinder.assignSources(model, toBeBound, boundCreateBindingSourceFactory);
 
 			var instanceData = {
 					model: model,
@@ -538,7 +539,7 @@ define([
 	 * @property {DocumentFragment} content
 	 *     The instantiated template, typically used by the caller of {@link HTMLTemplateElement#instantiate} to put it in DOM.
 	 */
-	if (typeof Node !== "undefined") {
+	if (typeof Node !== "undefined" && !Object.getOwnPropertyDescriptor(Node.prototype, "instanceData")) {
 		defineProperty(Node.prototype, "instanceData", {
 			get: function () {
 				/* jshint camelcase: false */

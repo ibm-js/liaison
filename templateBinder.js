@@ -6,7 +6,7 @@ define([
 	"./ObservablePath",
 	"./BindingSourceList",
 	"./DOMBindingTarget",
-	"./EventBindingSource"
+	"./alternateBindingSource"
 ], function (ObservablePath, BindingSourceList) {
 	"use strict";
 
