@@ -196,6 +196,11 @@ define([
 					Platform.performMicrotaskCheckpoint();
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.style.display === "none";
+				})).then(function () {
+					model.show = 2;
+					Platform.performMicrotaskCheckpoint();
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "";
 				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 			});
 			it("Style binding with alternate binding source factory", function () {
