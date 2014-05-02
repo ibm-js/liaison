@@ -73,7 +73,7 @@ define(["liaison/ObservablePath"], function (ObservablePath) {
 	function StyleShowBindingSource(source, node, show) {
 		StyleBindingSource.call(this, source);
 		this.update = function (value) {
-			node.style.display = show ^ value ? "none" : "";
+			node.style.display = !show ^ !value ? "none" : "";
 			return value;
 		};
 	}

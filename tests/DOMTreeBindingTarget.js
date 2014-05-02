@@ -1079,6 +1079,10 @@ define([
 					observable.set("show", false);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.style.display === "none";
+				})).then(function () {
+					observable.set("show", 2);
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "";
 				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 			});
 			it("Style binding with alternate binding source factory", function () {
