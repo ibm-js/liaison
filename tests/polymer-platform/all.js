@@ -1,5 +1,5 @@
 define([
 	"./computed",
 	"./BindingTarget",
-	"./EventBindingSource"
+	"./alternateBindingSource"
 ], 1);

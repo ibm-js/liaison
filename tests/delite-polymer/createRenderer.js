@@ -168,7 +168,7 @@ define([
 				template.setAttribute("bind", "");
 				template.model = observable;
 				handles.push({
-					remove: template.unbind.bind(template, "bind")
+					remove: template.unbind.bind(template, "iterator") // TODO(asudoh): Review unbind method with future Polymer versions
 				});
 				document.body.appendChild(div);
 				handles.push({
@@ -219,7 +219,7 @@ define([
 				template.setAttribute("bind", "");
 				template.model = observable;
 				handles.push({
-					remove: template.unbind.bind(template, "bind")
+					remove: template.unbind.bind(template, "iterator") // TODO(asudoh): Review unbind method with future Polymer versions
 				});
 				document.body.appendChild(div);
 				handles.push({
@@ -290,7 +290,7 @@ define([
 				template.setAttribute("bind", "");
 				template.model = observable;
 				handles.push({
-					remove: template.unbind.bind(template, "bind")
+					remove: template.unbind.bind(template, "iterator") // TODO(asudoh): Review unbind method with future Polymer versions
 				});
 				document.body.appendChild(div);
 				handles.push({
@@ -413,7 +413,7 @@ define([
 				template.setAttribute("bind", "");
 				template.model = observable;
 				handles.push({
-					remove: template.unbind.bind(template, "bind")
+					remove: template.unbind.bind(template, "iterator") // TODO(asudoh): Review unbind method with future Polymer versions
 				});
 				document.body.appendChild(div);
 				handles.push({

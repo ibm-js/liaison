@@ -2,35 +2,29 @@ define([
 	"intern!bdd",
 	"intern/chai!expect",
 	"dojo/Deferred",
-	"delite/register",
-	"delite/Widget",
 	"../../Observable",
-	"../../ObservableArray",
-	"../../ObservablePath",
-	"../../delite/createRenderer",
 	"../waitFor",
 	"requirejs-text/text!../templates/eventTemplate.html",
 	"requirejs-text/text!../templates/nestedEventTemplate.html",
-	"../../EventBindingSource",
+	"requirejs-text/text!../templates/styleBindingTemplate.html",
+	"requirejs-text/text!../templates/styleWithAlternateBindingTemplate.html",
+	"../../alternateBindingSource",
 	"../sandbox/monitor"
 ], function (
 	bdd,
 	expect,
 	Deferred,
-	register,
-	Widget,
 	Observable,
-	ObservableArray,
-	ObservablePath,
-	createRenderer,
 	waitFor,
 	eventTemplate,
-	nestedEventTemplate
+	nestedEventTemplate,
+	styleTemplate,
+	styleWithAlternateBindingTemplate
 ) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {
-		describe("Test liaison/delite-polymer/createRenderer", function () {
+		describe("Test alternateBindingSource in Polymer platform", function () {
 			var handles = [];
 			function createDeclarativeEventResolver(dfd) {
 				return function () {
@@ -57,7 +51,7 @@ define([
 				template.innerHTML = eventTemplate;
 				template.model = model;
 				handles.push({
-					remove: template.unbind.bind(template, "bind")
+					remove: template.unbind.bind(template, "iterator") // TODO(asudoh): Review unbind method with future Polymer versions
 				});
 				document.body.appendChild(div);
 				handles.push({
@@ -109,7 +103,7 @@ define([
 				template.innerHTML = nestedEventTemplate;
 				template.model = model;
 				handles.push({
-					remove: template.unbind.bind(template, "bind")
+					remove: template.unbind.bind(template, "iterator") // TODO(asudoh): Review unbind method with future Polymer versions
 				});
 				document.body.appendChild(div);
 				handles.push({
@@ -155,6 +149,114 @@ define([
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(div.querySelector("div"));
 				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+			});
+			it("Style binding", function () {
+				/* global Platform */
+				var dfd = this.async(10000),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template")),
+					model = {
+						show: true,
+						hide: false,
+						color: true,
+						weight: true
+					};
+				template.setAttribute("bind", "");
+				template.innerHTML = styleTemplate;
+				template.model = model;
+				handles.push({
+					remove: template.unbind.bind(template, "iterator") // TODO(asudoh): Review unbind method with future Polymer versions
+				});
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					var span = template.nextSibling;
+					expect(span.style.display).to.equal("");
+					expect(span.className).to.equal("color weight");
+					model.hide = true;
+					model.color = false;
+					Platform.performMicrotaskCheckpoint();
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "none";
+				})).then(function () {
+					var span = template.nextSibling;
+					expect(span.className).to.equal(" weight");
+					model.hide = false;
+					Platform.performMicrotaskCheckpoint();
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "";
+				})).then(function () {
+					model.show = false;
+					Platform.performMicrotaskCheckpoint();
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "none";
+				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+			});
+			it("Style binding with alternate binding source factory", function () {
+				var dfd = this.async(10000),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template")),
+					model = {
+						show: 1,
+						hide: 0,
+						color: 1,
+						weight: 1
+					},
+					origPrepareBinding = (template.bindingDelegate || {}).prepareBinding;
+				(template.bindingDelegate = template.bindingDelegate || {}).prepareBinding = function (expression, name) {
+					var match;
+					if (!/^(l\-show|l\-hide|class)$/.test(name) && (match = /^boolean:(.*)$/i.exec(expression))) {
+						return function (model) {
+							/* global PathObserver, ObserverTransform */
+							return new ObserverTransform(new PathObserver(model, match[1]), function (value) {
+								return !!value;
+							});
+						};
+					}
+					return origPrepareBinding && origPrepareBinding.apply(this, arguments);
+				};
+				template.setAttribute("bind", "");
+				template.innerHTML = styleWithAlternateBindingTemplate;
+				template.model = model;
+				handles.push({
+					remove: template.unbind.bind(template, "iterator") // TODO(asudoh): Review unbind method with future Polymer versions
+				});
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					var span = template.nextSibling;
+					expect(span.style.display).to.equal("");
+					expect(span.className).to.equal("color weight");
+					model.hide = 1;
+					model.color = 0;
+					Platform.performMicrotaskCheckpoint();
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "none";
+				})).then(function () {
+					var span = template.nextSibling;
+					expect(span.className).to.equal(" weight");
+					model.hide = 0;
+					Platform.performMicrotaskCheckpoint();
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "";
+				})).then(function () {
+					model.show = 0;
+					Platform.performMicrotaskCheckpoint();
+				}).then(waitFor.bind(function () {
+					return template.nextSibling.style.display === "none";
+				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 			});
 		});
 	}
