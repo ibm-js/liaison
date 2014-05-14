@@ -8,7 +8,11 @@ install:
   - npm -g install bower
   - npm -g install jshint
   - npm install
+  - cd tests/delite
   - yes | bower install
+  - cd ../polymer
+  - yes | bower install
+  - cd ../..
   - cd node_modules/intern
   - npm install --production
   - cd ../..
