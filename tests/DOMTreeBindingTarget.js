@@ -790,7 +790,7 @@ define([
 					expect(div.querySelectorAll("span")[2].innerHTML).to.equal("Ben Doe");
 					expect(div.querySelectorAll("span")[3].innerHTML).to.equal("7");
 					template.bind("bind", undefined);
-					waitFor(function () {
+					return waitFor(function () {
 						return !template.nextSibling;
 					});
 				}).then(function () {
