@@ -17,6 +17,10 @@
 		return path === "" ? [] : typeof path.splice !== "function" ? path.split(".") : create ? path.slice() : path;
 	}
 
+	function areSameValues(lhs, rhs) {
+		return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
+	}
+
 	/**
 	 * @method module:liaison/ObservablePath.getObjectPath
 	 * @param {object} o An object.
@@ -100,11 +104,11 @@
 						if (!this.beingDiscarded) {
 							var oldPathValue = hasRemainder ? getObjectPath(oldValue, this.remainder) : oldValue,
 								newPathValue = hasRemainder ? getObjectPath(newValue, this.remainder) : newValue;
-							if (oldPathValue !== newPathValue) {
+							if (!areSameValues(oldPathValue, newPathValue)) {
 								callback(newPathValue, oldPathValue);
 							}
 						}
-						if (newValue !== oldValue) {
+						if (!areSameValues(newValue, oldValue)) {
 							if (this.observerRemainder) {
 								this.observerRemainder.remove();
 								this.observerRemainder = null;
