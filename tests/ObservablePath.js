@@ -56,6 +56,19 @@ define([
 					expect(data[1]).to.equal("Foo1");
 				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 			});
+			it("Same value check", function () {
+				var dfd = this.async(1000),
+					observable = new Observable({foo: new Observable({bar: +0, baz: NaN})}),
+					observablePath0 = new ObservablePath(observable, "foo.bar"),
+					observablePath1 = new ObservablePath(observable, "foo.baz");
+				handles.push(observablePath0.observe(dfd.rejectOnError(function (newValue, oldValue) {
+					expect(newValue).to.equal(-0);
+					expect(oldValue).to.equal(+0);
+					setTimeout(dfd.resolve.bind(dfd, 1), 100);
+				})));
+				handles.push(observablePath1.observe(dfd.reject.bind(dfd, new Error("NaN should be treat as equal to NaN."))));
+				observable.set("foo", new Observable({bar: -0, baz: NaN}));
+			});
 			it("Various types of path", function () {
 				var dfd = this.async(1000),
 					observable = new Observable({
