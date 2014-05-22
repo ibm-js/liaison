@@ -260,6 +260,15 @@
 				}
 			}
 
+			function removeCallback(callback) {
+				if (callback._changeRecords.length === 0 && callback._refCountOfNotifier === 0) {
+					var index = allCallbacks.indexOf(callback);
+					if (index >= 0) {
+						allCallbacks.splice(index, 1);
+					}
+				}
+			}
+
 			/**
 			 * Notifier object for Observable.
 			 * @class module:liaison/Observable~Notifier
@@ -349,6 +358,7 @@
 						this.callbacks.splice(index, 1);
 						--callback._refCountOfNotifier;
 					}
+					removeCallback(callback);
 				}
 				return function (observable, callback, accept) {
 					if (Object(observable) !== observable) {
@@ -395,12 +405,7 @@
 				} catch (e) {
 					console.error("Error occured in observer callback: " + (e.stack || e));
 				}
-				if (callback._changeRecords.length === 0 && callback._refCountOfNotifier === 0) {
-					var index = allCallbacks.indexOf(callback);
-					if (index >= 0) {
-						allCallbacks.splice(index, 1);
-					}
-				}
+				removeCallback(callback);
 				return length > 0;
 			};
 		})();
