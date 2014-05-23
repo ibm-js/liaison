@@ -241,31 +241,32 @@
 		});
 
 		(function () {
-			var allCallbacks = [],
+			var seq = 0,
+				hotCallbacks = [],
 				deliverHandle = null;
 
 			function deliverAllByTimeout() {
 				/* global Platform */
 				typeof Platform !== "undefined" && Platform.performMicrotaskCheckpoint(); // For Polymer watching for Observable
-				deliverHandle = null;
 				for (var anyWorkDone = true; anyWorkDone;) {
 					anyWorkDone = false;
 					// Observation may stop during observer callback
-					for (var callbacks = allCallbacks.slice(), i = 0, l = callbacks.length; i < l; ++i) {
+					var callbacks = hotCallbacks.splice(0, hotCallbacks.length).sort(function (lhs, rhs) {
+						return lhs._seq - rhs._seq;
+					});
+					for (var i = 0, l = callbacks.length; i < l; ++i) {
 						if (callbacks[i]._changeRecords.length > 0) {
 							Observable.deliverChangeRecords(callbacks[i]);
 							anyWorkDone = true;
 						}
 					}
 				}
+				deliverHandle = null;
 			}
 
-			function removeCallback(callback) {
+			function removeGarbageCallback(callback) {
 				if (callback._changeRecords.length === 0 && callback._refCountOfNotifier === 0) {
-					var index = allCallbacks.indexOf(callback);
-					if (index >= 0) {
-						allCallbacks.splice(index, 1);
-					}
+					callback._seq = undefined;
 				}
 			}
 
@@ -298,6 +299,9 @@
 								&& !(callback._accept.indexOf(Observable.CHANGETYPE_SPLICE) >= 0
 								&& changeRecord.name === "length")) {
 							callback._changeRecords.push(changeRecord);
+							if (hotCallbacks.indexOf(callback) < 0) {
+								hotCallbacks.push(callback);
+							}
 						}
 					}
 					if (!deliverHandle) {
@@ -358,13 +362,19 @@
 						this.callbacks.splice(index, 1);
 						--callback._refCountOfNotifier;
 					}
-					removeCallback(callback);
+					removeGarbageCallback(callback);
 				}
 				return function (observable, callback, accept) {
 					if (Object(observable) !== observable) {
 						throw new TypeError("Observable.observe() cannot be called on non-object.");
 					}
 					accept = accept || DEFAULT_ACCEPT_CHANGETYPES;
+					if (!getOwnPropertyDescriptor(callback, "_seq")) {
+						// Make the registration sequence number not enumeable, configurable or writable
+						defineProperty(callback, "_seq", {value: seq++, writable: true});
+					} else if (typeof callback._seq !== "number") {
+						callback._seq = seq++;
+					}
 					if (!getOwnPropertyDescriptor(callback, "_changeRecords")) {
 						// Make the change records not enumeable, configurable or writable
 						defineProperty(callback, "_changeRecords", {value: []});
@@ -384,9 +394,6 @@
 						}
 						++callback._refCountOfNotifier;
 					}
-					if (allCallbacks.indexOf(callback) < 0) {
-						allCallbacks.push(callback);
-					}
 					return {
 						remove: remove.bind(notifier, callback)
 					};
@@ -405,7 +412,7 @@
 				} catch (e) {
 					console.error("Error occured in observer callback: " + (e.stack || e));
 				}
-				removeCallback(callback);
+				removeGarbageCallback(callback);
 				return length > 0;
 			};
 		})();
