@@ -198,7 +198,7 @@ define([
 					return star && star.value === 2;
 				}).then(dfd.callback(function () {
 					var star = w.querySelector("d-star-rating");
-					expect(star.allowZero).to.be.false;
+					expect(star.allowZero).not.to.be.true;
 					star.value = 4;
 					expect(w.rating).to.equal(4);
 				}), dfd.reject.bind(dfd));
@@ -221,7 +221,7 @@ define([
 					return star && star.value === 2;
 				}).then(dfd.callback(function () {
 					var star = div.querySelector("liaison-test-starrating").querySelector("d-star-rating");
-					expect(star.allowZero).to.be.false;
+					expect(star.allowZero).not.to.be.true;
 					star.value = 4;
 					expect(observable.rating).to.equal(4);
 				}), dfd.reject.bind(dfd));

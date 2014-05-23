@@ -188,6 +188,27 @@ define([
 				observable1.set("foo1", "Foo1");
 				observable0.set("foo0", "Foo0");
 			});
+			it("Setting a value that is same as the current property value", function () {
+				var dfd = this.async(1000),
+					observable = new Observable({
+						foo: "Foo",
+						bar: NaN,
+						baz: 0
+					});
+				handles.push(Observable.observe(observable, dfd.callback(function (records) {
+					expect(records).to.deep.equal([
+						{
+							type: Observable.CHANGETYPE_UPDATE,
+							object: observable,
+							name: "baz",
+							oldValue: 0
+						}
+					]);
+				})));
+				observable.set("foo", "Foo");
+				observable.set("bar", NaN);
+				observable.set("baz", -0);
+			});
 			it("Observing with the same callback", function () {
 				var dfd = this.async(1000),
 					count = 0,

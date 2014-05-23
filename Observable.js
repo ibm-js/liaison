@@ -214,28 +214,33 @@
 			 * @param value The property value.
 			 * @returns The value set.
 			 */
-			value: function (name, value) {
-				var type = name in this ? Observable.CHANGETYPE_UPDATE : Observable.CHANGETYPE_ADD,
-					oldValue = this[name],
-					// For defining setter, ECMAScript setter should be used
-					setter = (getOwnPropertyDescriptor(this, name) || {}).set;
-				this[name] = value;
-				if (setter === undefined) {
-					// Auto-notify if there is no setter defined for the property.
-					// Application should manually call Observable.getNotifier(observable).notify(changeRecord)
-					// if a setter is defined.
-					var changeRecord = {
-						type: type,
-						object: this,
-						name: name + ""
-					};
-					if (type === Observable.CHANGETYPE_UPDATE) {
-						changeRecord.oldValue = oldValue;
-					}
-					Observable.getNotifier(this).notify(changeRecord);
+			value: (function () {
+				function areSameValues(lhs, rhs) {
+					return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
 				}
-				return value;
-			},
+				return function (name, value) {
+					var type = name in this ? Observable.CHANGETYPE_UPDATE : Observable.CHANGETYPE_ADD,
+						oldValue = this[name],
+						// For defining setter, ECMAScript setter should be used
+						setter = (getOwnPropertyDescriptor(this, name) || {}).set;
+					this[name] = value;
+					if (!areSameValues(value, oldValue) && setter === undefined) {
+						// Auto-notify if there is no setter defined for the property.
+						// Application should manually call Observable.getNotifier(observable).notify(changeRecord)
+						// if a setter is defined.
+						var changeRecord = {
+							type: type,
+							object: this,
+							name: name + ""
+						};
+						if (type === Observable.CHANGETYPE_UPDATE) {
+							changeRecord.oldValue = oldValue;
+						}
+						Observable.getNotifier(this).notify(changeRecord);
+					}
+					return value;
+				};
+			})(),
 			configurable: true,
 			writable: true
 		});
