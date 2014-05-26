@@ -247,7 +247,7 @@
 
 		(function () {
 			var seq = 0,
-				hotCallbacks = [],
+				hotCallbacks = {},
 				deliverHandle = null;
 
 			function deliverAllByTimeout() {
@@ -256,7 +256,12 @@
 				for (var anyWorkDone = true; anyWorkDone;) {
 					anyWorkDone = false;
 					// Observation may stop during observer callback
-					var callbacks = hotCallbacks.splice(0, hotCallbacks.length).sort(function (lhs, rhs) {
+					var callbacks = [];
+					for (var s in hotCallbacks) {
+						callbacks.push(hotCallbacks[s]);
+					}
+					hotCallbacks = {};
+					callbacks.sort(function (lhs, rhs) {
 						return lhs._seq - rhs._seq;
 					});
 					for (var i = 0, l = callbacks.length; i < l; ++i) {
@@ -300,13 +305,13 @@
 					/* jshint validthis: true */
 					for (var i = 0, l = this.callbacks.length; i < l; ++i) {
 						var callback = this.callbacks[i];
-						if (callback._accept.indexOf(changeRecord.type) >= 0
-								&& !(callback._accept.indexOf(Observable.CHANGETYPE_SPLICE) >= 0
-								&& changeRecord.name === "length")) {
+						// Using Array#indexOf() for _acceptTable and hotCallbacks
+						// may regress notify/delivery performance up to 10x esp. with iOS
+						if (callback._acceptTable[changeRecord.type]
+							&& !(callback._acceptTable[Observable.CHANGETYPE_SPLICE]
+							&& changeRecord.name === "length")) {
 							callback._changeRecords.push(changeRecord);
-							if (hotCallbacks.indexOf(callback) < 0) {
-								hotCallbacks.push(callback);
-							}
+							hotCallbacks[callback._seq] = callback;
 						}
 					}
 					if (!deliverHandle) {
@@ -373,7 +378,10 @@
 					if (Object(observable) !== observable) {
 						throw new TypeError("Observable.observe() cannot be called on non-object.");
 					}
-					accept = accept || DEFAULT_ACCEPT_CHANGETYPES;
+					var acceptTable = {};
+					(accept = accept || DEFAULT_ACCEPT_CHANGETYPES).forEach(function (type) {
+						acceptTable[type] = 1;
+					});
 					if (!getOwnPropertyDescriptor(callback, "_seq")) {
 						// Make the registration sequence number not enumeable, configurable or writable
 						defineProperty(callback, "_seq", {value: seq++, writable: true});
@@ -384,11 +392,11 @@
 						// Make the change records not enumeable, configurable or writable
 						defineProperty(callback, "_changeRecords", {value: []});
 					}
-					if (!getOwnPropertyDescriptor(callback, "_accept")) {
+					if (!getOwnPropertyDescriptor(callback, "_acceptTable")) {
 						// Make the accepted change list not enumeable or configurable
-						defineProperty(callback, "_accept", {value: accept, writable: true});
+						defineProperty(callback, "_acceptTable", {value: acceptTable, writable: true});
 					} else {
-						callback._accept = accept;
+						callback._acceptTable = acceptTable;
 					}
 					var notifier = Observable.getNotifier(observable);
 					if (notifier.callbacks.indexOf(callback) < 0) {
