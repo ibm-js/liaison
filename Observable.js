@@ -365,7 +365,10 @@
 					Observable.CHANGETYPE_RECONFIGURE,
 					Observable.CHANGETYPE_SETPROTOTYPE,
 					Observable.CHANGETYPE_PREVENTEXTENSIONS
-				]; // Observable only supports the first two
+				].reduce(function (types, type) {
+					types[type] = 1;
+					return types;
+				}, {}); // Observable only supports the first two
 				function remove(callback) {
 					/* jshint validthis: true */
 					for (var index; (index = this.callbacks.indexOf(callback)) >= 0;) {
@@ -378,10 +381,10 @@
 					if (Object(observable) !== observable) {
 						throw new TypeError("Observable.observe() cannot be called on non-object.");
 					}
-					var acceptTable = {};
-					(accept = accept || DEFAULT_ACCEPT_CHANGETYPES).forEach(function (type) {
-						acceptTable[type] = 1;
-					});
+					var acceptTable = accept ? accept.reduce(function (types, type) {
+						types[type] = 1;
+						return types;
+					}, {}) : DEFAULT_ACCEPT_CHANGETYPES;
 					if (!getOwnPropertyDescriptor(callback, "_seq")) {
 						// Make the registration sequence number not enumeable, configurable or writable
 						defineProperty(callback, "_seq", {value: seq++, writable: true});
