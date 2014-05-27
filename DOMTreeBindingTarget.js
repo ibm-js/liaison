@@ -292,7 +292,9 @@ define([
 	var PossibleTemplateElementClassList = [];
 	if (hasElement) {
 		PossibleTemplateElementClassList.push(
-			typeof HTMLTemplateElement !== "undefined" ? HTMLTemplateElement : HTMLUnknownElement,
+			typeof HTMLTemplateElement !== "undefined" ? HTMLTemplateElement :
+				typeof HTMLUnknownElement !== "undefined" ? HTMLUnknownElement :
+				HTMLElement,
 			HTMLScriptElement);
 		typeof Element !== "undefined" && PossibleTemplateElementClassList.push(Element); // <template> in <svg>
 		typeof SVGElement !== "undefined" && PossibleTemplateElementClassList.push(SVGElement); // <template> in <svg>
