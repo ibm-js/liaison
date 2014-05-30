@@ -60,7 +60,7 @@ define([
 		set: function (value) {
 			this.object.set(this.targetProperty, value);
 		},
-		enumeable: true,
+		enumerable: true,
 		configurable: true
 	});
 

@@ -31,7 +31,7 @@
 		this.options = options;
 		var bindings = object.bindings;
 		if (!bindings) {
-			Object.defineProperty(object, "bindings", { // Make bindings not enumeable or writable
+			Object.defineProperty(object, "bindings", { // Make bindings not enumerable or writable
 				value: bindings = {},
 				configurable: true
 			});

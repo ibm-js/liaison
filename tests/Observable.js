@@ -279,7 +279,7 @@ define([
 				h0 = null;
 			});
 		});
-		// TODO(asudoh): Add more enumeable/configuable/writable tests
+		// TODO(asudoh): Add more enumerable/configuable/writable tests
 		// TODO(asudoh): Add test for Observable.observe() is called twice for the same observable/callback pair, and removing that handle
 	}
 });

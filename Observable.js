@@ -83,7 +83,7 @@
 		var observableMarker = "_observable";
 
 		Observable = function (o) {
-			// Make Observable marker not enumeable, configurable or writable
+			// Make Observable marker not enumerable, configurable or writable
 			defineProperty(this, observableMarker, {value: 1});
 			o && assignObservable(this, o);
 		};
@@ -181,7 +181,7 @@
 			Object.deliverChangeRecords(callback);
 		})();
 
-		defineProperty(Observable.prototype, "set", { // Make set() not enumeable
+		defineProperty(Observable.prototype, "set", { // Make set() not enumerable
 			value: function (name, value) {
 				this[name] = value;
 				return value;
@@ -200,7 +200,7 @@
 		Observable.getNotifier = Object.getNotifier;
 		Observable.deliverChangeRecords = Object.deliverChangeRecords;
 	} else {
-		defineProperty(Observable.prototype, "set", { // Make set() not enumeable
+		defineProperty(Observable.prototype, "set", { // Make set() not enumerable
 			/**
 			 * Sets a value.
 			 * Automatically emits change record(s)
@@ -320,7 +320,7 @@
 				}
 				return function (observable) {
 					if (!getOwnPropertyDescriptor(observable, "_notifier")) {
-						// Make the notifier reference not enumeable, configurable or writable
+						// Make the notifier reference not enumerable, configurable or writable
 						defineProperty(observable, "_notifier", {
 							value: {
 								target: observable,
@@ -386,17 +386,17 @@
 						return types;
 					}, {}) : DEFAULT_ACCEPT_CHANGETYPES;
 					if (!getOwnPropertyDescriptor(callback, "_seq")) {
-						// Make the registration sequence number not enumeable, configurable or writable
+						// Make the registration sequence number not enumerable, configurable or writable
 						defineProperty(callback, "_seq", {value: seq++, writable: true});
 					} else if (typeof callback._seq !== "number") {
 						callback._seq = seq++;
 					}
 					if (!getOwnPropertyDescriptor(callback, "_changeRecords")) {
-						// Make the change records not enumeable, configurable or writable
+						// Make the change records not enumerable, configurable or writable
 						defineProperty(callback, "_changeRecords", {value: []});
 					}
 					if (!getOwnPropertyDescriptor(callback, "_acceptTable")) {
-						// Make the accepted change list not enumeable or configurable
+						// Make the accepted change list not enumerable or configurable
 						defineProperty(callback, "_acceptTable", {value: acceptTable, writable: true});
 					} else {
 						callback._acceptTable = acceptTable;
@@ -405,7 +405,7 @@
 					if (notifier.callbacks.indexOf(callback) < 0) {
 						notifier.callbacks.push(callback);
 						if (!getOwnPropertyDescriptor(callback, "_refCountOfNotifier")) {
-							// Make the reference count (from notifiers) not enumeable or configurable
+							// Make the reference count (from notifiers) not enumerable or configurable
 							defineProperty(callback, "_refCountOfNotifier", {value: 0, writable: true});
 						}
 						++callback._refCountOfNotifier;

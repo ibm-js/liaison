@@ -39,7 +39,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		set: function (value) {
 			this.object.setAttribute(this.targetProperty, value != null ? value : "");
 		},
-		enumeable: true,
+		enumerable: true,
 		configurable: true
 	});
 
@@ -76,7 +76,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 				this.object.removeAttribute(this.targetAttribute);
 			}
 		},
-		enumeable: true,
+		enumerable: true,
 		configurable: true
 	});
 
@@ -150,7 +150,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 		set: function (value) {
 			this.object[this.targetProperty] = value != null ? value : "";
 		},
-		enumeable: true,
+		enumerable: true,
 		configurable: true
 	});
 

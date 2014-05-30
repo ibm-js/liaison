@@ -39,7 +39,7 @@
 			ObservableArray = function (length) {
 				var self = [];
 				Observable.call(self);
-				// Make ObservableArray marker not enumeable, configurable or writable
+				// Make ObservableArray marker not enumerable, configurable or writable
 				defineProperty(self, observableArrayMarker, {value: 1});
 				defineProperty(self, "set", Object.getOwnPropertyDescriptor(Observable.prototype, "set"));
 				if (typeof length === "number" && arguments.length === 1) {
@@ -61,9 +61,9 @@
 					self = beingConstructed ? [] : new ObservableArray();
 				if (beingConstructed) {
 					Observable.call(self);
-					// Make ObservableArray marker not enumeable, configurable or writable
+					// Make ObservableArray marker not enumerable, configurable or writable
 					defineProperty(self, observableArrayMarker, {value: 1});
-					// Make those methods not enumeable
+					// Make those methods not enumerable
 					for (var s in augmentedMethods) {
 						defineProperty(self, s, {
 							value: augmentedMethods[s],

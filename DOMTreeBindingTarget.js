@@ -91,7 +91,7 @@ define([
 				this.hInstantiation = this.hInstantiation || schedule(refresh.bind(this));
 			};
 		})(),
-		enumeable: true,
+		enumerable: true,
 		configurable: true
 	});
 
@@ -210,7 +210,7 @@ define([
 				this.hInstantiation = this.hInstantiation || schedule(refresh.bind(this, old));
 			};
 		})(),
-		enumeable: true,
+		enumerable: true,
 		configurable: true
 	});
 
@@ -247,7 +247,7 @@ define([
 				target.value = target.value;
 			}
 		},
-		enumeable: true,
+		enumerable: true,
 		configurable: true
 	});
 
@@ -284,7 +284,7 @@ define([
 				target.value = target.value;
 			}
 		},
-		enumeable: true,
+		enumerable: true,
 		configurable: true
 	});
 
