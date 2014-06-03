@@ -261,7 +261,7 @@
 						callbacks.push(hotCallbacks[s]);
 					}
 					hotCallbacks = {};
-					callbacks.sort(function (lhs, rhs) {
+					callbacks = callbacks.sort(function (lhs, rhs) {
 						return lhs._seq - rhs._seq;
 					});
 					for (var i = 0, l = callbacks.length; i < l; ++i) {

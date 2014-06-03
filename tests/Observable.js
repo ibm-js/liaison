@@ -188,6 +188,58 @@ define([
 				observable1.set("foo1", "Foo1");
 				observable0.set("foo0", "Foo0");
 			});
+			it("Execution order of callback with observer callback changing another observable", function () {
+				var first,
+					changeRecords = [],
+					dfd = this.async(1000),
+					observable0 = new Observable(),
+					observable1 = new Observable(),
+					observable2 = new Observable();
+				handles.push(Observable.observe(observable0, dfd.rejectOnError(function (records) {
+					[].push.apply(changeRecords, records);
+					console.log("observable0 callback");
+					observable1.set("foo", "Foo0");
+				})));
+				handles.push(Observable.observe(observable1, dfd.rejectOnError(function (records) {
+					[].push.apply(changeRecords, records);
+					console.log("observable1 callback");
+					if (!first) {
+						first = true;
+						observable0.set("foo", "Foo1");
+					}
+				})));
+				handles.push(Observable.observe(observable2, dfd.rejectOnError(function (records) {
+					[].push.apply(changeRecords, records);
+					console.log("observable2 callback");
+				})));
+				observable0.set("foo", "Foo0");
+				observable2.set("foo", "Foo0");
+				setTimeout(dfd.callback(function () {
+					expect(changeRecords).to.deep.equal([
+						{
+							type: Observable.CHANGETYPE_ADD,
+							object: observable0,
+							name: "foo"
+						},
+						{
+							type: Observable.CHANGETYPE_ADD,
+							object: observable1,
+							name: "foo"
+						},
+						{
+							type: Observable.CHANGETYPE_ADD,
+							object: observable2,
+							name: "foo"
+						},
+						{
+							type: Observable.CHANGETYPE_UPDATE,
+							object: observable0,
+							name: "foo",
+							oldValue: "Foo0"
+						}
+					]);
+				}), 100);
+			});
 			it("Setting a value that is same as the current property value", function () {
 				var dfd = this.async(1000),
 					observable = new Observable({
