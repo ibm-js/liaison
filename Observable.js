@@ -215,9 +215,9 @@
 			 * @returns The value set.
 			 */
 			value: (function () {
-				function areSameValues(lhs, rhs) {
+				var areSameValues = Object.is || function (lhs, rhs) {
 					return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
-				}
+				};
 				return function (name, value) {
 					var type = name in this ? Observable.CHANGETYPE_UPDATE : Observable.CHANGETYPE_ADD,
 						oldValue = this[name],

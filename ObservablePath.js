@@ -11,14 +11,13 @@
 })(this, function (Observable, BindingSource) {
 	"use strict";
 
-	var EMPTY_OBJECT = {};
+	var EMPTY_OBJECT = {},
+		areSameValues = Object.is || function (lhs, rhs) {
+			return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
+		};
 
 	function getPathComps(path, create) {
 		return path === "" ? [] : typeof path.splice !== "function" ? path.split(".") : create ? path.slice() : path;
-	}
-
-	function areSameValues(lhs, rhs) {
-		return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
 	}
 
 	/**
