@@ -119,23 +119,22 @@ define([
 				}
 				var oldLength = this.length,
 					changeRecord = {
-						type: Observable.CHANGETYPE_SPLICE,
-						object: this,
 						index: index,
 						removed: this.slice(index, index + removeCount),
 						addedCount: arguments.length - 2
 					},
 					result = EMPTY_ARRAY.splice.apply(this, arguments),
-					notifier = Observable.getNotifier(this);
-				notifier.notify(changeRecord);
-				if (oldLength !== this.length) {
-					notifier.notify({
+					lengthRecord = oldLength !== this.length && {
 						type: Observable.CHANGETYPE_UPDATE,
 						object: this,
 						name: "length",
 						oldValue: oldLength
-					});
-				}
+					},
+					notifier = Observable.getNotifier(this);
+				notifier.performChange(Observable.CHANGETYPE_SPLICE, function () {
+					lengthRecord && notifier.notify(lengthRecord);
+					return changeRecord;
+				});
 				return result;
 			}
 

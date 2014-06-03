@@ -273,22 +273,45 @@ define([
 			 * @returns {module:liaison/Observable~Notifier}
 			 */
 			Observable.getNotifier = (function () {
+				function enqueue(changeRecord) {
+					// Using Array#indexOf() for _acceptTable and hotCallbacks
+					// may regress notify/delivery performance up to 10x esp. with iOS
+					if (this._acceptTable[changeRecord.type]) {
+						this._changeRecords.push(changeRecord);
+						hotCallbacks[this._seq] = this;
+						return true;
+					}
+				}
 				function notify(changeRecord) {
 					/* jshint validthis: true */
-					for (var i = 0, l = this.callbacks.length; i < l; ++i) {
-						var callback = this.callbacks[i];
-						// Using Array#indexOf() for _acceptTable and hotCallbacks
-						// may regress notify/delivery performance up to 10x esp. with iOS
-						if (callback._acceptTable[changeRecord.type]
-							&& !(callback._acceptTable[Observable.CHANGETYPE_SPLICE]
-							&& changeRecord.name === "length")) {
-							callback._changeRecords.push(changeRecord);
-							hotCallbacks[callback._seq] = callback;
+					if (this._activeChanges && !this._activeChanges.finished) {
+						this._activeChanges.push(changeRecord);
+					} else {
+						for (var i = 0, l = this.callbacks.length; i < l; ++i) {
+							enqueue.call(this.callbacks[i], changeRecord)
+								|| this._activeChanges && this._activeChanges.forEach(enqueue, this.callbacks[i]);
+						}
+						if (!deliverHandle) {
+							deliverHandle = schedule(deliverAllByTimeout);
 						}
 					}
-					if (!deliverHandle) {
-						deliverHandle = schedule(deliverAllByTimeout);
+				}
+				function performChange(type, callback) {
+					/* jshint validthis: true */
+					var target = {
+						type: type,
+						object: this.target
+					};
+					this._activeChanges = [];
+					var source = callback.call(undefined);
+					this._activeChanges.finished = true;
+					for (var s in source) {
+						if (!(s in target)) {
+							target[s] = source[s];
+						}
 					}
+					this.notify(target);
+					this._activeChanges = undefined;
 				}
 				return function (observable) {
 					if (!getOwnPropertyDescriptor(observable, "_notifier")) {
@@ -297,7 +320,8 @@ define([
 							value: {
 								target: observable,
 								callbacks: [],
-								notify: notify
+								notify: notify,
+								performChange: performChange
 							}
 						});
 					}

@@ -292,6 +292,56 @@ define([
 				})));
 				observable.set("foo", "Foo0");
 			});
+			it("Synthetic change record", function () {
+				var dfd = this.async(1000),
+					observable = new Observable({0: 0, 1: 1, length: 2});
+				Observable.observe(observable, dfd.rejectOnError(function (records) {
+					expect(records).to.deep.equal([
+						{
+							type: Observable.CHANGETYPE_ADD,
+							object: observable,
+							name: "2"
+						},
+						{
+							type: Observable.CHANGETYPE_UPDATE,
+							object: observable,
+							name: "length",
+							oldValue: 2
+						},
+						{
+							type: Observable.CHANGETYPE_ADD,
+							object: observable,
+							name: "3"
+						},
+						{
+							type: Observable.CHANGETYPE_UPDATE,
+							object: observable,
+							name: "length",
+							oldValue: 3
+						}
+					]);
+				}));
+				Observable.observe(observable, dfd.callback(function (records) {
+					expect(records).to.deep.equal([
+						{
+							type: "fakesplice",
+							object: observable,
+							removed: [],
+							addCount: 2
+						}
+					]);
+				}), ["fakesplice"]);
+				Observable.getNotifier(observable).performChange("fakesplice", function () {
+					observable.set("2", 2);
+					observable.set("length", 3);
+					observable.set("3", 3);
+					observable.set("length", 4);
+					return {
+						removed: [],
+						addCount: 2
+					};
+				});
+			});
 			it("Unobserve", function () {
 				var h0, h1,
 					dfd = this.async(1000),

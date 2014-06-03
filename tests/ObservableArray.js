@@ -75,6 +75,68 @@ define([
 				observableArray.unshift("0", "1");
 				observableArray.shift();
 			});
+			it("Observing for array length", function () {
+				var dfd = this.async(1000),
+					observableArray = ObservableArray.apply(undefined, baseData);
+				handles.push(Observable.observe(observableArray, dfd.callback(function (records) {
+					if (has("es-object-observe")) {
+						expect(records).to.deep.equal([
+							{
+								type: Observable.CHANGETYPE_ADD,
+								object: observableArray,
+								name: "10"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "length",
+								oldValue: 10
+							},
+							{
+								type: Observable.CHANGETYPE_ADD,
+								object: observableArray,
+								name: "11"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "length",
+								oldValue: 11
+							},
+							{
+								type: Observable.CHANGETYPE_DELETE,
+								object: observableArray,
+								name: "11",
+								oldValue: "l"
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "length",
+								oldValue: 12
+							}
+						]);
+					} else {
+						// Shim part of ObservableArray does not emit change records for array indices as doing so will be heavy
+						expect(records).to.deep.equal([
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "length",
+								oldValue: 10
+							},
+							{
+								type: Observable.CHANGETYPE_UPDATE,
+								object: observableArray,
+								name: "length",
+								oldValue: 12
+							}
+						]);
+					}
+				})));
+				observableArray.push("k", "l");
+				observableArray.pop();
+			});
 			it("Observable.observe() with reverse() to ObservableArray instance", function () {
 				var dfd = this.async(1000),
 					observableArray = ObservableArray.apply(undefined, baseData);
