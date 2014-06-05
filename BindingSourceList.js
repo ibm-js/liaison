@@ -1,14 +1,5 @@
 /** @module liaison/BindingSourceList */
-(function (root, factory) {
-	// Module definition to support AMD, node.js and browser globals
-	if (typeof exports === "object") {
-		module.exports = factory(require("./BindingSource"));
-	} else if (typeof define === "function" && define.amd) {
-		define(["./BindingSource"], factory);
-	} else {
-		root.BindingSourceList = factory(root.BindingSource);
-	}
-})(this, function (BindingSource) {
+define(["./BindingSource"], function (BindingSource) {
 	"use strict";
 
 	/**

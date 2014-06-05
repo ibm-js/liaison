@@ -1,14 +1,5 @@
 /** @module liaison/assignObservable */
-(function (root, factory) {
-	// Module definition to support AMD, node.js and browser globals
-	if (typeof exports === "object") {
-		module.exports = factory();
-	} else if (typeof define === "function" && define.amd) {
-		define(factory);
-	} else {
-		root.assignObservable = factory();
-	}
-})(this, function () {
+define(function () {
 	"use strict";
 
 	/**

@@ -1,14 +1,8 @@
 /** @module liaison/ObservablePath */
-(function (root, factory) {
-	// Module definition to support AMD, node.js and browser globals
-	if (typeof exports === "object") {
-		module.exports = factory(require("./Observable"), require("./BindingSource"));
-	} else if (typeof define === "function" && define.amd) {
-		define(["./Observable", "./BindingSource"], factory);
-	} else {
-		root.ObservablePath = factory(root.Observable, root.BindingSource);
-	}
-})(this, function (Observable, BindingSource) {
+define([
+	"./Observable",
+	"./BindingSource"
+], function (Observable, BindingSource) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},

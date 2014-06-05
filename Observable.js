@@ -1,14 +1,5 @@
 /** @module liaison/Observable */
-(function (root, factory) {
-	// Module definition to support AMD, node.js and browser globals
-	if (typeof exports === "object") {
-		module.exports = factory(require("./assignObservable"), require("./schedule"));
-	} else if (typeof define === "function" && define.amd) {
-		define(["./assignObservable", "./schedule"], factory);
-	} else {
-		root.Observable = factory(root.assignObservable, root.schedule);
-	}
-})(this, function (assignObservable, schedule) {
+define(["./assignObservable", "./schedule"], function (assignObservable, schedule) {
 	"use strict";
 
 	/**

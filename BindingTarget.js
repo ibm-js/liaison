@@ -1,14 +1,5 @@
 /** @module liaison/BindingTarget */
-(function (root, factory) {
-	// Module definition to support AMD, node.js and browser globals
-	if (typeof exports === "object") {
-		module.exports = factory();
-	} else if (typeof define === "function" && define.amd) {
-		define(factory);
-	} else {
-		root.BindingTarget = factory();
-	}
-})(this, function () {
+define(function () {
 	"use strict";
 
 	var EMPTY_OBJECT = {};

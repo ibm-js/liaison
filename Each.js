@@ -1,17 +1,11 @@
-/**
- * @module liaison/Each
- */
-(function (root, factory) {
-	// Module definition to support AMD, node.js and browser globals
-	if (typeof exports === "object") {
-		module.exports = factory(require("./Observable"), require("./ObservableArray"),
-			require("./BindingSource"), require("./ObservablePath"), require("./BindingSourceList"));
-	} else if (typeof define === "function" && define.amd) {
-		define(["./Observable", "./ObservableArray", "./BindingSource", "./ObservablePath", "./BindingSourceList"], factory);
-	} else {
-		root.Each = factory(root.Observable, root.ObservableArray, root.BindingSource, root.ObservablePath, root.BindingSourceList);
-	}
-})(this, function (Observable, ObservableArray, BindingSource, ObservablePath, BindingSourceList) {
+/** @module liaison/Each */
+define([
+	"./Observable",
+	"./ObservableArray",
+	"./BindingSource",
+	"./ObservablePath",
+	"./BindingSourceList"
+], function (Observable, ObservableArray, BindingSource, ObservablePath, BindingSourceList) {
 	"use strict";
 
 	/* global PathObserver */

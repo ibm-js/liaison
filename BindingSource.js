@@ -1,14 +1,5 @@
 /** @module liaison/BindingSource */
-(function (root, factory) {
-	// Module definition to support AMD, node.js and browser globals
-	if (typeof exports === "object") {
-		module.exports = factory();
-	} else if (typeof define === "function" && define.amd) {
-		define(factory);
-	} else {
-		root.BindingSource = factory();
-	}
-})(this, function () {
+define(function () {
 	"use strict";
 
 	function callConverter(converter, value) {

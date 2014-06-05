@@ -1,14 +1,5 @@
 /** @module liaison/wrapStateful */
-(function (root, factory) {
-	// Module definition to support AMD, node.js and browser globals
-	if (typeof exports === "object") {
-		module.exports = factory(require("./Observable"));
-	} else if (typeof define === "function" && define.amd) {
-		define(["./Observable"], factory);
-	} else {
-		root.wrapStateful = factory(root.Observable);
-	}
-})(this, function (Observable) {
+define(["./Observable"], function (Observable) {
 	"use strict";
 
 	/**

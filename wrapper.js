@@ -1,14 +1,8 @@
 /** @module liaison/wrapper */
-(function (root, factory) {
-	// Module definition to support AMD, node.js and browser globals
-	if (typeof exports === "object") {
-		module.exports = factory(require("./Observable"), require("./ObservableArray"));
-	} else if (typeof define === "function" && define.amd) {
-		define(["./Observable", "./ObservableArray"], factory);
-	} else {
-		root.wrapper = factory(root.Observable, root.ObservableArray);
-	}
-})(this, function (Observable, ObservableArray) {
+define([
+	"./Observable",
+	"./ObservableArray"
+], function (Observable, ObservableArray) {
 	"use strict";
 
 	var getPrototypeOf = Object.getPrototypeOf;
