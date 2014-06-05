@@ -4,7 +4,11 @@
 	"dependencies": {
 	},
 	"devDependencies": {
-		"intern": "~1.6.0"
+		"jshint": "~2.5.1",
+		"intern": "~1.6.0",
+		"grunt": "~0.4.2",
+		"grunt-contrib-jshint": "~0.6.3",
+		"jsdoc-amddcl": "git://github.com/ibm-js/jsdoc-amddcl#master"
 	},
 	"licenses": [
 		{

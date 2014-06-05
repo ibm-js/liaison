@@ -1,12 +1,11 @@
 // To run the test cases:
 //     With node.js:
 //         > cd /path/to/liaison/
-//         > cd ..
-//         > node liaison/node_modules/intern/bin/intern-client.js config=liaison/tests/intern
+//         > node node_modules/intern/bin/intern-client.js config=tests/intern
 //     With browser: http://yourserver/path/to/liaison/node_modules/intern/client.html?config=tests/intern
 define({
 	loader: {
-		baseUrl: typeof window !== "undefined" ? "../../.." : undefined,
+		baseUrl: typeof window !== "undefined" ? "../../.." : "..",
 		packages: ["liaison"]
 	},
 	useLoader: {

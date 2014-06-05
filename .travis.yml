@@ -6,7 +6,7 @@ language: node_js
 node_js: "0.10"
 install:
   - npm -g install bower
-  - npm -g install jshint
+  - npm -g install grunt-cli
   - npm install
   - cd tests/delite
   - yes | bower install
@@ -17,7 +17,6 @@ install:
   - npm install --production
   - cd ../..
 script:
-  - jshint --exclude-path .gitignore .
-  - cd ..
-  - node liaison/node_modules/intern/bin/intern-client.js config=liaison/tests/intern
-  - if [[ "$TRAVIS_SECURE_ENV_VARS" == "true" ]]; then node liaison/node_modules/intern/runner.js config=liaison/tests/sauce; fi
+  - grunt jshint
+  - grunt intern:node
+  - if [[ "$TRAVIS_SECURE_ENV_VARS" == "true" ]]; then grunt intern:remote; fi
