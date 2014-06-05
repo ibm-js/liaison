@@ -13,13 +13,11 @@
 })(this, function (Observable, ObservablePath, Each) {
 	"use strict";
 
-	/* global PathObserver */
 	var EMPTY_OBJECT = {},
 		EMPTY_ARRAY = [],
 		REGEXP_COMPUTED_MARKER = /^_computed/,
 		REGEXP_SHADOW_PROP = /^_.*Attr$/,
-		getPrototypeOf = Object.getPrototypeOf,
-		ObservablePathClass = typeof PathObserver === "undefined" ? ObservablePath : PathObserver;
+		getPrototypeOf = Object.getPrototypeOf;
 
 	function set(name, value) {
 		this[name] = value;
@@ -30,7 +28,7 @@
 	}
 
 	function mapPath(path) {
-		return new ObservablePathClass(this, path);
+		return new ObservablePath(this, path);
 	}
 
 	function Computed(callback, paths) {

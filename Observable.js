@@ -1,5 +1,9 @@
 /** @module liaison/Observable */
-define(["./assignObservable", "./schedule"], function (assignObservable, schedule) {
+define([
+	"requirejs-dplugins/has",
+	"./assignObservable",
+	"./schedule"
+], function (has, assignObservable, schedule) {
 	"use strict";
 
 	/**
@@ -31,14 +35,7 @@ define(["./assignObservable", "./schedule"], function (assignObservable, schedul
 	 */
 	var Observable,
 		defineProperty = Object.defineProperty,
-		getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor,
-		/**
-		 * True if native {@link http://wiki.ecmascript.org/doku.php?id=harmony:observe Object.observe()}
-		 * and {@link http://wiki.ecmascript.org/doku.php?id=harmony:observe Array.observe()} should be used.
-		 * @member {boolean} useNative
-		 * @memberof module:liaison/Observable
-		 */
-		useNative = typeof Object.observe === "function" && typeof Array.observe === "function";
+		getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
 
 	/**
 	 * Change record type.
@@ -94,7 +91,8 @@ define(["./assignObservable", "./schedule"], function (assignObservable, schedul
 	 * @param {Object} o The object to test.
 	 * @returns {boolean} true if o can be observed with {@link module:liaison/Observable.observe Observable.observe()}.
 	 */
-	if ((Observable.useNative = useNative)) {
+	has.add("es-object-observe", typeof Object.observe === "function" && typeof Array.observe === "function");
+	if (has("es-object-observe")) {
 		Observable.canObserve = function (o) {
 			return typeof o === "object" && o != null;
 		};
@@ -155,7 +153,7 @@ define(["./assignObservable", "./schedule"], function (assignObservable, schedul
 	 */
 	Observable.CHANGETYPE_SPLICE = "splice";
 
-	if (useNative) {
+	if (has("es-object-observe")) {
 		(function () {
 			var o = {};
 			function callback(records) {
@@ -206,7 +204,8 @@ define(["./assignObservable", "./schedule"], function (assignObservable, schedul
 			 * @returns The value set.
 			 */
 			value: (function () {
-				var areSameValues = Object.is || function (lhs, rhs) {
+				has.add("es-object-is", Object.is);
+				var areSameValues = has("es-object-is") ? Object.is : function (lhs, rhs) {
 					return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
 				};
 				return function (name, value) {
@@ -241,9 +240,11 @@ define(["./assignObservable", "./schedule"], function (assignObservable, schedul
 				hotCallbacks = {},
 				deliverHandle = null;
 
+			/* global Platform */
+			has.add("polymer-platform", typeof Platform !== "undefined");
+
 			function deliverAllByTimeout() {
-				/* global Platform */
-				typeof Platform !== "undefined" && Platform.performMicrotaskCheckpoint(); // For Polymer watching for Observable
+				has("polymer-platform") && Platform.performMicrotaskCheckpoint(); // For Polymer watching for Observable
 				for (var anyWorkDone = true; anyWorkDone;) {
 					anyWorkDone = false;
 					// Observation may stop during observer callback

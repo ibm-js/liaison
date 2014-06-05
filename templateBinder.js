@@ -193,7 +193,7 @@ define([
 					tokens = tokenize(value);
 				if (tokens.length === 3 && !tokens[0] && !tokens[2]) {
 					path = tokens[1].substr(MUSTACHE_BEGIN_LENGTH, tokens[1].length - MUSTACHES_LENGTH).trim();
-					factory = createBindingSourceFactory && createBindingSourceFactory(path, name);
+					factory = createBindingSourceFactory && createBindingSourceFactory.call(this, path, name);
 					toBeBound[iToBeBound + PARSED_ENTRY_SOURCE] = factory ? factory(model, node) : new ObservablePath(model, path);
 				} else {
 					var list = [],
@@ -203,7 +203,7 @@ define([
 							texts.push(tokens[iToken]);
 						} else {
 							path = tokens[iToken].substr(MUSTACHE_BEGIN_LENGTH, tokens[iToken].length - MUSTACHES_LENGTH).trim();
-							factory = createBindingSourceFactory && createBindingSourceFactory(path, name);
+							factory = createBindingSourceFactory && createBindingSourceFactory.call(this, path, name);
 							list.push(factory ? factory(model, node) : new ObservablePath(model, path));
 						}
 					}

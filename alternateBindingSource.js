@@ -1,9 +1,7 @@
 define(["liaison/ObservablePath"], function (ObservablePath) {
 	"use strict";
 
-	/* global PathObserver */
-	var Observer = typeof PathObserver !== "undefined" ? PathObserver : ObservablePath.Observer,
-		EMPTY_OBJECT = {},
+	var EMPTY_OBJECT = {},
 		REGEXP_DECLARATIVE_EVENT = /^on\-(.+)$/i;
 
 	function EventBindingSource(object, path, node, name) {
@@ -98,7 +96,7 @@ define(["liaison/ObservablePath"], function (ObservablePath) {
 				factory = prepareBinding ? prepareBinding(expression, "") :
 					this.createBindingSourceFactory(expression, "");
 				return function (model, node) {
-					var source = factory && factory(model, node) || new Observer(model, expression);
+					var source = factory && factory(model, node) || new ObservablePath.Observer(model, expression);
 					return new StyleShowBindingSource(source, node, name === "l-show");
 				};
 			} else if (name === "class") {
@@ -108,7 +106,7 @@ define(["liaison/ObservablePath"], function (ObservablePath) {
 				factory = prepareBinding ? prepareBinding(path, name + ":" + className) :
 					this.createBindingSourceFactory(path, name + ":" + className);
 				return function (model, node) {
-					var source = factory && factory(model, node) || new Observer(model, path);
+					var source = factory && factory(model, node) || new ObservablePath.Observer(model, path);
 					return new StyleClassBindingSource(source, className);
 				};
 			}

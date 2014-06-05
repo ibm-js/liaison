@@ -96,7 +96,7 @@ define([
 				}
 			});
 
-			templateBinder.assignSources(this, toBeBound, this.createBindingSourceFactory);
+			templateBinder.assignSources.call(this, this, toBeBound, this.createBindingSourceFactory);
 			this.own.apply(this, templateBinder.bind(toBeBound));
 
 			if (!this.preventDispatchValuesAtInitialization) {

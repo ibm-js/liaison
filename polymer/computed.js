@@ -4,9 +4,10 @@
  * @mixes module:liaison/computed
  */
 define([
+	"requirejs-dplugins/has",
 	"../computed",
 	"./ready!"
-], function (computed) {
+], function (has, computed) {
 	(function () {
 		/* global HTMLTemplateElement */
 		var origCreateInstance = HTMLTemplateElement.prototype.createInstance;
@@ -40,7 +41,8 @@ define([
 	})();
 
 	/* global Polymer */
-	if (typeof Polymer !== "undefined" && Polymer.api) {
+	has.add("polymer", typeof Polymer !== "undefined");
+	if (has("polymer") && Polymer.api) {
 		(function () {
 			var origCreatedCallback = Polymer.api.instance.base.createdCallback,
 				origUnbindAll = Node.prototype.unbindAll;

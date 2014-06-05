@@ -1,12 +1,15 @@
 /** @module liaison/ObservablePath */
 define([
+	"requirejs-dplugins/has",
 	"./Observable",
 	"./BindingSource"
-], function (Observable, BindingSource) {
+], function (has, Observable, BindingSource) {
 	"use strict";
 
+	has.add("es-object-is", Object.is);
+
 	var EMPTY_OBJECT = {},
-		areSameValues = Object.is || function (lhs, rhs) {
+		areSameValues = has("es-object-is") ? Object.is : function (lhs, rhs) {
 			return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
 		};
 
@@ -67,7 +70,10 @@ define([
 
 	ObservablePath.prototype = Object.create(BindingSource);
 
-	ObservablePath.Observer = function (o, path) {
+	/* global PathObserver */
+	has.add("polymer-pathobserver", typeof PathObserver !== "undefined");
+
+	ObservablePath.Observer = has("polymer-pathobserver") ? PathObserver : function (o, path) {
 		path = Array.isArray(path) ? path : path != null ? "" + path : [];
 		var comps = getPathComps(path, true);
 		this.o = o;
@@ -76,102 +82,103 @@ define([
 		this.remove = this.close;
 	};
 
-	ObservablePath.Observer.prototype = {
-		open: (function () {
-			function miniObservablePathCallback(callback, records) {
-				// Given this function works as a low-level one,
-				// it preferes regular loop over array extras, which makes cyclomatic complexity higher.
-				/* jshint maxcomplexity: 15 */
-				if (!this.closed) {
-					var found, newValue, oldValue;
-					for (var i = 0, l = records.length; i < l; ++i) {
-						if (records[i].name === this.prop) {
-							found = true;
-							oldValue = records[i].oldValue;
-							newValue = this.o[this.prop];
-							break;
-						}
-					}
-					if (found) {
-						var hasRemainder = this.remainder.length > 0;
-						if (!this.beingDiscarded) {
-							var oldPathValue = hasRemainder ? getObjectPath(oldValue, this.remainder) : oldValue,
-								newPathValue = hasRemainder ? getObjectPath(newValue, this.remainder) : newValue;
-							if (!areSameValues(oldPathValue, newPathValue)) {
-								callback(newPathValue, oldPathValue);
+	if (!has("polymer-pathobserver")) {
+		ObservablePath.Observer.prototype = {
+			open: (function () {
+				function miniObservablePathCallback(callback, records) {
+					// Given this function works as a low-level one,
+					// it preferes regular loop over array extras, which makes cyclomatic complexity higher.
+					/* jshint maxcomplexity: 15 */
+					if (!this.closed) {
+						var found, newValue, oldValue;
+						for (var i = 0, l = records.length; i < l; ++i) {
+							if (records[i].name === this.prop) {
+								found = true;
+								oldValue = records[i].oldValue;
+								newValue = this.o[this.prop];
+								break;
 							}
 						}
-						if (!areSameValues(newValue, oldValue)) {
-							if (this.observerRemainder) {
-								this.observerRemainder.remove();
-								this.observerRemainder = null;
+						if (found) {
+							var hasRemainder = this.remainder.length > 0;
+							if (!this.beingDiscarded) {
+								var oldPathValue = hasRemainder ? getObjectPath(oldValue, this.remainder) : oldValue,
+									newPathValue = hasRemainder ? getObjectPath(newValue, this.remainder) : newValue;
+								if (!areSameValues(oldPathValue, newPathValue)) {
+									callback(newPathValue, oldPathValue);
+								}
 							}
-							if (hasRemainder && Object(this.o[this.prop]) === this.o[this.prop]) {
-								this.observerRemainder = new ObservablePath.Observer(this.o[this.prop], this.remainder);
-								this.observerRemainder.open(callback);
+							if (!areSameValues(newValue, oldValue)) {
+								if (this.observerRemainder) {
+									this.observerRemainder.remove();
+									this.observerRemainder = null;
+								}
+								if (hasRemainder && Object(this.o[this.prop]) === this.o[this.prop]) {
+									this.observerRemainder = new ObservablePath.Observer(this.o[this.prop], this.remainder);
+									this.observerRemainder.open(callback);
+								}
 							}
 						}
-					}
-				}
-			}
-			return function (callback, thisObject) {
-				if (Object(this.o) !== this.o) {
-					console.warn("Non-object " + this.o + " is used with ObservablePath. Observation not happening.");
-				} else {
-					var boundCallback = miniObservablePathCallback.bind(this, callback = callback.bind(thisObject));
-					this.hProp = Observable.observe(this.o, boundCallback);
-					this.hProp.boundCallback = boundCallback;
-					if (this.remainder.length > 0 && Object(this.o[this.prop]) === this.o[this.prop]) {
-						(this.observerRemainder = new ObservablePath.Observer(this.o[this.prop], this.remainder)).open(callback);
 					}
 				}
-				this.opened = true;
-				return getObjectPath(this.prop ? (this.o || EMPTY_OBJECT)[this.prop] : this.o, this.remainder);
-			};
-		})(),
+				return function (callback, thisObject) {
+					if (Object(this.o) !== this.o) {
+						console.warn("Non-object " + this.o + " is used with ObservablePath. Observation not happening.");
+					} else {
+						var boundCallback = miniObservablePathCallback.bind(this, callback = callback.bind(thisObject));
+						this.hProp = Observable.observe(this.o, boundCallback);
+						this.hProp.boundCallback = boundCallback;
+						if (this.remainder.length > 0 && Object(this.o[this.prop]) === this.o[this.prop]) {
+							(this.observerRemainder = new ObservablePath.Observer(this.o[this.prop], this.remainder)).open(callback);
+						}
+					}
+					this.opened = true;
+					return getObjectPath(this.prop ? (this.o || EMPTY_OBJECT)[this.prop] : this.o, this.remainder);
+				};
+			})(),
 
-		deliver: function () {
-			this.hProp && Observable.deliverChangeRecords(this.hProp.boundCallback);
-			this.observerRemainder && this.observerRemainder.deliver();
-		},
+			deliver: function () {
+				this.hProp && Observable.deliverChangeRecords(this.hProp.boundCallback);
+				this.observerRemainder && this.observerRemainder.deliver();
+			},
 
-		discardChanges: function () {
-			this.beingDiscarded = true;
-			this.hProp && Observable.deliverChangeRecords(this.hProp.boundCallback);
-			this.beingDiscarded = false;
-			return this.observerRemainder ? this.observerRemainder.discardChanges() :
-				getObjectPath(this.prop ? (this.o || EMPTY_OBJECT)[this.prop] : this.o, this.remainder);
-		},
+			discardChanges: function () {
+				this.beingDiscarded = true;
+				this.hProp && Observable.deliverChangeRecords(this.hProp.boundCallback);
+				this.beingDiscarded = false;
+				return this.observerRemainder ? this.observerRemainder.discardChanges() :
+					getObjectPath(this.prop ? (this.o || EMPTY_OBJECT)[this.prop] : this.o, this.remainder);
+			},
 
-		setValue: function (value) {
-			if (this.remainder.length > 0) {
-				setObjectPath((this.o || EMPTY_OBJECT)[this.prop], this.remainder, value);
-			} else if (typeof (this.o || EMPTY_OBJECT).set === "function" && this.prop) {
-				this.o.set(this.prop, value);
-			} else if (Object(this.o) === this.o && this.prop) { // Bail if the target is not an object
-				this.o[this.prop] = value;
+			setValue: function (value) {
+				if (this.remainder.length > 0) {
+					setObjectPath((this.o || EMPTY_OBJECT)[this.prop], this.remainder, value);
+				} else if (typeof (this.o || EMPTY_OBJECT).set === "function" && this.prop) {
+					this.o.set(this.prop, value);
+				} else if (Object(this.o) === this.o && this.prop) { // Bail if the target is not an object
+					this.o[this.prop] = value;
+				}
+			},
+
+			close: function () {
+				if (this.hProp) {
+					this.hProp.remove();
+					this.hProp = null;
+				}
+				if (this.observerRemainder) {
+					this.observerRemainder.close();
+					this.observerRemainder = null;
+				}
+				this.closed = true;
 			}
-		},
-
-		close: function () {
-			if (this.hProp) {
-				this.hProp.remove();
-				this.hProp = null;
-			}
-			if (this.observerRemainder) {
-				this.observerRemainder.close();
-				this.observerRemainder = null;
-			}
-			this.closed = true;
-		}
-	};
+		};
+	}
 
 	ObservablePath.prototype._ensureObserver = (function () {
 		/* global PathObserver */
-		var Observer = typeof PathObserver !== "undefined" ? PathObserver : ObservablePath.Observer;
 		return function () {
 			if (!this.observer) {
-				this.observer = new Observer(this.object, this.path);
+				this.observer = new ObservablePath.Observer(this.object, this.path);
 			}
 			return this.observer;
 		};

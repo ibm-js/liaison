@@ -1,11 +1,12 @@
 define([
 	"intern!bdd",
 	"intern/chai!expect",
+	"requirejs-dplugins/has",
 	"dojo/Deferred",
 	"../Observable",
 	"../ObservablePath",
 	"./waitFor"
-], function (bdd, expect, Deferred, Observable, ObservablePath, waitFor) {
+], function (bdd, expect, has, Deferred, Observable, ObservablePath, waitFor) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {
@@ -244,7 +245,7 @@ define([
 					count++;
 				})),
 				observablePathShallow.observe(dfd.rejectOnError(function (newValue, oldValue) {
-					if (Observable.useNative) {
+					if (has("es-object-observe")) {
 						expect(newValue).to.equal("Baz1");
 						expect(oldValue).to.equal("Baz0");
 						count++;
@@ -263,7 +264,7 @@ define([
 					count++;
 				})),
 				observablePathPlain1.observe(dfd.rejectOnError(function (newValue, oldValue) {
-					if (Observable.useNative) {
+					if (has("es-object-observe")) {
 						expect(newValue).to.equal("Baz1");
 						expect(oldValue).to.equal("Baz0");
 						count++;
@@ -272,7 +273,7 @@ define([
 					}
 				})),
 				observablePathPlain2.observe(dfd.rejectOnError(function (newValue, oldValue) {
-					if (Observable.useNative) {
+					if (has("es-object-observe")) {
 						expect(newValue).to.equal("Baz1");
 						expect(oldValue).to.equal("Baz0");
 						count++;
@@ -289,7 +290,7 @@ define([
 				observablePathPlain1.setValue("Baz1");
 				observablePathPlain2.setValue("Baz1");
 				waitFor(function () {
-					return Observable.useNative ? 6 : 3;
+					return has("es-object-observe") ? 6 : 3;
 				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 			});
 			it("Synchronous change delivery", function () {

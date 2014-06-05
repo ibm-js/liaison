@@ -1,6 +1,12 @@
 /** @module liaison/schedule */
-define(function () {
+define(["requirejs-dplugins/has"], function (has) {
 	"use strict";
+
+	has.add("js-setimmediate", typeof setImmediate === "function");
+	has.add("dom-mutation-observer",
+		typeof MutationObserver !== "undefined"
+			&& (/\[\s*native\s+code\s*\]/i.test(MutationObserver) // Avoid polyfill version of MutationObserver
+				|| !/^\s*function/.test(MutationObserver)));
 
 	/**
 	 * Calls a function at the end of microtask.
@@ -9,21 +15,16 @@ define(function () {
 	 */
 
 	/* global setImmediate, clearImmediate */
-	return typeof setImmediate === "function" ? function (callback) {
+	return has("js-setimmediate") ? function (callback) {
 			var h = setImmediate(callback);
 			return {
 				remove: clearImmediate.bind(undefined, h)
 			};
 		} : (function () {
 			var uniqueId = Math.random() + "",
-				// Avoid polyfill version of MutationObserver
-				shouldUseMutationObserver
-					= typeof MutationObserver !== "undefined"
-						&& (/\[\s*native\s+code\s*\]/i.test(MutationObserver)
-							|| !/^\s*function/.test(MutationObserver)),
 				callbacks = [],
-				pseudoDiv = shouldUseMutationObserver && document.createElement("div");
-			if (shouldUseMutationObserver) {
+				pseudoDiv = has("dom-mutation-observer") && document.createElement("div");
+			if (has("dom-mutation-observer")) {
 				pseudoDiv.id = 0;
 				new MutationObserver(function () {
 					while (callbacks.length > 0) {
@@ -45,7 +46,7 @@ define(function () {
 				}
 			}
 			return function (callback) {
-				shouldUseMutationObserver ? ++pseudoDiv.id : window.postMessage(uniqueId, "*");
+				has("dom-mutation-observer") ? ++pseudoDiv.id : window.postMessage(uniqueId, "*");
 				callbacks.indexOf(callback) < 0 && callbacks.push(callback);
 				return {
 					remove: remove.bind(undefined, callback)

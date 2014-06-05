@@ -1,9 +1,10 @@
 define([
 	"intern!bdd",
 	"intern/chai!expect",
+	"requirejs-dplugins/has",
 	"../Observable",
 	"../ObservableArray"
-], function (bdd, expect, Observable, ObservableArray) {
+], function (bdd, expect, has, Observable, ObservableArray) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {
@@ -78,7 +79,7 @@ define([
 				var dfd = this.async(1000),
 					observableArray = ObservableArray.apply(undefined, baseData);
 				handles.push(Observable.observe(observableArray, dfd.callback(function (records) {
-					if (Observable.useNative) {
+					if (has("es-object-observe")) {
 						expect(records.sort(function (dst, src) { return dst.name - src.name; })).to.deep.equal([
 							{
 								type: Observable.CHANGETYPE_UPDATE,

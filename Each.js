@@ -8,10 +8,8 @@ define([
 ], function (Observable, ObservableArray, BindingSource, ObservablePath, BindingSourceList) {
 	"use strict";
 
-	/* global PathObserver */
 	var EMPTY_OBJECT = {},
-		EMPTY_ARRAY = [],
-		Observer = typeof PathObserver === "undefined" ? ObservablePath.Observer : PathObserver;
+		EMPTY_ARRAY = [];
 
 	/**
 	 * A {@link module:liaison/BindingSource BindingSource} to observe changes in array elements.
@@ -81,7 +79,7 @@ define([
 			}
 			function createObserver(entry) {
 				var observer = new BindingSourceList.Observer(this.paths.map(function (path) {
-					return new Observer(entry, path);
+					return new ObservablePath.Observer(entry, path);
 				}, this));
 				observer.open(invokeCallback, this);
 				return observer;
@@ -185,7 +183,7 @@ define([
 				}
 				this.observer = new Each.Observer(this.sources.map(function (source) {
 					return typeof (source || EMPTY_OBJECT).deliver === "function" ? source :
-						new Observer(new Observable({a: source}), "a");
+						new ObservablePath.Observer(new Observable({a: source}), "a");
 				}), this.paths);
 			}
 			return this.observer;

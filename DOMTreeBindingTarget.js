@@ -497,7 +497,7 @@ define([
 						bindings) :
 					templateBinder.createContent(this, this.content.parsed, toBeBound);
 
-			!letTemplateCreateInstance && templateBinder.assignSources(model, toBeBound, boundCreateBindingSourceFactory);
+			!letTemplateCreateInstance && templateBinder.assignSources.call(this, model, toBeBound, boundCreateBindingSourceFactory);
 
 			var instanceData = {
 					model: model,

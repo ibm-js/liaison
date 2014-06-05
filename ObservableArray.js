@@ -1,5 +1,8 @@
 /** @module liaison/ObservableArray */
-define(["./Observable"], function (Observable) {
+define([
+	"requirejs-dplugins/has",
+	"./Observable"
+], function (has, Observable) {
 	"use strict";
 
 	/**
@@ -24,7 +27,7 @@ define(["./Observable"], function (Observable) {
 	(function () {
 		var observableArrayMarker = "_observableArray";
 
-		if (Observable.useNative) {
+		if (has("es-object-observe")) {
 			// For useNative case, make ObservableArray an instance of Array instead of an inheritance,
 			// so that Array.observe() emits splices for .length update
 			ObservableArray = function (length) {
@@ -88,7 +91,7 @@ define(["./Observable"], function (Observable) {
 	 * @returns {boolean}
 	 *     true if o can be observed with {@link module:liaison/ObservableArray.observe ObservableArray.observe()}.
 	 */
-	if (Observable.useNative) {
+	if (has("es-object-observe")) {
 		ObservableArray.canObserve = function (a) {
 			return typeof (a || {}).splice === "function";
 		};
@@ -96,7 +99,7 @@ define(["./Observable"], function (Observable) {
 		ObservableArray.canObserve = ObservableArray.test;
 	}
 
-	if (!Observable.useNative) {
+	if (!has("es-object-observe")) {
 		(function () {
 			/**
 			 * Adds and/or removes elements from an array
@@ -365,7 +368,7 @@ define(["./Observable"], function (Observable) {
 				callback(mergedRecord);
 			}
 		}
-		if (Observable.useNative) {
+		if (has("es-object-observe")) {
 			return function (observableArray, callback) {
 				Array.observe(observableArray, callback = observeSpliceCallback.bind(observableArray, callback));
 				return {
