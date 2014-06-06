@@ -22,29 +22,35 @@ define(function () {
 	 */
 	var BindingSource = (function () {
 		var proto = /** @lends module:liaison/BindingSource# */ {
-			_openObserver: function () {
-				if (!this.observerIsOpen) {
-					// Calling observe() against closed observer will end up with an error thrown in here
-					var value = this._ensureObserver().open(function (newValue, oldValue) {
-						if (this.boundFormatter) {
-							newValue = this.boundFormatter(newValue);
-							// If oldValue is non-scalar and cached value is scalar, use it as the old value (Non-scalar oldValue may be stale)
-							oldValue = Object(oldValue) !== oldValue || Object(this.value) === this.value ? this.boundFormatter(oldValue) :
-								this.value;
-						}
-						this.value = newValue;
-						for (var i = 0, l = this.callbacks.length; i < l; ++i) {
-							try {
-								this.callbacks[i](newValue, oldValue);
-							} catch (e) {
-								console.error("Error occured in BindingSource callback: " + (e.stack || e));
-							}
-						}
-					}, this);
-					this.value = this.boundFormatter ? this.boundFormatter(value) : value;
-					this.observerIsOpen = true;
+			_openObserver: (function () {
+				function runCallback(callback) {
+					try {
+						callback(this.newValue, this.oldValue);
+					} catch (e) {
+						console.error("Error occured in BindingSource callback: " + (e.stack || e));
+					}
 				}
-			},
+				return function () {
+					if (!this.observerIsOpen) {
+						// Calling observe() against closed observer will end up with an error thrown in here
+						var value = this._ensureObserver().open(function (newValue, oldValue) {
+							if (this.boundFormatter) {
+								newValue = this.boundFormatter(newValue);
+								// If oldValue is non-scalar and cached value is scalar, use it as the old value (Non-scalar oldValue may be stale)
+								oldValue = Object(oldValue) !== oldValue || Object(this.value) === this.value ? this.boundFormatter(oldValue) :
+									this.value;
+							}
+							this.value = newValue;
+							this.callbacks.forEach(runCallback, {
+								newValue: newValue,
+								oldValue: oldValue
+							});
+						}, this);
+						this.value = this.boundFormatter ? this.boundFormatter(value) : value;
+						this.observerIsOpen = true;
+					}
+				};
+			})(),
 
 			_closeObserver: function () {
 				if (this.observer) {

@@ -101,13 +101,6 @@ define([
 						}
 						if (found) {
 							var hasRemainder = this.remainder.length > 0;
-							if (!this.beingDiscarded) {
-								var oldPathValue = hasRemainder ? getObjectPath(oldValue, this.remainder) : oldValue,
-									newPathValue = hasRemainder ? getObjectPath(newValue, this.remainder) : newValue;
-								if (!areSameValues(oldPathValue, newPathValue)) {
-									callback(newPathValue, oldPathValue);
-								}
-							}
 							if (!areSameValues(newValue, oldValue)) {
 								if (this.observerRemainder) {
 									this.observerRemainder.remove();
@@ -116,6 +109,13 @@ define([
 								if (hasRemainder && Object(this.o[this.prop]) === this.o[this.prop]) {
 									this.observerRemainder = new ObservablePath.Observer(this.o[this.prop], this.remainder);
 									this.observerRemainder.open(callback);
+								}
+							}
+							if (!this.beingDiscarded) {
+								var oldPathValue = hasRemainder ? getObjectPath(oldValue, this.remainder) : oldValue,
+									newPathValue = hasRemainder ? getObjectPath(newValue, this.remainder) : newValue;
+								if (!areSameValues(oldPathValue, newPathValue)) {
+									callback(newPathValue, oldPathValue);
 								}
 							}
 						}

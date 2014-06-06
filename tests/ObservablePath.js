@@ -402,7 +402,7 @@ define([
 				finishedMicrotask = true;
 				dfd.resolve(1);
 			});
-			it("Exception in observer callback", function () {
+			it("Exception in ObservablePath callback", function () {
 				var dfd = this.async(1000),
 					count = 0,
 					observable = new Observable({foo: new Observable({bar: "Bar0"})}),
@@ -418,16 +418,37 @@ define([
 						})
 					];
 				handles.push(new ObservablePath(observable, "foo.bar").observe(function (newValue, oldValue) {
-					try {
-						callbacks[count](newValue, oldValue);
-					} catch (e) {
-						dfd.reject(e);
-					}
+					callbacks[count](newValue, oldValue);
 					if (count++ === 0) {
 						throw pseudoError;
 					}
 				}));
 				observable.foo.set("bar", "Bar1");
+			});
+			it("Exception in ObservablePath.Observer callback", function () {
+				var dfd = this.async(1000),
+					count = 0,
+					observable = new Observable({foo: new Observable({bar: "Bar0"})}),
+					observablePath = new ObservablePath.Observer(observable, "foo.bar"),
+					callbacks = [
+						dfd.rejectOnError(function (newValue, oldValue) {
+							expect(newValue).to.equal("Bar1");
+							expect(oldValue).to.equal("Bar0");
+							observable.foo.set("bar", "Bar2");
+						}),
+						dfd.callback(function (newValue, oldValue) {
+							expect(newValue).to.equal("Bar2");
+							expect(oldValue).to.equal("Bar1");
+						})
+					];
+				handles.push(observablePath);
+				observablePath.open(function (newValue, oldValue) {
+					callbacks[count](newValue, oldValue);
+					if (count++ === 0) {
+						throw pseudoError;
+					}
+				});
+				observable.set("foo", new Observable({bar: "Bar1"}));
 			});
 			it("Exception in formatter/parser", function () {
 				var binding,
