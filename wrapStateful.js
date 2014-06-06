@@ -6,7 +6,7 @@ define(["./Observable"], function (Observable) {
 	 * Make a stateful to emit a {@link module:liaison/Observable~ChangeRecord change record}
 	 * upon change in {@link http://dojotoolkit.org/reference-guide/dojo/Stateful.html dojo/Stateful}.
 	 * @function module:liaison/wrapStateful
-	 * @param {external:dojo/Stateful} stateful
+	 * @param {module:delite/Stateful} stateful
 	 *     The {@link http://dojotoolkit.org/reference-guide/dojo/Stateful.html dojo/Stateful} instance.
 	 * @return {Handle} The handle to stop emitting {@link module:liaison/Observable~ChangeRecord}.
 	 */

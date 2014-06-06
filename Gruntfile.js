@@ -35,6 +35,9 @@ module.exports = function (grunt) {
 			docs: {
 				files: [
 					{
+						args: [
+							"-r"
+						],
 						src: [
 							".",
 							"./README.md",
@@ -47,7 +50,8 @@ module.exports = function (grunt) {
 				files: [
 					{
 						args: [
-							"-X"
+							"-X",
+							"-r"
 						],
 						src: [
 							".",

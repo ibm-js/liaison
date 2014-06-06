@@ -16,7 +16,7 @@ define([
 	/**
 	 * The base widget class for Liaison.
 	 * @class module:liaison/delite/widgets/Widget
-	 * @augments {external:Widget}
+	 * @augments {module:delite/Widget}
 	 */
 	var LiaisonWidget = dcl(Widget, /** @lends module:liaison/delite/widgets/Widget# */ {
 		/**
