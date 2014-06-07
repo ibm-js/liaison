@@ -18,6 +18,7 @@ define([
 	"requirejs-text/text!./templates/simpleWithConditionalAttributeBindingTemplate.html",
 	"requirejs-text/text!./templates/simpleConditionalBindingTemplate.html",
 	"requirejs-text/text!./templates/multipleConditionsTemplate.html",
+	"requirejs-text/text!./templates/nestedConditionsTemplate.html",
 	"requirejs-text/text!./templates/simpleConditionalRepeatingTemplate.html",
 	"requirejs-text/text!./templates/computedTemplate.html",
 	"requirejs-text/text!./templates/attributeTemplate.html",
@@ -49,6 +50,7 @@ define([
 	simpleWithConditionalAttributeBindingTemplate,
 	simpleConditionalBindingTemplate,
 	multipleConditionsTemplate,
+	nestedConditionsTemplate,
 	simpleConditionalRepeatingTemplate,
 	computedTemplate,
 	attributeTemplate,
@@ -772,6 +774,38 @@ define([
 					expect(inputs[0].value).to.equal("first");
 					expect(inputs[1].value).to.equal("third");
 					expect(inputs[2].value).to.equal("fifth");
+				});
+			});
+			it("Nested conditions template", function () {
+				this.timeout = 10000;
+				var observable = new Observable({
+						showInner: true
+					}),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template"));
+				template.innerHTML = nestedConditionsTemplate;
+				handles.push(template.bind("bind", observable));
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				return waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					expect(template.textContent.trim()).to.equal("hello");
+					observable.set("showOuter", true);
+				}).then(function () {
+					return waitFor(100);
+				}).then(function () {
+					expect(template.textContent.trim()).to.equal("hello brave new world");
+					observable.set("showInner", false);
+				}).then(function () {
+					return waitFor(100);
+				}).then(function () {
+					expect(template.textContent.trim()).to.equal("hello world");
+					observable.set("showInner", false);
 				});
 			});
 			it("Simple conditional repeating template", function () {
