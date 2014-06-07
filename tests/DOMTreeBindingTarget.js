@@ -17,6 +17,7 @@ define([
 	"requirejs-text/text!./templates/deepNestedTemplate.html",
 	"requirejs-text/text!./templates/simpleWithConditionalAttributeBindingTemplate.html",
 	"requirejs-text/text!./templates/simpleConditionalBindingTemplate.html",
+	"requirejs-text/text!./templates/multipleConditionsTemplate.html",
 	"requirejs-text/text!./templates/simpleConditionalRepeatingTemplate.html",
 	"requirejs-text/text!./templates/computedTemplate.html",
 	"requirejs-text/text!./templates/attributeTemplate.html",
@@ -47,6 +48,7 @@ define([
 	deepNestedTemplate,
 	simpleWithConditionalAttributeBindingTemplate,
 	simpleConditionalBindingTemplate,
+	multipleConditionsTemplate,
 	simpleConditionalRepeatingTemplate,
 	computedTemplate,
 	attributeTemplate,
@@ -735,6 +737,42 @@ define([
 				})).then(dfd.callback(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
 				}), dfd.reject.bind(dfd));
+			});
+			it("Multiple conditions template", function () {
+				this.timeout = 10000;
+				var observable = new Observable({
+						showFirst: true,
+						showFifth: true
+					}),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template"));
+				template.innerHTML = multipleConditionsTemplate;
+				handles.push(template.bind("bind", observable));
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				return waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					var inputs = template.querySelectorAll("input");
+					expect(inputs.length).to.equal(2);
+					expect(inputs[0].value).to.equal("first");
+					expect(inputs[1].value).to.equal("fifth");
+					observable.set("showThird", true);
+				}).then(function () {
+					return waitFor(function () {
+						return template.querySelectorAll("input").length === 3;
+					});
+				}).then(function () {
+					var inputs = template.querySelectorAll("input");
+					expect(inputs.length).to.equal(3);
+					expect(inputs[0].value).to.equal("first");
+					expect(inputs[1].value).to.equal("third");
+					expect(inputs[2].value).to.equal("fifth");
+				});
 			});
 			it("Simple conditional repeating template", function () {
 				var dfd = this.async(10000),
