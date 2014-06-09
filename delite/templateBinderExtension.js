@@ -46,20 +46,21 @@ define([
 	}
 
 	/* global HTMLTemplateElement, HTMLUnknownElement */
-	var list = [typeof HTMLTemplateElement !== "undefined" ? HTMLTemplateElement : HTMLUnknownElement, HTMLScriptElement];
-	typeof Element !== "undefined" && list.push(Element); // <template> in <svg>
-	typeof SVGElement !== "undefined" && list.push(SVGElement); // <template> in <svg>
-	list.forEach(function (ElementClass) {
-		var origInstantiate = ElementClass.prototype.instantiate;
-		ElementClass.prototype.instantiate = function () {
-			var letTemplateCreateInstance = typeof this.createInstance === "function",
-				instantiated = origInstantiate.apply(this, arguments);
-			if (!letTemplateCreateInstance) {
+	has.add("polymer-createInstance",
+		typeof HTMLTemplateElement !== "undefined" && typeof HTMLTemplateElement.prototype.createInstance === "function");
+	if (!has("polymer-createInstance")) {
+		var list = [typeof HTMLTemplateElement !== "undefined" ? HTMLTemplateElement : HTMLUnknownElement, HTMLScriptElement];
+		typeof Element !== "undefined" && list.push(Element); // <template> in <svg>
+		typeof SVGElement !== "undefined" && list.push(SVGElement); // <template> in <svg>
+		list.forEach(function (ElementClass) {
+			var origInstantiate = ElementClass.prototype.instantiate;
+			ElementClass.prototype.instantiate = function () {
+				var instantiated = origInstantiate.apply(this, arguments);
 				instantiated.remove = remove.bind(instantiated, instantiated.remove);
-			}
-			return instantiated;
-		};
-	});
+				return instantiated;
+			};
+		});
+	}
 
 	return templateBinder;
 });

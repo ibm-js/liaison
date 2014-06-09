@@ -1,4 +1,7 @@
-define(["liaison/ObservablePath"], function (ObservablePath) {
+define([
+	"requirejs-dplugins/has",
+	"liaison/ObservablePath"
+], function (has, ObservablePath) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},
@@ -123,47 +126,50 @@ define(["liaison/ObservablePath"], function (ObservablePath) {
 		};
 	}
 
-	(function () {
-		/* global HTMLTemplateElement */
-		function getInstanceData() {
-			return this.instanceData;
-		}
-		if (typeof HTMLTemplateElement !== "undefined") {
-			if (typeof HTMLTemplateElement.prototype.createInstance === "function") {
-				var origCreateInstance = HTMLTemplateElement.prototype.createInstance;
-				HTMLTemplateElement.prototype.createInstance = (function () {
-					function prepareBinding(createBindingSourceFactory, bindingDelegate, path, name) {
-						return createBindingSourceFactory && createBindingSourceFactory(path, name)
-							|| (bindingDelegate || EMPTY_OBJECT).prepareBinding && bindingDelegate.prepareBinding(path, name);
-					}
-					return function (model, bindingDelegate) {
-						var args = [].slice.call(arguments),
-							delegate = Object.create(bindingDelegate || null);
-						delegate.prepareBinding = prepareBinding.bind(delegate, this.createBindingSourceFactory.bind(this), bindingDelegate);
-						args.splice(0, 2, model, delegate);
-						var instance = origCreateInstance.apply(this, args);
-						if (instance.firstChild) {
-							Object.defineProperty(instance.firstChild.templateInstance, "instanceData", {
-								get: getInstanceData.bind(this),
-								configurable: true
-							});
-						}
-						return instance;
-					};
-				})();
+	has.add("polymer-createInstance",
+		typeof HTMLTemplateElement !== "undefined" && typeof HTMLTemplateElement.prototype.createInstance === "function");
+	if (has("polymer-createInstance")) {
+		(function () {
+			/* global HTMLTemplateElement */
+			function getInstanceData() {
+				return this.instanceData;
 			}
-		}
-	})();
-
-	// For template instances created by Polymer TemplateBinding
-	if (typeof Node !== "undefined" && !Object.getOwnPropertyDescriptor(Node.prototype, "instanceData")) {
-		Object.defineProperty(Node.prototype, "instanceData", {
-			get: function () {
-				/* jshint camelcase: false */
-				return this._instanceData || this.templateInstance_ || (this.parentNode || EMPTY_OBJECT).instanceData;
-			},
-			configurable: true
-		});
+			if (typeof HTMLTemplateElement !== "undefined") {
+				if (typeof HTMLTemplateElement.prototype.createInstance === "function") {
+					var origCreateInstance = HTMLTemplateElement.prototype.createInstance;
+					HTMLTemplateElement.prototype.createInstance = (function () {
+						function prepareBinding(createBindingSourceFactory, bindingDelegate, path, name) {
+							return createBindingSourceFactory && createBindingSourceFactory(path, name)
+								|| (bindingDelegate || EMPTY_OBJECT).prepareBinding && bindingDelegate.prepareBinding(path, name);
+						}
+						return function (model, bindingDelegate) {
+							var args = [].slice.call(arguments),
+								delegate = Object.create(bindingDelegate || null);
+							delegate.prepareBinding = prepareBinding.bind(delegate, this.createBindingSourceFactory.bind(this), bindingDelegate);
+							args.splice(0, 2, model, delegate);
+							var instance = origCreateInstance.apply(this, args);
+							if (instance.firstChild) {
+								Object.defineProperty(instance.firstChild.templateInstance, "instanceData", {
+									get: getInstanceData.bind(this),
+									configurable: true
+								});
+							}
+							return instance;
+						};
+					})();
+				}
+			}
+			// Same code as one in liaison/DOMTreeBindingTarget, for template instances created by Polymer TemplateBinding
+			if (typeof Node !== "undefined" && !Object.getOwnPropertyDescriptor(Node.prototype, "instanceData")) {
+				Object.defineProperty(Node.prototype, "instanceData", {
+					get: function () {
+						/* jshint camelcase: false */
+						return this._instanceData || this.templateInstance_ || (this.parentNode || EMPTY_OBJECT).instanceData;
+					},
+					configurable: true
+				});
+			}
+		})();
 	}
 
 	return EventBindingSource;

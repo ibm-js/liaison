@@ -1,5 +1,6 @@
 /** @module liaison/DOMTreeBindingTarget */
 define([
+	"requirejs-dplugins/has",
 	"./schedule",
 	"./ObservableArray",
 	"./ObservablePath",
@@ -8,7 +9,7 @@ define([
 	"./DOMBindingTarget",
 	"./computed",
 	"./templateBinder"
-], function (schedule, ObservableArray, ObservablePath, BindingSourceList, BindingTarget, DOMBindingTarget, computed, templateBinder) {
+], function (has, schedule, ObservableArray, ObservablePath, BindingSourceList, BindingTarget, DOMBindingTarget, computed, templateBinder) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},
@@ -400,6 +401,7 @@ define([
 	 * @method HTMLTemplateElement#upgradeToTemplate
 	 * @returns {HTMLTemplateElement} The upgraded template element or script element.
 	 */
+	has.add("polymer-template-decorate", typeof HTMLTemplateElement !== "undefined" && typeof HTMLTemplateElement.decorate === "function");
 	var upgradeToTemplate = (function () {
 		function isUpgradable(node) {
 			return node.tagName === "TEMPLATE"
@@ -416,9 +418,8 @@ define([
 				throw new TypeError("Only <template>, <element template>,"
 					+ " or <script type=\"x-template\"> (except in SVG context) can be used as a template.");
 			}
-			var hasTemplateElement = typeof HTMLTemplateElement !== "undefined";
 			if (!hasBeenUpgraded(this)) {
-				if (hasTemplateElement && typeof HTMLTemplateElement.decorate === "function") {
+				if (has("polymer-template-decorate")) {
 					// If Polymer TemplateBinding is there, let it upgrade the template
 					HTMLTemplateElement.decorate(this);
 				} else {
@@ -437,7 +438,7 @@ define([
 					}
 				}
 			}
-			if (hasTemplateElement && typeof HTMLTemplateElement.bootstrap === "function") {
+			if (has("polymer-template-decorate")) {
 				// If Polymer TemplateBinding is there, let it upgrade sub-template
 				HTMLTemplateElement.bootstrap(this);
 			}
