@@ -124,40 +124,40 @@ define([
 				caught = false;
 			});
 			it("Attribute reflecting model", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					observable = new Observable({foo: "Foo0"}),
 					binding = div.bind("attrib", new ObservablePath(observable, "foo"));
+				this.timeout = 10000;
 				handles.push(binding);
 				expect(div.getAttribute("attrib")).to.equal("Foo0");
 				expect(binding.value).to.equal("Foo0");
 				observable.set("foo", "Foo1");
-				waitFor(function () {
+				return waitFor(function () {
 					return binding.value === "Foo1";
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(div.getAttribute("attrib")).to.equal("Foo1");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Conditional attribute reflecting model", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					observable = new Observable(),
 					binding = div.bind("attrib?", new ObservablePath(observable, "foo"));
+				this.timeout = 10000;
 				handles.push(binding);
 				expect(div.hasAttribute("attrib")).to.be.false;
 				expect(binding.value).to.be.false;
 				observable.set("foo", true);
-				waitFor(function () {
+				return waitFor(function () {
 					return binding.value;
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(div.hasAttribute("attrib")).to.be.true;
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Text box reflecting model", function () {
-				var dfd = this.async(10000),
-					input = createInput("text"),
+				var input = createInput("text"),
 					observable = new Observable({foo: "Foo0"}),
 					binding = document.body.appendChild(input).bind("value", new ObservablePath(observable, "foo"));
+				this.timeout = 10000;
 				handles.push(binding);
 				handles.push({
 					remove: function () {
@@ -167,11 +167,11 @@ define([
 				expect(input.value).to.equal("Foo0");
 				expect(binding.value).to.equal("Foo0");
 				observable.set("foo", "Foo1");
-				waitFor(function () {
+				return waitFor(function () {
 					return binding.value === "Foo1";
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(input.value).to.equal("Foo1");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Model reflecting text box", function () {
 				var input = createInput("text"),
@@ -190,10 +190,10 @@ define([
 				expect(observable.foo).to.equal("Foo1");
 			});
 			it("Check box reflecting model", function () {
-				var dfd = this.async(10000),
-					input = createInput("checkbox"),
+				var input = createInput("checkbox"),
 					observable = new Observable({foo: false}),
 					binding = document.body.appendChild(input).bind("checked", new ObservablePath(observable, "foo"));
+				this.timeout = 10000;
 				handles.push(binding);
 				handles.push({
 					remove: function () {
@@ -203,11 +203,11 @@ define([
 				expect(input.checked).to.equal(false);
 				expect(binding.value).to.equal(false);
 				observable.set("foo", true);
-				waitFor(function () {
+				return waitFor(function () {
 					return binding.value === true;
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(input.checked).to.equal(true);
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Model reflecting check box", function () {
 				var input = createInput("checkbox"),
@@ -225,12 +225,12 @@ define([
 				expect(observable.foo).to.equal(true);
 			});
 			it("Radio button reflecting model", function () {
-				var dfd = this.async(10000),
-					radio0 = createInput("radio", "foo", "Foo0"),
+				var radio0 = createInput("radio", "foo", "Foo0"),
 					radio1 = createInput("radio", "foo", "Foo1"),
 					observable = new Observable({0: true, 1: false}),
 					binding0 = document.body.appendChild(radio0).bind("checked", new ObservablePath(observable, "0")),
 					binding1 = document.body.appendChild(radio1).bind("checked", new ObservablePath(observable, "1"));
+				this.timeout = 10000;
 				handles.push(binding0, binding1);
 				handles.push({
 					remove: function () {
@@ -243,7 +243,7 @@ define([
 				expect(radio1.checked).not.to.be.true;
 				expect(binding1.value).not.to.be.true;
 				observable.set(1, true);
-				waitFor(function () {
+				return waitFor(function () {
 					return !binding0.value;
 				}).then(function () {
 					expect(radio0.checked).not.to.be.true;
@@ -253,7 +253,7 @@ define([
 					expect(radio1.checked).to.be.true;
 				}).then(waitFor.bind(function () {
 					return !observable["0"];
-				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}));
 			});
 			it("Model reflecting radio button", function () {
 				var radio0 = createInput("radio", "foo", "Foo0"),
@@ -277,9 +277,9 @@ define([
 			});
 			it("Select value reflecting model", function () {
 				var binding, option,
-					dfd = this.async(10000),
 					select = document.createElement("select"),
 					observable = new Observable({foo: "Foo0", foo0: "Foo0", foo1: "Foo1"});
+				this.timeout = 10000;
 				option = document.createElement("option");
 				handles.push(option.bind("value", new ObservablePath(observable, "foo0")));
 				select.appendChild(option);
@@ -298,14 +298,14 @@ define([
 				expect(select.value).to.equal("Foo0");
 				expect(binding.value).to.equal("Foo0");
 				observable.set("foo", "Foo1");
-				waitFor(function () {
+				return waitFor(function () {
 					return binding.value === "Foo1";
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(select.querySelectorAll("option")[0].selected).not.to.be.true;
 					expect(select.querySelectorAll("option")[1].selected).to.be.true;
 					expect(select.selectedIndex).to.equal(1);
 					expect(select.value).to.equal("Foo1");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Model reflecting select value", function () {
 				var option,
@@ -335,9 +335,9 @@ define([
 			});
 			it("Select index reflecting model", function () {
 				var binding, option,
-					dfd = this.async(10000),
 					select = document.createElement("select"),
 					observable = new Observable({index: 0});
+				this.timeout = 10000;
 				option = document.createElement("option");
 				option.value = "Foo0";
 				select.appendChild(option);
@@ -356,14 +356,14 @@ define([
 				expect(select.value).to.equal("Foo0");
 				expect(binding.value).to.equal(0);
 				observable.set("index", 1);
-				waitFor(function () {
+				return waitFor(function () {
 					return binding.value === 1;
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(select.querySelectorAll("option")[0].selected).not.to.be.true;
 					expect(select.querySelectorAll("option")[1].selected).to.be.true;
 					expect(select.selectedIndex).to.equal(1);
 					expect(select.value).to.equal("Foo1");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Model reflecting select index", function () {
 				var option,
@@ -392,10 +392,10 @@ define([
 				expect(observable.index).to.equal(1);
 			});
 			it("Text area reflecting model", function () {
-				var dfd = this.async(10000),
-					textarea = document.createElement("textarea"),
+				var textarea = document.createElement("textarea"),
 					observable = new Observable({foo: "Foo0"}),
 					binding = document.body.appendChild(textarea).bind("value", new ObservablePath(observable, "foo"));
+				this.timeout = 10000;
 				handles.push(binding);
 				handles.push({
 					remove: function () {
@@ -405,11 +405,11 @@ define([
 				expect(textarea.value).to.equal("Foo0");
 				expect(binding.value).to.equal("Foo0");
 				observable.set("foo", "Foo1");
-				waitFor(function () {
+				return waitFor(function () {
 					return binding.value === "Foo1";
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(textarea.value).to.equal("Foo1");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Model reflecting text area", function () {
 				var textarea = document.createElement("textarea"),
@@ -428,10 +428,10 @@ define([
 				expect(observable.foo).to.equal("Foo1");
 			});
 			it("Text node reflecting model", function () {
-				var dfd = this.async(10000),
-					text = document.createTextNode(""),
+				var text = document.createTextNode(""),
 					observable = new Observable({foo: "Foo0"}),
 					binding = document.body.appendChild(text).bind("nodeValue", new ObservablePath(observable, "foo"));
+				this.timeout = 10000;
 				handles.push(binding);
 				handles.push({
 					remove: function () {
@@ -441,16 +441,16 @@ define([
 				expect(text.nodeValue).to.equal("Foo0");
 				expect(binding.value).to.equal("Foo0");
 				observable.set("foo", "Foo1");
-				waitFor(function () {
+				return waitFor(function () {
 					return binding.value === "Foo1";
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(text.nodeValue).to.equal("Foo1");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Style attribute reflecting model", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					observable = new Observable({foo: "color:red;"});
+				this.timeout = 10000;
 				handles.push(document.body.appendChild(div).bind("style", new ObservablePath(observable, "foo")));
 				handles.push({
 					remove: function () {
@@ -459,9 +459,9 @@ define([
 				});
 				expect(div.style.color).to.equal("red");
 				observable.set("foo", "color:blue;");
-				waitFor(function () {
+				return waitFor(function () {
 					return div.style.color === "blue";
-				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				});
 			});
 		});
 	}

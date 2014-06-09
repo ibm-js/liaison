@@ -117,7 +117,7 @@ define([
 				elem.items.push({Name: "John Jacklin"});
 			});
 			it("Attribute mapping with plain object", function () {
-				var dfd = this.async(10000);
+				this.timeout = 10000;
 				register("liaison-test-attribute-object", [HTMLElement, Widget], {
 					value: "",
 					attribs: {
@@ -141,7 +141,7 @@ define([
 					}
 				});
 				elem.set("value", "value0");
-				waitFor(function () {
+				return waitFor(function () {
 					return elem.getAttribute("aria-value") && elem.valueNode.value;
 				}).then(function () {
 					expect(elem.getAttribute("aria-value")).to.equal("value0");
@@ -152,13 +152,13 @@ define([
 					elem.valueNode.dispatchEvent(event);
 				}).then(waitFor.bind(function () {
 					return elem.getAttribute("aria-value") !== "value0" && elem.valueNode.value !== "value0";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(elem.value).to.equal("value1");
 					expect(elem.getAttribute("aria-value")).to.equal("value1");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Attribute mapping with function", function () {
-				var dfd = this.async(10000);
+				this.timeout = 10000;
 				register("liaison-test-attribute-function", [HTMLElement, Widget], {
 					value: "",
 					attribs: function () {
@@ -186,7 +186,7 @@ define([
 					}
 				});
 				elem.set("value", "value0");
-				waitFor(function () {
+				return waitFor(function () {
 					return elem.getAttribute("aria-value") && elem.valueNode.value;
 				}).then(function () {
 					expect(elem.getAttribute("aria-value")).to.equal("value0");
@@ -197,10 +197,10 @@ define([
 					elem.valueNode.dispatchEvent(event);
 				}).then(waitFor.bind(function () {
 					return elem.getAttribute("aria-value") !== "value0" && elem.valueNode.value !== "value0";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(elem.value).to.equal("value1");
 					expect(elem.getAttribute("aria-value")).to.equal("value1");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Dispatch values at initialization", function () {
 				var gotValue;

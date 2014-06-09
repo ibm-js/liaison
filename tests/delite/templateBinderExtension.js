@@ -23,10 +23,10 @@ define([
 				}
 			});
 			it("Simple binding: <d-button>", function () {
-				var dfd = this.async(10000),
-					model = new Observable({label: "Foo"}),
+				var model = new Observable({label: "Foo"}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = buttonTemplate;
 				handles.push(template.bind("bind", model));
 				document.body.appendChild(div);
@@ -35,7 +35,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return (template.nextSibling || {}).textContent;
 				}).then(function () {
 					var w = template.nextSibling;
@@ -51,16 +51,16 @@ define([
 					model.set("label", "Baz");
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.textContent !== "Bar";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var w = template.nextSibling;
 					expect(w.textContent).to.equal("Baz");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Pointer binding: <d-button>", function () {
-				var dfd = this.async(10000),
-					model = new Observable({label: "Foo"}),
+				var model = new Observable({label: "Foo"}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = buttonPointerTemplate;
 				handles.push(template.bind("bind", model));
 				document.body.appendChild(div);
@@ -69,7 +69,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return (template.nextSibling || {}).textContent;
 				}).then(function () {
 					var w = template.nextSibling;
@@ -85,16 +85,16 @@ define([
 					model.set("label", "Baz");
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.textContent !== "Bar";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var w = template.nextSibling;
 					expect(w.textContent).to.equal("Baz");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Simple binding: <d-star-rating>", function () {
-				var dfd = this.async(10000),
-					model = new Observable({rating: 2}),
+				var model = new Observable({rating: 2}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = starRatingTemplate;
 				handles.push(template.bind("bind", model));
 				document.body.appendChild(div);
@@ -103,7 +103,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return ((template.nextSibling || {}).nextSibling || {}).value;
 				}).then(function () {
 					var w = template.nextSibling.nextSibling;
@@ -114,10 +114,10 @@ define([
 					model.set("rating", 3);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.nextSibling.value !== 4;
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var w = template.nextSibling.nextSibling;
 					expect(w.value).to.equal(3);
-				}), dfd.reject.bind(dfd));
+				});
 			});
 		});
 	}

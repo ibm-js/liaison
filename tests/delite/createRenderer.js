@@ -136,18 +136,18 @@ define([
 				}
 			});
 			it("Template with <input>: Programmatic", function () {
-				var dfd = this.async(10000),
-					w = new InputTemplateWidget({object: new Observable({value: "Foo"})}).placeAt(document.body);
+				var w = new InputTemplateWidget({object: new Observable({value: "Foo"})}).placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					// Mixin properties are applied after template is instantiated
 					var input = w.querySelector("input");
 					return input && input.value === "Foo";
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					// Mixin properties are applied after template is instantiated
 					var input = w.querySelector("input");
 					expect(input.value).to.equal("Foo");
@@ -156,13 +156,13 @@ define([
 					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
 					expect(w.object.value).to.equal("Bar");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Template with <input>: Declarative", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					observable = new Observable({object: new Observable({value: "Foo"})}),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = widgetWithInputTemplate;
 				handles.push(template.bind("bind", observable));
 				document.body.appendChild(div);
@@ -171,43 +171,43 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					// Mixin properties are applied after template is instantiated
 					var input = div.querySelector("input");
 					return input && input.value === "Foo";
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					var input = div.querySelector("liaison-test-input").querySelector("input");
 					input.value = "Bar";
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
 					expect(observable.object.value).to.equal("Bar");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Template with <d-star-rating>: Programmatic", function () {
-				var dfd = this.async(10000),
-					w = new StarRatingTemplateWidget({rating: 2, allowZero: false}).placeAt(document.body);
+				var w = new StarRatingTemplateWidget({rating: 2, allowZero: false}).placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					// Mixin properties are applied after template is instantiated
 					var star = w.querySelector("d-star-rating");
 					return star && star.value === 2;
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					var star = w.querySelector("d-star-rating");
 					expect(star.allowZero).not.to.be.true;
 					star.value = 4;
 					expect(w.rating).to.equal(4);
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Template with <d-star-rating>: Declarative", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					observable = new Observable({rating: 2, allowZero: false}),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = widgetWithStarRatingTemplate;
 				handles.push(template.bind("bind", observable));
 				document.body.appendChild(div);
@@ -216,30 +216,30 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					var star = div.querySelector("d-star-rating");
 					return star && star.value === 2;
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					var star = div.querySelector("liaison-test-starrating").querySelector("d-star-rating");
 					expect(star.allowZero).not.to.be.true;
 					star.value = 4;
 					expect(observable.rating).to.equal(4);
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Nested template: Programmatic", function () {
-				var dfd = this.async(10000),
-					w = new NestedTemplateWidget({
+				var w = new NestedTemplateWidget({
 						first: "John",
 						name: new Observable({
 							first: "Ben"
 						})
 					}).placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return [
 						(w.childNodes[0] || {}).nodeValue,
 						(w.childNodes[1] || {}).value,
@@ -265,16 +265,16 @@ define([
 					return dfd.promise;
 				})).then(waitFor.bind(function () {
 					return w.childNodes[0].nodeValue !== "John " && w.childNodes[3].textContent !== "Ben ";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(w.childNodes[0].nodeValue).to.equal("Anne ");
 					expect(w.childNodes[3].textContent).to.equal("Irene ");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Nested template: Declarative", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					observable = new Observable({first: "John", name: new Observable({first: "Ben"})}),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = widgetWithNestedTemplate;
 				handles.push(template.bind("bind", observable));
 				document.body.appendChild(div);
@@ -283,7 +283,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					var w = div.querySelector("liaison-test-nested");
 					return w && [
 						(w.childNodes[0] || {}).nodeValue,
@@ -313,17 +313,16 @@ define([
 				})).then(waitFor.bind(function () {
 					var w = div.querySelector("liaison-test-nested");
 					return w.childNodes[0].nodeValue !== "John " && w.childNodes[3].textContent !== "Ben ";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var w = div.querySelector("liaison-test-nested");
 					expect(w.childNodes[0].nodeValue).to.equal("Anne ");
 					expect(w.childNodes[3].textContent).to.equal("Irene ");
 					expect(observable.first).to.equal("Anne");
 					expect(observable.name.first).to.equal("Irene");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Nested repeating template: Programmatic", function () {
-				var dfd = this.async(10000),
-					w = new NestedRepeatingTemplateWidget({
+				var w = new NestedRepeatingTemplateWidget({
 						names: new ObservableArray(
 							{first: "Anne"},
 							{first: "Ben"},
@@ -332,12 +331,13 @@ define([
 							{first: "John"}
 						)
 					}).placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					/* jshint maxcomplexity: 15 */
 					return [
 						(w.childNodes[1] || {}).textContent,
@@ -378,7 +378,7 @@ define([
 						&& w.childNodes[8].value !== "Irene"
 						&& w.childNodes[9].textContent !== "John "
 						&& w.childNodes[10].value !== "John";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(w.childNodes[1].textContent).to.equal("John ");
 					expect(w.childNodes[2].value).to.equal("John");
 					expect(w.childNodes[3].textContent).to.equal("Irene ");
@@ -389,11 +389,10 @@ define([
 					expect(w.childNodes[8].value).to.equal("Ben");
 					expect(w.childNodes[9].textContent).to.equal("Anne ");
 					expect(w.childNodes[10].value).to.equal("Anne");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Nested repeating template: Declarative", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					observable = new Observable({
 						names: new ObservableArray(
 							{first: "Anne"},
@@ -404,6 +403,7 @@ define([
 						)
 					}),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = widgetWithNestedRepeatingTemplate;
 				handles.push(template.bind("bind", observable));
 				document.body.appendChild(div);
@@ -412,7 +412,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					/* jshint maxcomplexity: 15 */
 					var w = div.querySelector("liaison-test-nestedrepeating");
 					return w && [
@@ -457,7 +457,7 @@ define([
 						&& w.childNodes[8].value !== "Irene"
 						&& w.childNodes[9].textContent !== "John "
 						&& w.childNodes[10].value !== "John";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var w = div.querySelector("liaison-test-nestedrepeating");
 					expect(w.childNodes[1].textContent).to.equal("John ");
 					expect(w.childNodes[2].value).to.equal("John");
@@ -469,63 +469,63 @@ define([
 					expect(w.childNodes[8].value).to.equal("Ben");
 					expect(w.childNodes[9].textContent).to.equal("Anne ");
 					expect(w.childNodes[10].value).to.equal("Anne");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Nested widget template", function () {
-				var dfd = this.async(10000),
-					w = new NestedWidgetTemplateWidget({name: new Observable({value: "John"})}).placeAt(document.body);
+				var w = new NestedWidgetTemplateWidget({name: new Observable({value: "John"})}).placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					// Mixin properties are applied after template is instantiated
 					var input = w.querySelector("input");
 					return input && input.value === "John";
-				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				});
 			});
 			it("Template with complex attribtue", function () {
-				var dfd = this.async(10000),
-					w = new ComplexAttributeTemplateWidget({
+				var w = new ComplexAttributeTemplateWidget({
 						name: new Observable({first: "John"})
 					}).placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					// Mixin properties are applied after template is instantiated
 					var span = w.querySelector("span");
 					return span && span.getAttribute("attrib") === "First name: John";
-				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				});
 			});
 			it("Attach point", function () {
-				var dfd = this.async(10000),
-					w = new AttachPointTemplateWidget().placeAt(document.body);
+				var w = new AttachPointTemplateWidget().placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return w.valueNode;
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(w.valueNode).to.equal(w.querySelector("input"));
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Simple binding with default alternate binding factory", function () {
-				var dfd = this.async(10000),
-					w = new AlternateBindingTemplateWidget({
+				var w = new AlternateBindingTemplateWidget({
 						first: "John"
 					}).placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					var input = w.querySelector("input");
 					return input && input.value === "John";
 				}).then(function () {
@@ -541,25 +541,25 @@ define([
 					return dfd.promise;
 				})).then(waitFor.bind(function () {
 					return w.firstChild.textContent !== "*John* ";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(w.firstChild.textContent).to.equal("*Anne* ");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Declarative events", function () {
 				var senderDiv,
 					targetDiv,
-					dfd = this.async(10000),
 					dfd1stClick = new Deferred(),
 					dfd2ndClick = new Deferred(),
 					w = new EventTemplateWidget({
 						handleClick: createDeclarativeEventResolver(dfd1stClick)
 					}).placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return ((w.querySelector("div").bindings || {})["on-click"] || {}).value;
 				}).then(function () {
 					senderDiv = w.firstChild;
@@ -579,27 +579,27 @@ define([
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
-				}).then(waitFor.bind(dfd2ndClick.promise)).then(dfd.callback(function (data) {
+				}).then(waitFor.bind(dfd2ndClick.promise)).then(function (data) {
 					var event = data[1],
 						sender = data[3];
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(senderDiv);
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Nested declarative events", function () {
-				var dfd = this.async(10000),
-					dfd1stClick = new Deferred(),
+				var dfd1stClick = new Deferred(),
 					dfd2ndClick = new Deferred(),
 					dfd3rdClick = new Deferred(),
 					w = new NestedEventTemplateWidget({
 						handleClick: createDeclarativeEventResolver(dfd1stClick)
 					}).placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return ((w.querySelector("div").bindings || {})["on-click"] || {}).value;
 				}).then(function () {
 					var event = document.createEvent("MouseEvents");
@@ -636,7 +636,7 @@ define([
 					expect(thisObject).to.equal(w.querySelector("liaison-test-events"));
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(w.querySelector("div"));
-				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				});
 			});
 		});
 	}

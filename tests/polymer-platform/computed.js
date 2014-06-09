@@ -76,8 +76,7 @@ define([
 				o.items.push({Name: "John Jacklin"});
 			});
 			it("Computed property with template", function () {
-				var dfd = this.async(10000),
-					model = {
+				var model = {
 						first: "John",
 						last: "Doe",
 						name: computed(function (first, last) {
@@ -86,6 +85,7 @@ define([
 					},
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = computedTemplate;
 				template.setAttribute("bind", "");
 				template.model = model;
@@ -96,7 +96,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var divName = template.nextSibling,
@@ -116,14 +116,14 @@ define([
 					return !template.nextSibling;
 				})).then(function () {
 					model.first = "Irene";
-				}).then(waitFor.bind(100)).then(dfd.callback(function () {
+				}).then(waitFor.bind(100)).then(function () {
 					expect(model.name).not.to.equal("Irene Doe");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Computed array with template", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = computedArrayTemplate;
 				template.setAttribute("bind", "");
 				template.model = {
@@ -146,7 +146,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var text = template.nextSibling;
@@ -154,14 +154,13 @@ define([
 					template.model.items.push({Name: "John Jacklin"});
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.nodeValue !== "45";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var text = template.nextSibling;
 					expect(text.nodeValue).to.equal("57");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Prevent template from cleaning up computed property", function () {
-				var dfd = this.async(10000),
-					model = {
+				var model = {
 						first: "John",
 						last: "Doe",
 						name: computed(function (first, last) {
@@ -170,6 +169,7 @@ define([
 					},
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = computedTemplate;
 				template.preventRemoveComputed = true;
 				template.setAttribute("bind", "");
@@ -181,7 +181,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					template.model = undefined;
@@ -198,9 +198,9 @@ define([
 					});
 					model.first = "Irene";
 					return dfd.promise;
-				}).then(dfd.callback(function (value) {
+				}).then(function (value) {
 					expect(value).to.equal("Irene Doe");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 		});
 	}

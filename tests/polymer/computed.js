@@ -18,12 +18,12 @@ define([
 			});
 			it("Computed property", function () {
 				var elem,
-					dfd = this.async(10000),
 					link = document.createElement("link");
 				link.href = "./imports/computed.html";
 				link.rel = "import";
+				this.timeout = 10000;
 				document.head.appendChild(link);
-				waitFor(function () {
+				return waitFor(function () {
 					/* global Polymer */
 					return Polymer.getRegisteredPrototype("liaison-test-computed");
 				}).then(function () {
@@ -45,15 +45,15 @@ define([
 					document.body.removeChild(elem);
 				}).then(waitFor.bind(function () {
 					return !elem.computed;
-				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}));
 			});
 			it("Computed array", function () {
-				var dfd = this.async(10000),
-					link = document.createElement("link");
+				var link = document.createElement("link");
 				link.href = "./imports/computedArray.html";
 				link.rel = "import";
 				document.head.appendChild(link);
-				waitFor(function () {
+				this.timeout = 10000;
+				return waitFor(function () {
 					/* global Polymer */
 					return Polymer.getRegisteredPrototype("liaison-test-computedarray");
 				}).then(function () {
@@ -62,10 +62,10 @@ define([
 					elem.items.push({Name: "John Jacklin"});
 				}).then(waitFor.bind(function () {
 					return document.createElement("liaison-test-computedarray").totalNameLength !== 45;
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var elem = document.createElement("liaison-test-computedarray");
 					expect(elem.totalNameLength).to.equal(57);
-				}), dfd.reject.bind(dfd));
+				});
 			});
 		});
 	}

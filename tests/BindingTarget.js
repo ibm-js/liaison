@@ -26,23 +26,23 @@ define([
 			});
 			it("Object reflecting model", function () {
 				var target,
-					dfd = this.async(1000),
 					o = {},
 					observable = new Observable({foo: "Foo0"}),
 					source = new ObservablePath(observable, "foo");
+				this.timeout = 1000;
 				handles.push(target = new BindingTarget(o, "Foo").bind(source), source);
 				expect(o.Foo).to.equal("Foo0");
 				observable.set("foo", "Foo1");
-				waitFor(function () {
+				return waitFor(function () {
 					return target.value === "Foo1";
 				}).then(function () {
 					expect(o.Foo).to.equal("Foo1");
 					target.remove();
 					observable.set("foo", "Foo2");
-				}).then(waitFor.bind(100)).then(dfd.callback(function () {
+				}).then(waitFor.bind(100)).then(function () {
 					expect(o.Foo).to.equal("Foo1");
 					expect(target.value).to.equal("Foo1");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Sending current value of BindingTarget to the bound source", function () {
 				var o = {},
@@ -57,22 +57,22 @@ define([
 				expect(observable.foo.bar).to.equal("Bar1");
 			});
 			it("Rebind", function () {
-				var dfd = this.async(1000),
-					o = {},
+				var o = {},
 					observable = new Observable({foo: "Foo0", bar: "Bar0"}),
 					source0 = new ObservablePath(observable, "foo"),
 					source1 = new ObservablePath(observable, "bar"),
 					target = new BindingTarget(o, "Foo");
+				this.timeout = 1000;
 				handles.push(source0, source1, target);
 				target.bind(source0);
 				target.bind(source1);
 				observable.set("foo", "Foo1");
 				observable.set("bar", "Bar1");
-				waitFor(function () {
+				return waitFor(function () {
 					return target.value === "Bar1";
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(o.Foo).to.equal("Bar1");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Cleaning up BindingTarget references", function () {
 				var o = {},

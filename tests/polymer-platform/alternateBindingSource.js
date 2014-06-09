@@ -41,12 +41,12 @@ define([
 			it("Declarative events", function () {
 				var senderDiv,
 					targetDiv,
-					dfd = this.async(10000),
 					dfd1stClick = new Deferred(),
 					dfd2ndClick = new Deferred(),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					model = {handleClick: "Foo"};
+				this.timeout = 10000;
 				template.setAttribute("bind", "");
 				template.innerHTML = eventTemplate;
 				template.model = model;
@@ -59,7 +59,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					model.handleClick = createDeclarativeEventResolver(dfd1stClick);
@@ -79,16 +79,15 @@ define([
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
-				}).then(waitFor.bind(dfd2ndClick.promise)).then(dfd.callback(function (data) {
+				}).then(waitFor.bind(dfd2ndClick.promise)).then(function (data) {
 					var event = data[1],
 						sender = data[3];
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(senderDiv);
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Nested declarative events", function () {
-				var dfd = this.async(10000),
-					dfd1stClick = new Deferred(),
+				var dfd1stClick = new Deferred(),
 					dfd2ndClick = new Deferred(),
 					dfd3rdClick = new Deferred(),
 					div = document.createElement("div"),
@@ -99,6 +98,7 @@ define([
 							bar: new Observable()
 						}
 					};
+				this.timeout = 10000;
 				template.setAttribute("bind", "");
 				template.innerHTML = nestedEventTemplate;
 				template.model = model;
@@ -111,7 +111,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return div.querySelector("div");
 				}).then(function () {
 					var event = document.createEvent("MouseEvents");
@@ -148,12 +148,11 @@ define([
 					expect(thisObject).to.equal(model.foo.bar);
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(div.querySelector("div"));
-				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				});
 			});
 			it("Style binding", function () {
 				/* global Platform */
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					model = {
 						show: true,
@@ -161,6 +160,7 @@ define([
 						color: true,
 						weight: true
 					};
+				this.timeout = 10000;
 				template.setAttribute("bind", "");
 				template.innerHTML = styleTemplate;
 				template.model = model;
@@ -173,7 +173,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var span = template.nextSibling;
@@ -201,11 +201,10 @@ define([
 					Platform.performMicrotaskCheckpoint();
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.style.display === "";
-				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}));
 			});
 			it("Style binding with alternate binding source factory", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					model = {
 						show: 1,
@@ -226,6 +225,7 @@ define([
 					}
 					return origPrepareBinding && origPrepareBinding.apply(this, arguments);
 				};
+				this.timeout = 10000;
 				template.setAttribute("bind", "");
 				template.innerHTML = styleWithAlternateBindingTemplate;
 				template.model = model;
@@ -238,7 +238,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var span = template.nextSibling;
@@ -261,7 +261,7 @@ define([
 					Platform.performMicrotaskCheckpoint();
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.style.display === "none";
-				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}));
 			});
 		});
 	}

@@ -146,28 +146,28 @@ define([
 				expect(script.content.firstChild.firstChild.nodeValue).to.equal("Foo");
 			});
 			it("Assigning non-object/array", function () {
-				var dfd = this.async(10000),
-					observable = new Observable({foo: 0}),
+				var observable = new Observable({foo: 0}),
 					observablePath = new ObservablePath(observable, "foo"),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = "<div></div>";
 				var binding = template.bind("bind", observablePath);
 				handles.push(binding);
-				waitFor(500).then(function () {
+				return waitFor(500).then(function () {
 					expect(template.nextSibling).to.be.null;
 					template.unbind("bind");
 					binding = template.bind("repeat", observablePath);
 					handles.push(binding);
-				}).then(waitFor.bind(500)).then(dfd.callback(function () {
+				}).then(waitFor.bind(500)).then(function () {
 					expect(template.nextSibling).to.be.null;
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Simple binding: <template>", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({first: "John"});
+				this.timeout = 10000;
 				template.innerHTML = simpleTemplate;
 				var binding = template.bind("bind", observable);
 				handles.push(binding);
@@ -178,7 +178,7 @@ define([
 					}
 				});
 				expect(binding.value).to.equal(observable);
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var text = template.nextSibling,
@@ -191,15 +191,15 @@ define([
 					input.dispatchEvent(event);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.nodeValue !== "John ";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Simple binding: <script type=\"text/x-template\">", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("script")),
 					observable = new Observable({first: "John"});
+				this.timeout = 10000;
 				template.setAttribute("type", "text/x-template");
 				template.innerHTML = simpleTemplate;
 				var binding = template.bind("bind", observable);
@@ -211,7 +211,7 @@ define([
 					}
 				});
 				expect(binding.value).to.equal(observable);
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var text = template.nextSibling,
@@ -224,19 +224,19 @@ define([
 					input.dispatchEvent(event);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.nodeValue !== "John ";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Pointer binding: <template>", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({
 						value: "Foo0",
 						checked: true,
 						index: 1,
 					});
+				this.timeout = 10000;
 				template.innerHTML = pointerTemplate;
 				var binding = template.bind("bind", observable);
 				handles.push(binding);
@@ -246,7 +246,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					expect(template.nextSibling.getElementsByTagName("input")[0].value).to.equal("Foo0");
@@ -260,19 +260,19 @@ define([
 					observable.set("index", 0);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.getElementsByTagName("input")[0].value !== "Foo0";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(template.nextSibling.getElementsByTagName("input")[0].value).to.equal("Foo1");
 					expect(template.nextSibling.getElementsByTagName("input")[1].checked).to.be.false;
 					expect(template.nextSibling.getElementsByTagName("option")[0].selected).to.be.false;
 					expect(template.nextSibling.getElementsByTagName("option")[1].selected).to.be.true;
 					expect(template.nextSibling.getElementsByTagName("option")[2].selected).to.be.true;
 					expect(template.nextSibling.getElementsByTagName("option")[3].selected).to.be.false;
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Simple object path binding", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = objectPathTemplate;
 				handles.push(template.bind("bind", {name: new Observable({first: "John"})}));
 				document.body.appendChild(div);
@@ -281,7 +281,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var text = template.nextSibling,
@@ -294,14 +294,14 @@ define([
 					input.dispatchEvent(event);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.nodeValue !== "John ";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Simple binding with alternate binding factory", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = alternateBindingTemplate;
 				template.createBindingSourceFactory = function (descriptor) {
 					var match = /(\w+):(.*)/.exec(descriptor),
@@ -322,7 +322,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var text = template.nextSibling,
@@ -335,9 +335,9 @@ define([
 					input.dispatchEvent(event);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.nodeValue !== "*John* ";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("*Anne* ");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Simple binding with default alternate binding factory", function () {
 				var originalCreateBindingSourceFactory = Element.prototype.createBindingSourceFactory;
@@ -358,9 +358,9 @@ define([
 						Element.prototype.createBindingSourceFactory = originalCreateBindingSourceFactory;
 					}
 				});
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = alternateBindingTemplate;
 				handles.push(template.bind("bind", new Observable({first: "John"})));
 				document.body.appendChild(div);
@@ -369,7 +369,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var text = template.nextSibling,
@@ -382,18 +382,18 @@ define([
 					input.dispatchEvent(event);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.nodeValue !== "*John* ";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("*Anne* ");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Binding with nested template: Basic", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({first: "John"});
+				this.timeout = 10000;
 				template.innerHTML = nestedTemplate;
 				handles.push(template.bind("bind", observable));
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var text = template.nextSibling,
@@ -418,21 +418,21 @@ define([
 				}).then(waitFor.bind(function () {
 					var innerInput = (template.nextSibling.nextSibling.nextSibling.nextSibling || {}).nextSibling;
 					return innerInput && innerInput.value !== "John";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var innerSpan = template.nextSibling.nextSibling.nextSibling.nextSibling,
 						innerInput = innerSpan.nextSibling;
 					expect(innerSpan.firstChild.nodeValue).to.equal("Anne ");
 					expect(innerInput.value).to.equal("Anne");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Binding with nested template: <script type=\"text/x-template\">", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({first: "John"});
+				this.timeout = 10000;
 				template.innerHTML = nestedScriptTemplate;
 				handles.push(template.bind("bind", observable));
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var text = template.nextSibling,
@@ -457,24 +457,24 @@ define([
 				}).then(waitFor.bind(function () {
 					var innerInput = (template.nextSibling.nextSibling.nextSibling.nextSibling || {}).nextSibling;
 					return innerInput && innerInput.value !== "John";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var innerSpan = template.nextSibling.nextSibling.nextSibling.nextSibling,
 						innerInput = innerSpan.nextSibling;
 					expect(innerSpan.firstChild.nodeValue).to.equal("Anne ");
 					expect(innerInput.value).to.equal("Anne");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Binding with nested template: Change in source", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					grandchild = new Observable({first: "Anne"}),
 					child = new Observable({first: "John", name: grandchild}),
 					observable = new Observable({target: child}),
 					observablePath = new ObservablePath(observable, "target");
+				this.timeout = 10000;
 				template.innerHTML = nestedTemplate;
 				handles.push(template.bind("bind", observablePath));
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var text = template.nextSibling,
@@ -512,28 +512,28 @@ define([
 				}).then(waitFor.bind(function () {
 					var innerInput = (template.nextSibling.nextSibling.nextSibling.nextSibling || {}).nextSibling;
 					return innerInput && innerInput.tagName === "INPUT" && innerInput.value !== "Anne";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var innerSpan = template.nextSibling.nextSibling.nextSibling.nextSibling,
 						innerInput = innerSpan.nextSibling;
 					expect(innerSpan.firstChild.nodeValue).to.equal("John ");
 					expect(innerInput.value).to.equal("John");
 					expect(innerInput.nextElementSibling).to.be.null;
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Binding with deep nested template", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					grandchild = new Observable({first: "Ben"}),
 					child = new Observable({first: "Anne", name: grandchild}),
 					observable = new Observable({first: "John", name: child});
+				this.timeout = 10000;
 				template.innerHTML = deepNestedTemplate;
 				handles.push(template.bind("bind", observable));
-				waitFor(function () {
+				return waitFor(function () {
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return input.parentNode.nodeType !== Node.ELEMENT_NODE || input.parentNode.tagName !== "TEMPLATE";
 					}).length === 3;
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					var iterator = div.ownerDocument.createNodeIterator(div, NodeFilter.SHOW_TEXT, function (node) {
 							return (/^\s*$/).test(node.nodeValue) ? NodeFilter.FILTER_SKIP : NodeFilter.FILTER_ACCEPT;
 						}, false),
@@ -542,11 +542,10 @@ define([
 						expect(iterator.nextNode().nodeValue).to.equal(values[i] + " ");
 						expect(inputs[i].value).to.equal(values[i]);
 					}
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Simple repeat: <template>", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray = ObservableArray.apply(undefined, [
 						{first: "Anne"},
@@ -554,6 +553,7 @@ define([
 						{first: "Chad"},
 						{first: "Irene"}
 					]);
+				this.timeout = 10000;
 				template.innerHTML = simpleTemplate;
 				var binding = template.bind("repeat", observableArray);
 				handles.push(binding);
@@ -564,7 +564,7 @@ define([
 					}
 				});
 				expect(binding.value).to.equal(observableArray);
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					testRepeatValuesWithBasicTemplate(div, observableArray);
@@ -579,11 +579,10 @@ define([
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 6;
-				})).then(dfd.callback(testRepeatValuesWithBasicTemplate.bind(undefined, div, observableArray)), dfd.reject.bind(dfd));
+				})).then(testRepeatValuesWithBasicTemplate.bind(undefined, div, observableArray));
 			});
 			it("Repeat with nested template", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray = ObservableArray.apply(undefined, [
 						{first: "Anne", name: {first: "John"}},
@@ -591,6 +590,7 @@ define([
 						{first: "Chad", name: {first: "John"}},
 						{first: "Irene", name: {first: "John"}}
 					]);
+				this.timeout = 10000;
 				template.innerHTML = nestedTemplate;
 				handles.push(template.bind("repeat", observableArray));
 				document.body.appendChild(div);
@@ -599,7 +599,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return input.parentNode.nodeType !== Node.ELEMENT_NODE || input.parentNode.tagName !== "TEMPLATE";
 					}).length === 8;
@@ -610,11 +610,10 @@ define([
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 6;
-				})).then(dfd.callback(testRepeatValuesWithNestedTemplate.bind(undefined, div, observableArray)), dfd.reject.bind(dfd));
+				})).then(testRepeatValuesWithNestedTemplate.bind(undefined, div, observableArray));
 			});
 			it("Repeat with swapping model", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray0 = ObservableArray.apply(undefined, [
 						{first: "Anne"},
@@ -625,6 +624,7 @@ define([
 					observableArray1 = ObservableArray.apply(undefined, observableArray0.slice(1)),
 					observable = new Observable({a: observableArray0}),
 					observablePath = new ObservablePath(observable, "a");
+				this.timeout = 10000;
 				template.innerHTML = simpleTemplate;
 				handles.push(template.bind("repeat", observablePath));
 				document.body.appendChild(div);
@@ -633,7 +633,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					testRepeatValuesWithBasicTemplate(div, observable.a);
@@ -656,28 +656,28 @@ define([
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 3;
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					testRepeatValuesWithBasicTemplate(div, observable.a);
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Binding to another array for repeat right after binding", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = simpleTemplate;
 				template.bind("repeat", new ObservableArray());
 				handles.push(template.bind("repeat", new ObservableArray("a", "b", "c")));
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(div.querySelectorAll("input").length).to.equal(3);
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("disabled attribute reflecting model", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					observable = new Observable({disabled: false}),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = simpleWithConditionalAttributeBindingTemplate;
 				handles.push(template.bind("bind", observable));
 				document.body.appendChild(div);
@@ -686,7 +686,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var input = template.nextSibling;
@@ -694,13 +694,13 @@ define([
 					observable.set("disabled", true);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.disabled;
-				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}));
 			});
 			it("Simple conditional template", function () {
-				var dfd = this.async(10000),
-					observable = new Observable({first: "John"}),
+				var observable = new Observable({first: "John"}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = simpleConditionalBindingTemplate;
 				handles.push(template.bind("bind", observable));
 				document.body.appendChild(div);
@@ -709,7 +709,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var text = template.nextSibling,
@@ -732,15 +732,15 @@ define([
 					input.dispatchEvent(event);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.nodeValue !== "John ";
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Simple conditional repeating template", function () {
-				var dfd = this.async(10000),
-					observable = new Observable({names: new ObservableArray({first: "Anne"}, {first: "Ben"})}),
+				var observable = new Observable({names: new ObservableArray({first: "Anne"}, {first: "Ben"})}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = simpleConditionalRepeatingTemplate;
 				handles.push(template.bind("bind", observable));
 				document.body.appendChild(div);
@@ -749,7 +749,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var innerTemplate = template.nextSibling;
@@ -759,14 +759,14 @@ define([
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 2;
-				})).then(dfd.callback(function () {
+				})).then(function () {
 					var innerTemplate = template.nextSibling;
 					expect(innerTemplate.nextSibling.value).to.equal("Anne");
 					expect(innerTemplate.nextSibling.nextSibling.value).to.equal("Ben");
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Computed property", function () {
-				var dfd = this.async(10000),
+				var valueChangedInLastTest,
 					observable = new Observable({
 						first: "John",
 						last: "Doe",
@@ -776,9 +776,10 @@ define([
 					}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = computedTemplate;
 				handles.push(template.bind("bind", observable));
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					expect(div.querySelectorAll("span")[2].innerHTML).to.equal("John Doe");
@@ -794,17 +795,18 @@ define([
 						return !template.nextSibling;
 					});
 				}).then(function () {
-					handles.push(new ObservablePath(observable, "name").observe(dfd.rejectOnError(function (value) {
+					handles.push(new ObservablePath(observable, "name").observe(function (value) {
 						if (value === "Irene Doe") {
-							dfd.reject(new Error("observable.name should not become Irene Doe"));
+							valueChangedInLastTest = true;
 						}
-					})));
+					}));
 					observable.set("first", "Irene");
-				}).then(waitFor.bind(100)).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}).then(waitFor.bind(100)).then(function () {
+					expect(valueChangedInLastTest).not.to.be.true;
+				});
 			});
 			it("Prevent cleaning up computed property", function () {
-				var dfd = this.async(10000),
-					observable = new Observable({
+				var observable = new Observable({
 						first: "John",
 						last: "Doe",
 						name: computed(function (first, last) {
@@ -813,10 +815,11 @@ define([
 					}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = computedTemplate;
 				template.preventRemoveComputed = true;
 				handles.push(template.bind("bind", observable));
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					template.bind("bind", undefined);
@@ -831,7 +834,7 @@ define([
 					}));
 					observable.set("first", "Irene");
 					return dfd.promise;
-				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				});
 			});
 			it("Attribute template", function () {
 				var dfd = this.async(10000),
@@ -908,8 +911,7 @@ define([
 				}, dfd.reject.bind(dfd));
 			});
 			it("Empty binding", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observableArray = ObservableArray.apply(undefined, [
 						"Anne",
@@ -919,6 +921,7 @@ define([
 					]),
 					observable = new Observable({a: observableArray}),
 					observablePath = new ObservablePath(observable, "a");
+				this.timeout = 10000;
 				template.innerHTML = emptyBindingTemplate;
 				handles.push(template.bind("repeat", observablePath));
 				document.body.appendChild(div);
@@ -927,9 +930,9 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					var iterator = div.ownerDocument.createNodeIterator(div, NodeFilter.SHOW_TEXT, function (node) {
 						return (/^\s*$/).test(node.nodeValue) ? NodeFilter.FILTER_SKIP : NodeFilter.FILTER_ACCEPT;
 					}, false);
@@ -937,7 +940,7 @@ define([
 						expect(iterator.nextNode().nodeValue).to.equal(observableArray[i] + " ");
 						expect(inputs[i].value).to.equal(observableArray[i]);
 					}
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			var ieVer = parseFloat(navigator.appVersion.split("MSIE ")[1]) || undefined,
 				mode = document.documentMode;
@@ -946,9 +949,9 @@ define([
 			}
 			if (ieVer === undefined || ieVer > 9) {
 				it("SVG - Basic", function () {
-					var dfd = this.async(10000),
-						div = document.createElement("div"),
+					var div = document.createElement("div"),
 						observable = new Observable({width: 250, height: 150, red: 128, green: 255, blue: 0});
+					this.timeout = 10000;
 					div.innerHTML = svgTemplate;
 					var template = div.querySelector("template"),
 						binding = template.bind("bind", observable);
@@ -960,7 +963,7 @@ define([
 							document.body.removeChild(div);
 						}
 					});
-					waitFor(function () {
+					return waitFor(function () {
 						try {
 							var rect = div.querySelector("rect"),
 								rgb = rect && getRGB(document.defaultView.getComputedStyle(rect).fill);
@@ -983,7 +986,7 @@ define([
 								rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
 							return rect.width.baseVal.value !== 250 && rgb[2] > 0;
 						} catch (e) {}
-					})).then(dfd.callback(function () {
+					})).then(function () {
 						var rect = div.querySelector("rect");
 						expect(rect.width.baseVal.value).to.equal(150);
 						expect(rect.height.baseVal.value).to.equal(250);
@@ -991,13 +994,13 @@ define([
 						expect(rgb[0]).to.equal(128);
 						expect(rgb[1]).to.equal(255);
 						expect(rgb[2]).to.equal(128);
-					}), dfd.reject.bind(dfd));
+					});
 				});
 				it("SVG - Nested", function () {
-					var dfd = this.async(10000),
-						div = document.createElement("div"),
+					var div = document.createElement("div"),
 						template = div.appendChild(document.createElement("template")),
 						observable = new Observable({width: 250, height: 150, red: 128, green: 255, blue: 0});
+					this.timeout = 10000;
 					template.innerHTML = svgNestedTemplate;
 					handles.push(template.bind("bind", observable));
 					document.body.appendChild(div);
@@ -1006,7 +1009,7 @@ define([
 							document.body.removeChild(div);
 						}
 					});
-					waitFor(function () {
+					return waitFor(function () {
 						try {
 							var rect = div.querySelector("rect"),
 								rgb = rect && getRGB(document.defaultView.getComputedStyle(rect).fill);
@@ -1029,7 +1032,7 @@ define([
 								rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
 							return rect.width.baseVal.value !== 250 && rgb[2] > 0;
 						} catch (e) {}
-					})).then(dfd.callback(function () {
+					})).then(function () {
 						var rect = div.querySelector("rect");
 						expect(rect.width.baseVal.value).to.equal(150);
 						expect(rect.height.baseVal.value).to.equal(250);
@@ -1037,12 +1040,11 @@ define([
 						expect(rgb[0]).to.equal(128);
 						expect(rgb[1]).to.equal(255);
 						expect(rgb[2]).to.equal(128);
-					}), dfd.reject.bind(dfd));
+					});
 				});
 			}
 			it("Style binding", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({
 						show: true,
@@ -1050,6 +1052,7 @@ define([
 						color: true,
 						weight: true
 					});
+				this.timeout = 10000;
 				template.innerHTML = styleTemplate;
 				var binding = template.bind("bind", observable);
 				handles.push(binding);
@@ -1059,7 +1062,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var span = template.nextSibling;
@@ -1083,11 +1086,10 @@ define([
 					observable.set("show", 2);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.style.display === "";
-				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}));
 			});
 			it("Style binding with alternate binding source factory", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({
 						show: 1,
@@ -1107,6 +1109,7 @@ define([
 					}
 					return origCreateBindingSourceFactory && origCreateBindingSourceFactory.apply(this, arguments);
 				};
+				this.timeout = 10000;
 				template.innerHTML = styleWithAlternateBindingTemplate;
 				var binding = template.bind("bind", observable);
 				handles.push(binding);
@@ -1116,7 +1119,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					var span = template.nextSibling;
@@ -1136,17 +1139,17 @@ define([
 					observable.set("show", 0);
 				}).then(waitFor.bind(function () {
 					return template.nextSibling.style.display === "none";
-				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}));
 			});
 			it("Declarative events", function () {
 				var senderDiv,
 					targetDiv,
-					dfd = this.async(10000),
 					dfd1stClick = new Deferred(),
 					dfd2ndClick = new Deferred(),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),
 					observable = new Observable({handleClick: "Foo"});
+				this.timeout = 10000;
 				template.innerHTML = eventTemplate;
 				handles.push(template.bind("bind", observable));
 				document.body.appendChild(div);
@@ -1155,7 +1158,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
 				}).then(function () {
 					// Make sure sending event before setting declarative event handler won't cause an exception, etc.
@@ -1187,16 +1190,15 @@ define([
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
-				}).then(waitFor.bind(dfd2ndClick.promise)).then(dfd.callback(function (data) {
+				}).then(waitFor.bind(dfd2ndClick.promise)).then(function (data) {
 					var event = data[1],
 						sender = data[3];
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(senderDiv);
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Nested declarative events", function () {
-				var dfd = this.async(10000),
-					dfd1stClick = new Deferred(),
+				var dfd1stClick = new Deferred(),
 					dfd2ndClick = new Deferred(),
 					dfd3rdClick = new Deferred(),
 					div = document.createElement("div"),
@@ -1207,6 +1209,7 @@ define([
 							bar: new Observable()
 						})
 					});
+				this.timeout = 10000;
 				template.innerHTML = nestedEventTemplate;
 				handles.push(template.bind("bind", observable));
 				document.body.appendChild(div);
@@ -1215,7 +1218,7 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				waitFor(function () {
+				return waitFor(function () {
 					var divInner = div.querySelector("div");
 					return divInner && [
 						divInner.parentNode,
@@ -1259,47 +1262,47 @@ define([
 					expect(thisObject).to.equal(observable.foo.bar);
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(div.querySelector("div"));
-				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				});
 			});
 			it("Irregular template", function () {
-				var dfd = this.async(10000),
-					observable = new Observable({foo: "Foo"}),
+				var observable = new Observable({foo: "Foo"}),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = irregularTemplate;
 				handles.push(template.bind("bind", observable));
-				waitFor(function () {
+				return waitFor(function () {
 					return template.nextSibling;
-				}).then(dfd.callback(function () {
+				}).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("{{Foo");
 					expect(!!template.nextSibling.nextSibling.bindings).to.be.false;
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Unbinding right after binding", function () {
-				var dfd = this.async(10000),
-					observable = new Observable(),
+				var observable = new Observable(),
 					div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = "<div></div>";
 				var binding = template.bind("bind", new ObservablePath(observable, "foo"));
 				handles.push(binding);
 				template.unbind("bind");
-				waitFor(500).then(function () {
+				return waitFor(500).then(function () {
 					expect(template.nextSibling).to.be.null;
 					binding = template.bind("repeat", new ObservableArray("a", "b", "c"));
 					handles.push(binding);
 					template.unbind("repeat");
-				}).then(waitFor.bind(500)).then(dfd.callback(function () {
+				}).then(waitFor.bind(500)).then(function () {
 					expect(template.nextSibling).to.be.null;
-				}), dfd.reject.bind(dfd));
+				});
 			});
 			it("Template reference: From <template>", function () {
-				var dfd = this.async(10000),
-					observable = new Observable({first: "John", ref: "template0"}),
+				var observable = new Observable({first: "John", ref: "template0"}),
 					div = document.createElement("div"),
 					template0 = div.appendChild(document.createElement("template")),
 					template1 = div.appendChild(document.createElement("script")),
 					template2 = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				document.body.appendChild(div);
 				handles.push({
 					remove: function () {
@@ -1312,7 +1315,7 @@ define([
 				template1.innerHTML = "<div></div>";
 				template1.id = "template1";
 				handles.push(template2.bind("bind", observable), template2.bind("ref", new ObservablePath(observable, "ref")));
-				waitFor(function () {
+				return waitFor(function () {
 					return template2.nextSibling;
 				}).then(function () {
 					var text = template2.nextSibling,
@@ -1326,15 +1329,15 @@ define([
 					observable.set("ref", "foo");
 				}).then(waitFor.bind(function () {
 					return !template2.nextSibling;
-				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}));
 			});
 			it("Template reference: From <script type=\"x-template\">", function () {
-				var dfd = this.async(10000),
-					observable = new Observable({first: "John", ref: "template0"}),
+				var observable = new Observable({first: "John", ref: "template0"}),
 					div = document.createElement("div"),
 					template0 = div.appendChild(document.createElement("template")),
 					template1 = div.appendChild(document.createElement("script")),
 					template2 = div.appendChild(document.createElement("script"));
+				this.timeout = 10000;
 				document.body.appendChild(div);
 				handles.push({
 					remove: function () {
@@ -1348,7 +1351,7 @@ define([
 				template1.id = "template1";
 				template2.type = "text/x-template";
 				handles.push(template2.bind("bind", observable), template2.bind("ref", new ObservablePath(observable, "ref")));
-				waitFor(function () {
+				return waitFor(function () {
 					return template2.nextSibling;
 				}).then(function () {
 					var text = template2.nextSibling,
@@ -1362,7 +1365,7 @@ define([
 					observable.set("ref", "foo");
 				}).then(waitFor.bind(function () {
 					return !template2.nextSibling;
-				})).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+				}));
 			});
 		});
 	}
