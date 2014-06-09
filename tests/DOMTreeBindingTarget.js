@@ -159,7 +159,7 @@ define([
 					template.unbind("bind");
 					binding = template.bind("repeat", observablePath);
 					handles.push(binding);
-				}).then(waitFor.bind(500)).then(function () {
+				}).then(waitFor.create(500)).then(function () {
 					expect(template.nextSibling).to.be.null;
 				});
 			});
@@ -189,7 +189,7 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.nodeValue !== "John ";
 				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
@@ -222,7 +222,7 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.nodeValue !== "John ";
 				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
@@ -258,7 +258,7 @@ define([
 					observable.set("value", "Foo1");
 					observable.set("checked", false);
 					observable.set("index", 0);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.getElementsByTagName("input")[0].value !== "Foo0";
 				})).then(function () {
 					expect(template.nextSibling.getElementsByTagName("input")[0].value).to.equal("Foo1");
@@ -292,7 +292,7 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.nodeValue !== "John ";
 				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
@@ -333,7 +333,7 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.nodeValue !== "*John* ";
 				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("*Anne* ");
@@ -380,7 +380,7 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.nodeValue !== "*John* ";
 				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("*Anne* ");
@@ -406,7 +406,7 @@ define([
 					expect(((innerSpan || {}).firstChild || {}).nodeValue).to.not.equal("John ");
 					expect((innerInput || {}).value).to.not.equal("John");
 					observable.set("name", new Observable({first: "John"}));
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return (template.nextSibling.nextSibling.nextSibling.nextSibling || {}).tagName === "SPAN";
 				})).then(function () {
 					var innerTemplate = template.nextSibling.nextSibling.nextSibling,
@@ -415,7 +415,7 @@ define([
 					expect(innerSpan.firstChild.nodeValue).to.equal("John ");
 					expect(innerInput.value).to.equal("John");
 					observable.set("name", new Observable({first: "Anne"}));
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					var innerInput = (template.nextSibling.nextSibling.nextSibling.nextSibling || {}).nextSibling;
 					return innerInput && innerInput.value !== "John";
 				})).then(function () {
@@ -445,7 +445,7 @@ define([
 					expect(((innerSpan || {}).firstChild || {}).nodeValue).to.not.equal("John ");
 					expect((innerInput || {}).value).to.not.equal("John");
 					observable.set("name", new Observable({first: "John"}));
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return (template.nextSibling.nextSibling.nextSibling.nextSibling || {}).tagName === "SPAN";
 				})).then(function () {
 					var innerTemplate = template.nextSibling.nextSibling.nextSibling,
@@ -454,7 +454,7 @@ define([
 					expect(innerSpan.firstChild.nodeValue).to.equal("John ");
 					expect(innerInput.value).to.equal("John");
 					observable.set("name", new Observable({first: "Anne"}));
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					var innerInput = (template.nextSibling.nextSibling.nextSibling.nextSibling || {}).nextSibling;
 					return innerInput && innerInput.value !== "John";
 				})).then(function () {
@@ -486,7 +486,7 @@ define([
 						innerInputInTemplate = innerTemplate.lastChild;
 					expect(((innerSpanInTemplate || {}).firstChild || {}).nodeValue).to.not.equal("Anne ");
 					expect((innerInputInTemplate || {}).value).to.not.equal("Anne");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return (template.nextSibling.nextSibling.nextSibling.nextSibling || {}).tagName === "SPAN";
 				})).then(function () {
 					var innerTemplate = template.nextSibling.nextSibling.nextSibling,
@@ -496,7 +496,7 @@ define([
 					expect(innerInput.value).to.equal("Anne");
 					expect(innerInput.nextElementSibling).to.be.null;
 					observable.set("target", new Observable({first: "Anne", name: new Observable({first: "John"})}));
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					var input = (template.nextSibling || {}).nextSibling;
 					return input && input.value !== "John";
 				})).then(function () {
@@ -509,7 +509,7 @@ define([
 						innerInputInTemplate = innerTemplate.lastChild;
 					expect(((innerSpanInTemplate || {}).firstChild || {}).nodeValue).to.not.equal("John ");
 					expect((innerInputInTemplate || {}).value).to.not.equal("John");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					var innerInput = (template.nextSibling.nextSibling.nextSibling.nextSibling || {}).nextSibling;
 					return innerInput && innerInput.tagName === "INPUT" && innerInput.value !== "Anne";
 				})).then(function () {
@@ -569,13 +569,13 @@ define([
 				}).then(function () {
 					testRepeatValuesWithBasicTemplate(div, observableArray);
 					observableArray.splice(1, 2, {first: "Chad"}, {first: "Ben"}, {first: "John"});
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					var input = div.getElementsByTagName("input")[1];
 					return input && input.value !== "Ben";
 				})).then(function () {
 					testRepeatValuesWithBasicTemplate(div, observableArray);
 					observableArray.set(observableArray.length, {first: "Unnamed"});
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 6;
@@ -606,7 +606,7 @@ define([
 				}).then(function () {
 					testRepeatValuesWithNestedTemplate(div, observableArray);
 					observableArray.splice(1, 2, {first: "Chad", name: {first: "John"}});
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 6;
@@ -638,21 +638,21 @@ define([
 				}).then(function () {
 					testRepeatValuesWithBasicTemplate(div, observable.a);
 					observable.set("a", observableArray1);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 3;
 				})).then(function () {
 					testRepeatValuesWithBasicTemplate(div, observable.a);
 					observable.set("a", observableArray0);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 4;
 				})).then(function () {
 					testRepeatValuesWithBasicTemplate(div, observable.a);
 					observable.set("a", observableArray1);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 3;
@@ -692,7 +692,7 @@ define([
 					var input = template.nextSibling;
 					expect(input.disabled).to.be.false;
 					observable.set("disabled", true);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.disabled;
 				}));
 			});
@@ -717,7 +717,7 @@ define([
 					expect(text.nodeValue).to.equal("John ");
 					expect(input.tagName).not.to.equal("INPUT");
 					observable.set("showInput", true);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 1;
@@ -730,7 +730,7 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					input.dispatchEvent(event);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.nodeValue !== "John ";
 				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
@@ -755,7 +755,7 @@ define([
 					var innerTemplate = template.nextSibling;
 					expect(innerTemplate.nextSibling).to.be.null;
 					observable.set("showInput", true);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return Array.prototype.filter.call(div.getElementsByTagName("input"), function (input) {
 						return !template.contains(input);
 					}).length === 2;
@@ -785,7 +785,7 @@ define([
 					expect(div.querySelectorAll("span")[2].innerHTML).to.equal("John Doe");
 					expect(div.querySelectorAll("span")[3].innerHTML).to.equal("8");
 					observable.set("first", "Ben");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return div.querySelectorAll("span")[2].innerHTML !== "John Doe";
 				})).then(function () {
 					expect(div.querySelectorAll("span")[2].innerHTML).to.equal("Ben Doe");
@@ -801,7 +801,7 @@ define([
 						}
 					}));
 					observable.set("first", "Irene");
-				}).then(waitFor.bind(100)).then(function () {
+				}).then(waitFor.create(100)).then(function () {
 					expect(valueChangedInLastTest).not.to.be.true;
 				});
 			});
@@ -823,7 +823,7 @@ define([
 					return template.nextSibling;
 				}).then(function () {
 					template.bind("bind", undefined);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return !template.nextSibling;
 				})).then(function () {
 					var dfd = new Deferred();
@@ -980,7 +980,7 @@ define([
 						observable.set("width", 150);
 						observable.set("height", 250);
 						observable.set("blue", 128);
-					}).then(waitFor.bind(function () {
+					}).then(waitFor.create(function () {
 						try {
 							var rect = div.querySelector("rect"),
 								rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
@@ -1026,7 +1026,7 @@ define([
 						observable.set("width", 150);
 						observable.set("height", 250);
 						observable.set("blue", 128);
-					}).then(waitFor.bind(function () {
+					}).then(waitFor.create(function () {
 						try {
 							var rect = div.querySelector("rect"),
 								rgb = getRGB(document.defaultView.getComputedStyle(rect).fill);
@@ -1070,21 +1070,21 @@ define([
 					expect(span.className).to.equal("color weight");
 					observable.set("hide", true);
 					observable.set("color", false);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "none";
 				})).then(function () {
 					var span = template.nextSibling;
 					expect(span.className).to.equal(" weight");
 					observable.set("hide", false);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "";
 				})).then(function () {
 					observable.set("show", false);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "none";
 				})).then(function () {
 					observable.set("show", 2);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "";
 				}));
 			});
@@ -1127,17 +1127,17 @@ define([
 					expect(span.className).to.equal("color weight");
 					observable.set("hide", 1);
 					observable.set("color", 0);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "none";
 				})).then(function () {
 					var span = template.nextSibling;
 					expect(span.className).to.equal(" weight");
 					observable.set("hide", 0);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "";
 				})).then(function () {
 					observable.set("show", 0);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "none";
 				}));
 			});
@@ -1174,13 +1174,13 @@ define([
 					expect(typeof source.discardChanges()).to.equal("function");
 				}).then(function () {
 					observable.set("handleClick", createDeclarativeEventResolver(dfd1stClick));
-				}).then(waitFor.bind(1000)).then(function () {
+				}).then(waitFor.create(1000)).then(function () {
 					senderDiv = template.nextSibling;
 					targetDiv = senderDiv.firstChild;
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
-				}).then(waitFor.bind(dfd1stClick.promise)).then(function (data) {
+				}).then(waitFor.create(dfd1stClick.promise)).then(function (data) {
 					var event = data[1],
 						sender = data[3];
 					expect(event.type).to.equal("click");
@@ -1190,7 +1190,7 @@ define([
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
-				}).then(waitFor.bind(dfd2ndClick.promise)).then(function (data) {
+				}).then(waitFor.create(dfd2ndClick.promise)).then(function (data) {
 					var event = data[1],
 						sender = data[3];
 					expect(event.type).to.equal("click");
@@ -1231,7 +1231,7 @@ define([
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					div.querySelector("div").dispatchEvent(event);
-				}).then(waitFor.bind(dfd1stClick.promise)).then(function (data) {
+				}).then(waitFor.create(dfd1stClick.promise)).then(function (data) {
 					var thisObject = data[0],
 						event = data[1],
 						sender = data[3];
@@ -1243,7 +1243,7 @@ define([
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					div.querySelector("div").dispatchEvent(event);
-				}).then(waitFor.bind(dfd2ndClick.promise)).then(function (data) {
+				}).then(waitFor.create(dfd2ndClick.promise)).then(function (data) {
 					var thisObject = data[0],
 						event = data[1],
 						sender = data[3];
@@ -1255,7 +1255,7 @@ define([
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					div.querySelector("div").dispatchEvent(event);
-				}).then(waitFor.bind(dfd3rdClick.promise)).then(function (data) {
+				}).then(waitFor.create(dfd3rdClick.promise)).then(function (data) {
 					var thisObject = data[0],
 						event = data[1],
 						sender = data[3];
@@ -1292,7 +1292,7 @@ define([
 					binding = template.bind("repeat", new ObservableArray("a", "b", "c"));
 					handles.push(binding);
 					template.unbind("repeat");
-				}).then(waitFor.bind(500)).then(function () {
+				}).then(waitFor.create(500)).then(function () {
 					expect(template.nextSibling).to.be.null;
 				});
 			});
@@ -1323,11 +1323,11 @@ define([
 					expect(text.nodeValue).to.equal("John ");
 					expect(input.value).to.equal("John");
 					observable.set("ref", "template1");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template2.nextSibling && template2.nextSibling.tagName === "DIV";
 				})).then(function () {
 					observable.set("ref", "foo");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return !template2.nextSibling;
 				}));
 			});
@@ -1359,11 +1359,11 @@ define([
 					expect(text.nodeValue).to.equal("John ");
 					expect(input.value).to.equal("John");
 					observable.set("ref", "template1");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template2.nextSibling && template2.nextSibling.tagName === "DIV";
 				})).then(function () {
 					observable.set("ref", "foo");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return !template2.nextSibling;
 				}));
 			});

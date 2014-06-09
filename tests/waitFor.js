@@ -2,14 +2,6 @@ define(["dojo/Deferred"], function (Deferred) {
 	var EMPTY_OBJECT = {},
 		waitFor = function (test, interval, timeout) {
 			var dfd = new Deferred();
-			if (typeof this === "function"
-				|| typeof (this || EMPTY_OBJECT).toPrecision === "function"
-				|| typeof (this || EMPTY_OBJECT).then === "function") {
-				// waitFor.bind(test, interval, timeout)
-				timeout = interval;
-				interval = test;
-				test = this;
-			}
 			interval = interval || 100;
 			function waitForImpl() {
 				try {
@@ -41,5 +33,10 @@ define(["dojo/Deferred"], function (Deferred) {
 			}
 			return dfd.promise;
 		};
+	waitFor.create = function () {
+		var args = Array.prototype.slice.call(arguments);
+		args.unshift(undefined);
+		return waitFor.bind.apply(waitFor, args);
+	};
 	return waitFor;
 });

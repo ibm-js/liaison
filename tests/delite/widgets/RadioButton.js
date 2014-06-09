@@ -36,7 +36,7 @@ define([
 					expect(inputs[0].checked).not.to.be.true;
 					expect(inputs[2].checked).not.to.be.true;
 					observable.set("current", "foo");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return div.getElementsByTagName("input")[0].current === "foo";
 				})).then(function () {
 					var inputs = div.getElementsByTagName("input");
@@ -62,7 +62,7 @@ define([
 					return inputs.length === 3 && inputs[1].checked;
 				}).then(function () {
 					observable.set("bazChecked", true);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return observable.current !== "bar";
 				})).then(function () {
 					expect(observable.current).to.equal("baz");
@@ -80,7 +80,7 @@ define([
 					return inputs.length === 3 && inputs[2].checked;
 				}).then(function () {
 					observable.set("bazValue", "BAZ");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return observable.current !== "baz";
 				})).then(function () {
 					expect(observable.current).to.equal("BAZ");

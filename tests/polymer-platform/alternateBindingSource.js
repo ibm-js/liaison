@@ -63,23 +63,23 @@ define([
 					return template.nextSibling;
 				}).then(function () {
 					model.handleClick = createDeclarativeEventResolver(dfd1stClick);
-				}).then(waitFor.bind(1000)).then(function () {
+				}).then(waitFor.create(1000)).then(function () {
 					senderDiv = template.nextSibling;
 					targetDiv = senderDiv.firstChild;
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
-				}).then(waitFor.bind(dfd1stClick.promise)).then(function (data) {
+				}).then(waitFor.create(dfd1stClick.promise)).then(function (data) {
 					var event = data[1],
 						sender = data[3];
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(senderDiv);
 					model.handleClick = createDeclarativeEventResolver(dfd2ndClick);
-				}).then(waitFor.bind(1000)).then(function () {
+				}).then(waitFor.create(1000)).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					targetDiv.dispatchEvent(event);
-				}).then(waitFor.bind(dfd2ndClick.promise)).then(function (data) {
+				}).then(waitFor.create(dfd2ndClick.promise)).then(function (data) {
 					var event = data[1],
 						sender = data[3];
 					expect(event.type).to.equal("click");
@@ -117,7 +117,7 @@ define([
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					div.querySelector("div").dispatchEvent(event);
-				}).then(waitFor.bind(dfd1stClick.promise)).then(function (data) {
+				}).then(waitFor.create(dfd1stClick.promise)).then(function (data) {
 					var thisObject = data[0],
 						event = data[1],
 						sender = data[3];
@@ -125,11 +125,11 @@ define([
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(div.querySelector("div"));
 					model.foo.handleClick = createDeclarativeEventResolver(dfd2ndClick);
-				}).then(waitFor.bind(1000)).then(function () {
+				}).then(waitFor.create(1000)).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					div.querySelector("div").dispatchEvent(event);
-				}).then(waitFor.bind(dfd2ndClick.promise)).then(function (data) {
+				}).then(waitFor.create(dfd2ndClick.promise)).then(function (data) {
 					var thisObject = data[0],
 						event = data[1],
 						sender = data[3];
@@ -137,11 +137,11 @@ define([
 					expect(event.type).to.equal("click");
 					expect(sender).to.equal(div.querySelector("div"));
 					model.foo.bar.handleClick = createDeclarativeEventResolver(dfd3rdClick);
-				}).then(waitFor.bind(1000)).then(function () {
+				}).then(waitFor.create(1000)).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
 					div.querySelector("div").dispatchEvent(event);
-				}).then(waitFor.bind(dfd3rdClick.promise)).then(function (data) {
+				}).then(waitFor.create(dfd3rdClick.promise)).then(function (data) {
 					var thisObject = data[0],
 						event = data[1],
 						sender = data[3];
@@ -182,24 +182,24 @@ define([
 					model.hide = true;
 					model.color = false;
 					Platform.performMicrotaskCheckpoint();
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "none";
 				})).then(function () {
 					var span = template.nextSibling;
 					expect(span.className).to.equal(" weight");
 					model.hide = false;
 					Platform.performMicrotaskCheckpoint();
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "";
 				})).then(function () {
 					model.show = false;
 					Platform.performMicrotaskCheckpoint();
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "none";
 				})).then(function () {
 					model.show = 2;
 					Platform.performMicrotaskCheckpoint();
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "";
 				}));
 			});
@@ -247,19 +247,19 @@ define([
 					model.hide = 1;
 					model.color = 0;
 					Platform.performMicrotaskCheckpoint();
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "none";
 				})).then(function () {
 					var span = template.nextSibling;
 					expect(span.className).to.equal(" weight");
 					model.hide = 0;
 					Platform.performMicrotaskCheckpoint();
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "";
 				})).then(function () {
 					model.show = 0;
 					Platform.performMicrotaskCheckpoint();
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.style.display === "none";
 				}));
 			});

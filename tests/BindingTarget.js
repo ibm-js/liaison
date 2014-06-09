@@ -39,7 +39,7 @@ define([
 					expect(o.Foo).to.equal("Foo1");
 					target.remove();
 					observable.set("foo", "Foo2");
-				}).then(waitFor.bind(100)).then(function () {
+				}).then(waitFor.create(100)).then(function () {
 					expect(o.Foo).to.equal("Foo1");
 					expect(target.value).to.equal("Foo1");
 				});

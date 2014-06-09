@@ -43,13 +43,13 @@ define([
 					expect(w.bindings.label.value).to.equal("Foo");
 					w.label = "Bar";
 					expect(model.label).to.equal("Bar");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.textContent !== "Foo";
 				})).then(function () {
 					var w = template.nextSibling;
 					expect(w.textContent).to.equal("Bar");
 					model.set("label", "Baz");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.textContent !== "Bar";
 				})).then(function () {
 					var w = template.nextSibling;
@@ -77,13 +77,13 @@ define([
 					expect(w.bindings["label@"].value).to.equal("Foo");
 					w.label = "Bar";
 					expect(model.label).to.equal("Bar");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.textContent !== "Foo";
 				})).then(function () {
 					var w = template.nextSibling;
 					expect(w.textContent).to.equal("Bar");
 					model.set("label", "Baz");
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.textContent !== "Bar";
 				})).then(function () {
 					var w = template.nextSibling;
@@ -112,7 +112,7 @@ define([
 					w.value = 4;
 					expect(model.rating).to.equal(4);
 					model.set("rating", 3);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.nextSibling.value !== 4;
 				})).then(function () {
 					var w = template.nextSibling.nextSibling;

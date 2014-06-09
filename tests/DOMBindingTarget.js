@@ -247,11 +247,11 @@ define([
 					return !binding0.value;
 				}).then(function () {
 					expect(radio0.checked).not.to.be.true;
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return binding1.value;
 				})).then(function () {
 					expect(radio1.checked).to.be.true;
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return !observable["0"];
 				}));
 			});

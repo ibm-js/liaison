@@ -150,7 +150,7 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					elem.valueNode.dispatchEvent(event);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return elem.getAttribute("aria-value") !== "value0" && elem.valueNode.value !== "value0";
 				})).then(function () {
 					expect(elem.value).to.equal("value1");
@@ -195,7 +195,7 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("input", false, true);
 					elem.valueNode.dispatchEvent(event);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return elem.getAttribute("aria-value") !== "value0" && elem.valueNode.value !== "value0";
 				})).then(function () {
 					expect(elem.value).to.equal("value1");

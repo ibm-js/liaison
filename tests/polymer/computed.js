@@ -38,12 +38,12 @@ define([
 					});
 					expect(elem.name).to.equal("John Doe");
 					elem.first = "Ben";
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return elem.name !== "John Doe";
 				})).then(function () {
 					expect(elem.name).to.equal("Ben Doe");
 					document.body.removeChild(elem);
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return !elem.computed;
 				}));
 			});
@@ -60,7 +60,7 @@ define([
 					var elem = document.createElement("liaison-test-computedarray");
 					expect(elem.totalNameLength).to.equal(45);
 					elem.items.push({Name: "John Jacklin"});
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return document.createElement("liaison-test-computedarray").totalNameLength !== 45;
 				})).then(function () {
 					var elem = document.createElement("liaison-test-computedarray");

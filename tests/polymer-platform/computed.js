@@ -104,7 +104,7 @@ define([
 					expect(divName.firstChild.nodeValue).to.equal("John Doe");
 					expect(divNameLength.firstChild.nodeValue).to.equal("8");
 					template.model.first = "Ben";
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.firstChild.nodeValue !== "John Doe";
 				})).then(function () {
 					var divName = template.nextSibling,
@@ -112,11 +112,11 @@ define([
 					expect(divName.firstChild.nodeValue).to.equal("Ben Doe");
 					expect(divNameLength.firstChild.nodeValue).to.equal("7");
 					template.model = undefined;
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return !template.nextSibling;
 				})).then(function () {
 					model.first = "Irene";
-				}).then(waitFor.bind(100)).then(function () {
+				}).then(waitFor.create(100)).then(function () {
 					expect(model.name).not.to.equal("Irene Doe");
 				});
 			});
@@ -152,7 +152,7 @@ define([
 					var text = template.nextSibling;
 					expect(text.nodeValue).to.equal("45");
 					template.model.items.push({Name: "John Jacklin"});
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return template.nextSibling.nodeValue !== "45";
 				})).then(function () {
 					var text = template.nextSibling;
@@ -185,7 +185,7 @@ define([
 					return template.nextSibling;
 				}).then(function () {
 					template.model = undefined;
-				}).then(waitFor.bind(function () {
+				}).then(waitFor.create(function () {
 					return !template.nextSibling;
 				})).then(function () {
 					var dfd = new Deferred(),
