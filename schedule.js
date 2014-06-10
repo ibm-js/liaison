@@ -15,7 +15,7 @@ define(["requirejs-dplugins/has"], function (has) {
 	 */
 
 	/* global setImmediate, clearImmediate */
-	return has("js-setimmediate") ? function (callback) {
+	return has("js-setimmediate") && !has("dom-mutation-observer") ? function (callback) {
 			var h = setImmediate(callback);
 			return {
 				remove: clearImmediate.bind(undefined, h)
