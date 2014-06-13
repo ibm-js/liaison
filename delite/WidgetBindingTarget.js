@@ -9,7 +9,7 @@ define([
 
 	var EMPTY_OBJECT = {},
 		EMPTY_ARRAY = [],
-		REGEXP_ATTRIBUTE_POINTER = /^(.*)@$/;
+		REGEXP_ATTRIBUTE_POINTER = /^_(.*)$/;
 
 	/**
 	 * Binding target for a widget property/attribute.
@@ -95,7 +95,7 @@ define([
 					}
 					for (var s in this) {
 						if (s.toLowerCase() === targetProperty.toLowerCase()) {
-							return s + (tokens ? "@" : "");
+							return (tokens ? "_" : "") + s;
 						}
 					}
 				}

@@ -74,7 +74,7 @@ define([
 				}).then(function () {
 					var w = template.nextSibling;
 					expect(w.textContent).to.equal("Foo");
-					expect(w.bindings["label@"].value).to.equal("Foo");
+					expect(w.bindings._label.value).to.equal("Foo");
 					w.label = "Bar";
 					expect(model.label).to.equal("Bar");
 				}).then(waitFor.create(function () {

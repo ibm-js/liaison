@@ -6,10 +6,10 @@ define(["./BindingTarget"], function (BindingTarget) {
 		EMPTY_ARRAY = [],
 		REGEXP_TYPE_RADIO = /^radio$/i,
 		REGEXP_TYPES_CHECKBOX = /^(checkbox|radio)$/i,
-		REGEXP_ATTRIBUTE_VALUE = /^value(@?)$/i,
-		REGEXP_ATTRIBUTE_CHECKED = /^checked(@?)$/i,
-		REGEXP_ATTRIBUTE_SELECTEDINDEX = /^selectedIndex(@?)$/i,
-		REGEXP_ATTRIBUTE_POINTER = /^(.*)@$/,
+		REGEXP_ATTRIBUTE_VALUE = /^(_?)value$/i,
+		REGEXP_ATTRIBUTE_CHECKED = /^(_?)checked$/i,
+		REGEXP_ATTRIBUTE_SELECTEDINDEX = /^(_?)selectedIndex$/i,
+		REGEXP_ATTRIBUTE_POINTER = /^_(.*)$/,
 		hasElement = typeof Element !== "undefined",
 		useExisting = hasElement && typeof HTMLElement.prototype.bind === "function";
 
@@ -340,8 +340,8 @@ define(["./BindingTarget"], function (BindingTarget) {
 			if (!target) {
 				var tokens,
 					isCheckbox = REGEXP_TYPES_CHECKBOX.test(this.type);
-				target = !isCheckbox && (tokens = REGEXP_ATTRIBUTE_VALUE.exec(property)) ? new InputValueBindingTarget(this, "value" + tokens[1]) :
-					isCheckbox && (tokens = REGEXP_ATTRIBUTE_CHECKED.exec(property)) ? new CheckedValueBindingTarget(this, "checked" + tokens[1]) :
+				target = !isCheckbox && (tokens = REGEXP_ATTRIBUTE_VALUE.exec(property)) ? new InputValueBindingTarget(this, tokens[1] + "value") :
+					isCheckbox && (tokens = REGEXP_ATTRIBUTE_CHECKED.exec(property)) ? new CheckedValueBindingTarget(this, tokens[1] + "checked") :
 					HTMLElement.prototype.bind.call(this, property);
 			}
 			return target.bind(source);
@@ -360,8 +360,8 @@ define(["./BindingTarget"], function (BindingTarget) {
 			var tokens,
 				target = (this.bindings || EMPTY_OBJECT)[property];
 			if (!target) {
-				target = (tokens = REGEXP_ATTRIBUTE_VALUE.exec(property)) ? new ChangeableValueBindingTarget(this, "value" + tokens[1]) :
-					(tokens = REGEXP_ATTRIBUTE_SELECTEDINDEX.exec(property)) ? new ChangeableValueBindingTarget(this, "selectedIndex" + tokens[1]) :
+				target = (tokens = REGEXP_ATTRIBUTE_VALUE.exec(property)) ? new ChangeableValueBindingTarget(this, tokens[1] + "value") :
+					(tokens = REGEXP_ATTRIBUTE_SELECTEDINDEX.exec(property)) ? new ChangeableValueBindingTarget(this, tokens[1] + "selectedIndex") :
 					HTMLElement.prototype.bind.call(this, property);
 			}
 			return target.bind(source);
