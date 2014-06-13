@@ -6,73 +6,31 @@ title: liaison
 # liaison
 
 liaison is a data binding library that aims for emerging web standards compatibility.
-It has low-level observable objects that emit change records compatibile to ECMAScript Harmony [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) and [`Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
+It has [low-level observable objects](./Observable.html) that emit change records compatibile to ES7 [`Object.observe()` and `Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
 It also has following APIs, they aim to provide good compatibilities to APIs that are foreseed to be standards in each layer:
 
-* High-level observation API
-* Imperative two-way bindings to DOM and Custom Elements
-* Declarative two-way bindings based on mustache syntax
+* High-level observation API ([BindingSource](./BindingSource.html))
+* [Declarative two-way bindings based on mustache syntax](./declarative.html)
+* [Imperative two-way bindings to DOM and Custom Elements](./NodeBind.html)
 
 ## Basic usage
 
-### Imperative two-way binding
+### Declarative binding
 
-Below example establishes two-way binding between a property and DOM element.
-`.set()` API is used for trigger change notification for observers:
+Below example establishes binding between properties and DOM elements. The bindings in `<input>` below are two-way:
 
-```javascript
-require([
-    "liaison/Observable",
-    "liaison/ObservablePath"
-], function (Observable, ObservablePath) {
-    var observable = new Observable({foo: "FooValue0"});
-    var observablePath = new ObservablePath(observable, "foo");
-    var input = document.querySelector("input");
-    input.bind("value", observablePath); // input.value becomes "FooValue0"
-    // input.value becomes "FooValue1" at the end of microtask
-    observable.set("foo", "FooValue1");
-});
-```
+<iframe width="100%" height="300" src="http://jsfiddle.net/asudoh/TmHKX/embedded/html,js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/asudoh/TmHKX/">checkout the sample on JSFiddle</a></iframe>
 
-### Declarative two-way binding
+See [here](./declarative.html) for more details on declarative binding, and [here](./template.html) for advanced topics to work with `<template>`.
 
-Below example establishes two-way binding between properties and DOM elements:
+### Imperative binding
 
-```html
-<template id="my-template">
-    <template bind="{{manager}}">
-        First: <input type="text" value="{{First}}">
-        Last: <input type="text" value="{{Last}}">
-    </template>
-    <template repeat="{{managed}}">
-        <div>
-            Selected: <input type="checkbox" checked="{{selected}}">
-            First: <input type="text" value="{{First}}">
-            Last: <input type="text" value="{{Last}}">
-        </div>
-    </template>
-</template>
-```
+Below example establishes binding between a property and DOM element.
+`.set()` API is used for trigger change notification for observers. The binding in `<input>` below is two-way:
 
-```javascript
-require([
-    "liaison/wrapper",
-    "liaison/DOMTreeBindingTarget"
-], function (wrapper) {
-    // wrapper.wrap() recursively creates Observable and ObservableArray
-    var observable = wrapper.wrap({
-        manager: {First: "Ben", Last: "Beckham"},
-        managed: [
-            {selected: true, First: "John", Last: "Doe"},
-            {selected: false, First: "Anne", Last: "Ackerman"}
-        ]
-    });
-    var template = document.getElementById("my-template");
-    template.bind("bind", observable);
-});
-```
+<iframe width="100%" height="275" src="http://jsfiddle.net/asudoh/v5sz3/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/asudoh/v5sz3/">checkout the sample on JSFiddle</a></iframe>
 
-![Declarative binding example](./images/declarative.png)
+See [here](./NodeBind.html) for more details on imperative binding.
 
 ## Supported browsers
 
