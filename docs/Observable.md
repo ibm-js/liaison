@@ -3,53 +3,56 @@ layout: default
 title: Observable
 ---
 
+[Go up](./)
+
 # `Observable`
 
-`Observable` is an object working as a shim of ECMAScript Harmony [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
-`Observable` has `.set(property, value)` method for automatic emission of change record [1].
-You can work with `Observable` with the following APIs:
+`Observable` is an object working as a shim of ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
+`Observable` has `.set()` method for automatic emission of change record, and static `Observable.observe()` method to observe for that, for example:
 
-* `Observable.observe(observable, callback, accept)` - Observes changes in `observable`, in the same manner as `Object.observe()`.
-  `callback` takes an argument, which is an array of change records similar to `Object.observe()`.
-  Optional `accept` should indicate what type of change should be observed [2].
-  Returns a Dojo-style handle to unobserve.
-* `Observable.getNotifier(observable)` - Creates an object with `notify(changeRecord)` method, for manual emission of change record.
-* `Observable.deliverChangeRecord(callback)` - Synchronously delivers change records that are queued for callback.
+<iframe width="100%" height="225" src="http://jsfiddle.net/asudoh/N8ecf/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/asudoh/N8ecf/">checkout the sample on JSFiddle</a></iframe>
 
-`observable.set(property, value)` internally calls `Observable.getNotifier(observable).notify(changeRecord)`.
-`.notify(changeRecord)` queues `changeRecord` for delivery.
-The delivery happens automatically at end of microtask, or you can manually deliver change records by `Observable.deliverChangeRecords(callback)`.
+Similar to ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe), change records are delivered in batch at end of micro-task. In above example, you'll see that change to `foo` property and change to `bar` properties are notified in a single callback, in a format of array. The format of change records is compatible with ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
 
-Observable directly uses ECMAScript Harmony [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) if it’s available in browser [3].
+Under the hood, `Observable.observe()` directly uses ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) if it's available natively in browser.
 
-[1]: Similar to [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe), `set()` won’t automatically deliver a change record if the given property has a setter (ECMAScript setter).
+## Synchronous delivery of change record
 
-[2]: The default is: `Observable.CHANGETYPE_ADD`, `Observable.CHANGETYPE_UPDATE`, `Observable.CHANGETYPE_DELETE`, `Observable.CHANGETYPE_RECONFIGURE`, `Observable.CHANGETYPE_SETPROTOTYPE` and `Observable.CHANGETYPE_PREVENTEXTENSIONS`. Unless [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) is natively available or you manually emit change records, only the first two are actually emitted.
+There are some cases you want to deliver change records immediately, instead of waiting for end of micro-task. For that purpose, you can use `Observable.deliverChangeRecord()` that synchronously delivers change records that are queued for callback. Here's an example:
 
-[3]: Due to recent change in [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe)/[`Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) specifications that have not been in their implementations yet, the type property in change records will be different in native implementation.
+<iframe width="100%" height="300" src="http://jsfiddle.net/asudoh/85SPV/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/asudoh/85SPV/">checkout the sample on JSFiddle</a></iframe>
 
-## Sample
+## Manual emission of change record
 
-Upon `Observable#set()` calls, callback specified in `Observable.observe()` is called at end of microtask.
+Similar to `Object.observe()`, `.set()` won't automatically emit a change record if:
 
-```javascript
-var observable = new Observable({foo: "Foo0"});
-Observable.observe(observable, function (changeRecords) {
-    // Called at end of microtask with:
-    //     [
-    //         {
-    //             type: Observable.CHANGETYPE_UPDATE,
-    //             object: observable,
-    //             name: "foo",
-    //             oldValue: "Foo0"
-    //         },
-    //         {
-    //             type: Observable.CHANGETYPE_ADD,
-    //             object: observable,
-    //             name: "bar"
-    //         }
-    //     ]
-});
-observable.set("foo", "Foo1");
-observable.set("bar", "Bar0");
-```
+* There is no actual change in value
+* The given property has a setter (ECMAScript setter)
+
+In such conditions, you can manually emit a change record (and queue it for delivery) by `Observable.getNotifier(observable).notify(changeRecord)` method, which is what `.set()` calls under the hood. Here's an example:
+
+<iframe width="100%" height="300" src="http://jsfiddle.net/asudoh/FycWu/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/asudoh/FycWu/">checkout the sample on JSFiddle</a></iframe>
+
+# `ObservableArray`
+
+`ObservableArray` is an object that extends native JavaScript array, and works as a shim of ES7 [`Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe). Like `Observable`, `ObserableArray` has `.set()` method for automatic emission of change record, and static `ObservableArray.observe()` method to observe for that. With `ObservableArray.observe()`, change records are translated to a synthetic version representing array splice (which is compatible to ES7 [`Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe)) where applicable. Here's an example:
+
+<iframe width="100%" height="200" src="http://jsfiddle.net/asudoh/G36hV/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/asudoh/G36hV/">checkout the sample on JSFiddle</a></iframe>
+
+In addition to `.set()`, the following methods automatically emit change records, too:
+
+* `pop()`
+* `push()`
+* `shift()`
+* `unshift()`
+* `splice()`
+* `reverse()`
+* `sort()`
+
+**Note**: `reverse()` and `sort()` are exceptions to [`Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) compatibility: [`Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) emits "update" type of change records for array entries.
+
+Here's an example with `.splice()`:
+
+<iframe width="100%" height="200" src="http://jsfiddle.net/asudoh/5EBwY/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/asudoh/5EBwY/">checkout the sample on JSFiddle</a></iframe>
+
+Under the hood, `ObservableArray.observe()` directly uses ES7 [`Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) if it's available natively in browser.
