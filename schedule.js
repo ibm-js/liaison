@@ -21,35 +21,38 @@ define(["requirejs-dplugins/has"], function (has) {
 				remove: clearImmediate.bind(undefined, h)
 			};
 		} : (function () {
-			var uniqueId = Math.random() + "",
-				callbacks = [],
+			var SCHEDULEID_PREFIX = "_schedule",
+				seq = 0,
+				uniqueId = Math.random() + "",
+				callbacks = {},
 				pseudoDiv = has("dom-mutation-observer") && document.createElement("div");
+			function runCallbacks() {
+				for (var id in callbacks) {
+					var callback = callbacks[id];
+					delete callbacks[id];
+					callback();
+				}
+			}
 			if (has("dom-mutation-observer")) {
 				pseudoDiv.id = 0;
-				new MutationObserver(function () {
-					while (callbacks.length > 0) {
-						callbacks.shift()();
-					}
-				}).observe(pseudoDiv, {attributes: true});
+				new MutationObserver(runCallbacks).observe(pseudoDiv, {attributes: true});
 			} else {
 				window.addEventListener("message", function (event) {
 					if (event.data === uniqueId) {
-						while (callbacks.length > 0) {
-							callbacks.shift()();
-						}
+						runCallbacks();
 					}
 				});
 			}
-			function remove(callback) {
-				for (var index; (index = callbacks.indexOf(callback)) >= 0;) {
-					callbacks.splice(index, 1);
-				}
-			}
 			return function (callback) {
 				has("dom-mutation-observer") ? ++pseudoDiv.id : window.postMessage(uniqueId, "*");
-				callbacks.indexOf(callback) < 0 && callbacks.push(callback);
+				var id = callback._scheduleId || (callback._scheduleId = SCHEDULEID_PREFIX + seq++);
+				if (!callbacks[id]) {
+					callbacks[id] = callback;
+				}
 				return {
-					remove: remove.bind(undefined, callback)
+					remove: function () {
+						delete callbacks[id];
+					}
 				};
 			};
 		})();
