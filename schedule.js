@@ -23,7 +23,6 @@ define(["requirejs-dplugins/has"], function (has) {
 			callbacks = {},
 			pseudoDiv = has("dom-mutation-observer") && document.createElement("div");
 		function runCallbacks() {
-			inFlight = false;
 			for (var anyWorkDone = true; anyWorkDone;) {
 				anyWorkDone = false;
 				for (var id in callbacks) {
@@ -33,6 +32,7 @@ define(["requirejs-dplugins/has"], function (has) {
 					anyWorkDone = true;
 				}
 			}
+			inFlight = false;
 		}
 		if (has("dom-mutation-observer")) {
 			pseudoDiv.id = 0;
