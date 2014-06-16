@@ -27,10 +27,14 @@ define(["requirejs-dplugins/has"], function (has) {
 				callbacks = {},
 				pseudoDiv = has("dom-mutation-observer") && document.createElement("div");
 			function runCallbacks() {
-				for (var id in callbacks) {
-					var callback = callbacks[id];
-					delete callbacks[id];
-					callback();
+				for (var anyWorkDone = true; anyWorkDone;) {
+					anyWorkDone = false;
+					for (var id in callbacks) {
+						var callback = callbacks[id];
+						delete callbacks[id];
+						callback();
+						anyWorkDone = true;
+					}
 				}
 			}
 			if (has("dom-mutation-observer")) {
@@ -44,11 +48,9 @@ define(["requirejs-dplugins/has"], function (has) {
 				});
 			}
 			return function (callback) {
+				var id = SCHEDULEID_PREFIX + seq++;
+				callbacks[id] = callback;
 				has("dom-mutation-observer") ? ++pseudoDiv.id : window.postMessage(uniqueId, "*");
-				var id = callback._scheduleId || (callback._scheduleId = SCHEDULEID_PREFIX + seq++);
-				if (!callbacks[id]) {
-					callbacks[id] = callback;
-				}
 				return {
 					remove: function () {
 						delete callbacks[id];

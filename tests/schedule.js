@@ -31,6 +31,36 @@ define([
 				h.remove();
 				setTimeout(dfd.callback(function () {}), 100);
 			});
+			it("Scheduling another task in schedule callback", function () {
+				var dfd = this.async(1000);
+				handles.push(schedule(dfd.rejectOnError(function () {
+					handles.push(schedule(dfd.callback(function () {})));
+				})));
+			});
+			it("Scheduling same task in schedule callback", function () {
+				var count = 0,
+					dfd = this.async(1000),
+					cb = dfd.rejectOnError(function () {
+						if (count++ === 0) {
+							handles.push(schedule(cb));
+						} else {
+							dfd.resolve(1);
+						}
+					});
+				handles.push(schedule(cb));
+			});
+			it("Running same callback twice", function () {
+				var count = 0,
+					dfd = this.async(1000),
+					cb = dfd.rejectOnError(function () {
+						count++;
+					});
+				handles.push(schedule(cb));
+				handles.push(schedule(cb));
+				setTimeout(dfd.callback(function () {
+					expect(count).to.equal(2);
+				}), 100);
+			});
 		});
 	}
 });
