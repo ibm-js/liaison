@@ -16,12 +16,14 @@ define(["requirejs-dplugins/has"], function (has) {
 
 	return (function () {
 		/* global setImmediate */
-		var SCHEDULEID_PREFIX = "_schedule",
+		var inFlight,
+			SCHEDULEID_PREFIX = "_schedule",
 			seq = 0,
 			uniqueId = Math.random() + "",
 			callbacks = {},
 			pseudoDiv = has("dom-mutation-observer") && document.createElement("div");
 		function runCallbacks() {
+			inFlight = false;
 			for (var anyWorkDone = true; anyWorkDone;) {
 				anyWorkDone = false;
 				for (var id in callbacks) {
@@ -45,9 +47,12 @@ define(["requirejs-dplugins/has"], function (has) {
 		return function (callback) {
 			var id = SCHEDULEID_PREFIX + seq++;
 			callbacks[id] = callback;
-			has("dom-mutation-observer") ? ++pseudoDiv.id :
-				has("js-setimmediate") ? setImmediate(runCallbacks) :
-				window.postMessage(uniqueId, "*");
+			if (!inFlight) {
+				has("dom-mutation-observer") ? ++pseudoDiv.id :
+					has("js-setimmediate") ? setImmediate(runCallbacks) :
+					window.postMessage(uniqueId, "*");
+				inFlight = true;
+			}
 			return {
 				remove: function () {
 					delete callbacks[id];
