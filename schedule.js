@@ -14,48 +14,45 @@ define(["requirejs-dplugins/has"], function (has) {
 	 * @param {Function} callback The function to call at the end of microtask.
 	 */
 
-	/* global setImmediate, clearImmediate */
-	return has("js-setimmediate") && !has("dom-mutation-observer") ? function (callback) {
-			var h = setImmediate(callback);
-			return {
-				remove: clearImmediate.bind(undefined, h)
-			};
-		} : (function () {
-			var SCHEDULEID_PREFIX = "_schedule",
-				seq = 0,
-				uniqueId = Math.random() + "",
-				callbacks = {},
-				pseudoDiv = has("dom-mutation-observer") && document.createElement("div");
-			function runCallbacks() {
-				for (var anyWorkDone = true; anyWorkDone;) {
-					anyWorkDone = false;
-					for (var id in callbacks) {
-						var callback = callbacks[id];
-						delete callbacks[id];
-						callback();
-						anyWorkDone = true;
-					}
+	return (function () {
+		/* global setImmediate */
+		var SCHEDULEID_PREFIX = "_schedule",
+			seq = 0,
+			uniqueId = Math.random() + "",
+			callbacks = {},
+			pseudoDiv = has("dom-mutation-observer") && document.createElement("div");
+		function runCallbacks() {
+			for (var anyWorkDone = true; anyWorkDone;) {
+				anyWorkDone = false;
+				for (var id in callbacks) {
+					var callback = callbacks[id];
+					delete callbacks[id];
+					callback();
+					anyWorkDone = true;
 				}
 			}
-			if (has("dom-mutation-observer")) {
-				pseudoDiv.id = 0;
-				new MutationObserver(runCallbacks).observe(pseudoDiv, {attributes: true});
-			} else {
-				window.addEventListener("message", function (event) {
-					if (event.data === uniqueId) {
-						runCallbacks();
-					}
-				});
-			}
-			return function (callback) {
-				var id = SCHEDULEID_PREFIX + seq++;
-				callbacks[id] = callback;
-				has("dom-mutation-observer") ? ++pseudoDiv.id : window.postMessage(uniqueId, "*");
-				return {
-					remove: function () {
-						delete callbacks[id];
-					}
-				};
+		}
+		if (has("dom-mutation-observer")) {
+			pseudoDiv.id = 0;
+			new MutationObserver(runCallbacks).observe(pseudoDiv, {attributes: true});
+		} else if (!has("js-setimmediate")) {
+			window.addEventListener("message", function (event) {
+				if (event.data === uniqueId) {
+					runCallbacks();
+				}
+			});
+		}
+		return function (callback) {
+			var id = SCHEDULEID_PREFIX + seq++;
+			callbacks[id] = callback;
+			has("dom-mutation-observer") ? ++pseudoDiv.id :
+				has("js-setimmediate") ? setImmediate(runCallbacks) :
+				window.postMessage(uniqueId, "*");
+			return {
+				remove: function () {
+					delete callbacks[id];
+				}
 			};
-		})();
+		};
+	})();
 });
