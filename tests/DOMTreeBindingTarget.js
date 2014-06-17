@@ -581,6 +581,36 @@ define([
 					}).length === 6;
 				})).then(testRepeatValuesWithBasicTemplate.bind(undefined, div, observableArray));
 			});
+			it("Having two splices at once", function () {
+				var div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template")),
+					observableArray = ObservableArray.apply(undefined, [
+						{first: "Anne"},
+						{first: "Ben"},
+						{first: "Chad"},
+						{first: "Irene"},
+						{first: "John"}
+					]);
+				this.timeout = 10000;
+				template.innerHTML = simpleTemplate;
+				var binding = template.bind("repeat", observableArray);
+				handles.push(binding);
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				return waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					observableArray.splice(3, 1, {first: "Irene0"}, {first: "Irene1"});
+					observableArray.splice(1, 1, {first: "Ben0"}, {first: "Ben1"});
+				}).then(waitFor.create(function () {
+					var input = div.getElementsByTagName("input")[1];
+					return input && input.value !== "Ben";
+				})).then(testRepeatValuesWithBasicTemplate.bind(undefined, div, observableArray));
+			});
 			it("Repeat with nested template", function () {
 				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),

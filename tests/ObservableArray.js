@@ -446,7 +446,7 @@ define([
 				observableArray.splice(3, 4, "A", "B", "C");
 				observableArray.splice(5, 2, "0", "1", "2");
 			});
-			it("ObservableArray.observe() with two splices: First dirty range contains second dirty range", function () {
+			it("ObservableArray.observe() with two splices: First splice range contains second splice range", function () {
 				// ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 				// SPLICE: {index: 3, removed: ["d", "e", "f"], added: ["A", "B", "C", "D"]}
 				// ["a", "b", "c", "A", "B", "C", "D", "g", "h", "i", "j"]
@@ -483,15 +483,15 @@ define([
 						{
 							type: Observable.CHANGETYPE_SPLICE,
 							object: observableArray,
-							index: 4,
-							removed: ["e", "f"],
+							index: 1,
+							removed: ["b", "c"],
 							addedCount: 3
 						},
 						{
 							type: Observable.CHANGETYPE_SPLICE,
 							object: observableArray,
-							index: 1,
-							removed: ["b", "c"],
+							index: 5,
+							removed: ["e", "f"],
 							addedCount: 3
 						}
 					]);
@@ -545,7 +545,7 @@ define([
 				observableArray.splice(4, 2, "A", "B", "C");
 				observableArray.splice(3, 2, "0", "1", "2");
 			});
-			it("ObservableArray.observe() with two splices: Second dirty range contains first dirty range", function () {
+			it("ObservableArray.observe() with two splices: Second splice range contains first splice range", function () {
 				// ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 				// SPLICE: {index: 4, removed: ["e", "f"], added: ["A", "B", "C"]}
 				// ["a", "b", "c", "d", "A", "B", "C", "g", "h", "i", "j"]

@@ -22,6 +22,7 @@ define([
 	var ObservableArray,
 		augmentedMethods,
 		defineProperty = Object.defineProperty,
+		EMPTY_ARRAY = [],
 		REGEXP_GLOBAL_OBJECT = /\[\s*object\s+global\s*\]/i; // Global object in node.js
 
 	(function () {
@@ -39,7 +40,7 @@ define([
 				if (typeof length === "number" && arguments.length === 1) {
 					self.length = length;
 				} else {
-					[].push.apply(self, arguments);
+					EMPTY_ARRAY.push.apply(self, arguments);
 				}
 				return self;
 			};
@@ -69,7 +70,7 @@ define([
 				if (typeof length === "number" && arguments.length === 1) {
 					self.length = length;
 				} else {
-					[].push.apply(self, arguments);
+					EMPTY_ARRAY.push.apply(self, arguments);
 				}
 				return self;
 			};
@@ -124,7 +125,7 @@ define([
 						removed: this.slice(index, index + removeCount),
 						addedCount: arguments.length - 2
 					},
-					result = [].splice.apply(this, arguments),
+					result = EMPTY_ARRAY.splice.apply(this, arguments),
 					notifier = Observable.getNotifier(this);
 				notifier.notify(changeRecord);
 				if (oldLength !== this.length) {
@@ -184,7 +185,7 @@ define([
 				 */
 				push: function () {
 					var args = [this.length, 0];
-					[].push.apply(args, arguments);
+					EMPTY_ARRAY.push.apply(args, arguments);
 					splice.apply(this, args);
 					return this.length;
 				},
@@ -202,7 +203,7 @@ define([
 							removed: this.slice(),
 							addedCount: this.length
 						},
-						result = [].reverse.apply(this, arguments);
+						result = EMPTY_ARRAY.reverse.apply(this, arguments);
 					// Treat this change as a splice instead of updates in each entry
 					Observable.getNotifier(this).notify(changeRecord);
 					return result;
@@ -231,7 +232,7 @@ define([
 							removed: this.slice(),
 							addedCount: this.length
 						},
-						result = [].sort.apply(this, arguments);
+						result = EMPTY_ARRAY.sort.apply(this, arguments);
 					// Treat this change as a splice instead of updates in each entry
 					Observable.getNotifier(this).notify(changeRecord);
 					return result;
@@ -246,7 +247,7 @@ define([
 				 */
 				unshift: function () {
 					var args = [0, 0];
-					[].push.apply(args, arguments);
+					EMPTY_ARRAY.push.apply(args, arguments);
 					splice.apply(this, args);
 					return this.length;
 				}
@@ -266,7 +267,7 @@ define([
 	 * ]
 	 * All change records will be converted
 	 * to {@link module:liaison/Observable.CHANGETYPE_SPLICE Observable.CHANGETYPE_SPLICE},
-	 * and are merged to smaller number of change records.
+	 * and are sorted by index and merged to smaller number of change records.
 	 * @method
 	 * @param {Object} observable The {@link module:liaison/ObservableArray ObservableArray} to observe.
 	 * @param {module:liaison/Observable~ChangeCallback} callback The change callback.
@@ -274,98 +275,83 @@ define([
 	 * @throws {TypeError} If the 1st argument is non-object or null.
 	 */
 	ObservableArray.observe = (function () {
+		function intersect(start1, end1, start2, end2) {
+			return end1 <= start2 ? end1 - start2 : // Adjacent or distant
+				end2 <= start1 ? end2 - start1 : // Adjacent or distant
+				Math.min(end1, end2) - Math.max(start1, start2); // Intersected or contained
+		}
+		function normalize(record) {
+			return record.type !== Observable.CHANGETYPE_ADD && record.type !== Observable.CHANGETYPE_UPDATE ? record :
+				{
+					type: Observable.CHANGETYPE_SPLICE,
+					object: record.object,
+					index: +record.name,
+					removed: [record.oldValue],
+					addedCount: 1
+				};
+		}
 		function observeSpliceCallback(callback, records) {
-			// Given this function works as a low-level one,
-			// it preferes regular loop over array extras,
-			// which makes cyclomatic complexity higher.
-			/* jshint maxcomplexity: 20 */
-
-			// Try merging splices
-			var mergedRecord = [];
-			for (var iRecord = 0, lRecord = records.length; iRecord < lRecord; ++iRecord) {
-				var hasBeenMerged = false,
-					newRecord = records[iRecord],
-					newRecordTargetIndex = mergedRecord.length;
-				if (newRecord.type === Observable.CHANGETYPE_ADD || newRecord.type === Observable.CHANGETYPE_UPDATE) {
-					newRecord = {
-						type: Observable.CHANGETYPE_SPLICE,
-						object: newRecord.object,
-						index: +newRecord.name,
-						removed: [newRecord.oldValue],
-						addedCount: 1
-					};
-				}
-
-				for (var iMergedRecord = mergedRecord.length - 1; iMergedRecord >= 0; --iMergedRecord) {
-					// We look at "dirty" range by splices,
-					// which actually is [splice.index, splice.index + splice.addedCount).
-					// We can merge two splices
-					// if the dirty ranges of two splices are adjacent, intersect, or one contains another.
-					// When second splice's index is smaller than first splice's index,
-					// we need to adjust first splice's index with second splice's removal and addition.
-					var targetRecord = mergedRecord[iMergedRecord],
-						targetIndexIsSmaller = targetRecord.index < newRecord.index,
-						splicesIntersectAmount = Math.min(
-							targetIndexIsSmaller ? newRecord.removed.length : targetRecord.addedCount,
-							(newRecord.index - targetRecord.index + (targetIndexIsSmaller ? -targetRecord.addedCount : newRecord.removed.length))
-								* (targetIndexIsSmaller ? -1 : 1)),
-						splicesIntersectOrAdjacent = splicesIntersectAmount >= 0,
-						splicesIntersect = splicesIntersectAmount > 0;
-
-					if (splicesIntersectOrAdjacent) {
-						var removed = targetIndexIsSmaller ? targetRecord.removed.slice() : // .removed may be read-only
-							splicesIntersect ? newRecord.removed.slice(0, targetRecord.index - newRecord.index) :
-							newRecord.removed.slice(); // .removed may be read-only
-						[].push.apply(
-							removed,
-							targetIndexIsSmaller ? newRecord.removed.slice(splicesIntersect ? splicesIntersectAmount : 0) : targetRecord.removed);
-						if (!targetIndexIsSmaller) {
-							// Addition happens when second splice's dirty range contains first splice's dirty range
-							[].push.apply(removed, newRecord.removed.slice(targetRecord.index + targetRecord.addedCount - newRecord.index));
-						}
-
-						var addedCount = targetRecord.addedCount - splicesIntersectAmount + newRecord.addedCount;
-
-						if (!hasBeenMerged) {
-							// Merging new change record to target change record means
-							// that we are treating new change record happened
-							// at the same timing of target change record.
-							// We need to adjust change records later than target change record.
-							var earlierMergeRecordIndexAdjustment = newRecord.addedCount - newRecord.removed.length;
-							for (var iMergedRecordToAdjust = iMergedRecord + 1, lMergedRecord = mergedRecord.length;
-									iMergedRecordToAdjust < lMergedRecord;
-									++iMergedRecordToAdjust) {
-								var entry = mergedRecord[iMergedRecordToAdjust];
-								mergedRecord[iMergedRecordToAdjust] = {
-									type: entry.type,
-									object: entry.object,
-									index: entry.index + earlierMergeRecordIndexAdjustment, // .index may be read-only
-									removed: entry.removed,
-									addedCount: entry.addedCount
-								};
-							}
-							hasBeenMerged = true;
-						}
-
-						newRecord = {
+			var merged = [];
+			records.forEach(function (incoming) {
+				incoming = normalize(incoming);
+				var doneIncoming = false,
+					indexAdjustment = 0;
+				for (var i = 0; i < merged.length; ++i) {
+					var entry;
+					if (!has("es-object-observe") || !Object.isFrozen(merged[i])) {
+						entry = merged[i];
+						entry.index += indexAdjustment;
+					} else {
+						entry = merged[i] = {
 							type: Observable.CHANGETYPE_SPLICE,
-							object: targetRecord.object,
-							index: Math.min(targetRecord.index, newRecord.index),
-							removed: removed,
-							addedCount: addedCount
+							object: merged[i].object,
+							index: merged[i].index + indexAdjustment,
+							removed: merged[i].removed,
+							addedCount: merged[i].addedCount
 						};
-
-						mergedRecord.splice(newRecordTargetIndex = iMergedRecord, 1);
+					}
+					var amount = intersect(entry.index, entry.index + entry.addedCount, incoming.index, incoming.index + incoming.removed.length);
+					if (amount >= 0) {
+						// Merge splices
+						merged.splice(i--, 1);
+						var removed,
+							addedCount = entry.addedCount - amount + incoming.addedCount;
+						if (entry.index < incoming.index) {
+							removed = incoming.removed.slice(Math.max(amount, 0));
+							EMPTY_ARRAY.unshift.apply(removed, entry.removed);
+						} else {
+							removed = incoming.removed.slice(0, amount > 0 ? entry.index - incoming.index : incoming.length);
+							EMPTY_ARRAY.push.apply(removed, entry.removed);
+							// Append happens when second splice's range contains first splice's range
+							EMPTY_ARRAY.push.apply(removed, incoming.removed.slice(entry.index + entry.addedCount - incoming.index));
+						}
+						if (removed.length === 0 && addedCount === 0) {
+							doneIncoming = true;
+						} else {
+							incoming = {
+								type: Observable.CHANGETYPE_SPLICE,
+								object: entry.object,
+								index: Math.min(entry.index, incoming.index),
+								removed: removed,
+								addedCount: addedCount
+							};
+						}
+						indexAdjustment -= entry.addedCount - entry.removed.length; // entry is subsumed by incoming
+					} else if (incoming.index < entry.index) {
+						// Insert the new splice
+						var adjustment = incoming.addedCount - incoming.removed.length;
+						entry.index += adjustment;
+						indexAdjustment += adjustment;
+						merged.splice(i++, 0, incoming);
+						doneIncoming = true;
 					}
 				}
-
-				if (newRecord.removed.length !== 0 || newRecord.addedCount !== 0) {
-					mergedRecord.splice(newRecordTargetIndex, 0, newRecord);
+				if (!doneIncoming) {
+					merged.push(incoming);
 				}
-			}
-
-			if (mergedRecord.length > 0) {
-				callback(mergedRecord);
+			});
+			if (merged.length > 0) {
+				callback(merged);
 			}
 		}
 		if (has("es-object-observe")) {
