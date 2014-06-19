@@ -2,8 +2,8 @@
 define(["requirejs-dplugins/has"], function (has) {
 	"use strict";
 
-	has.add("js-setimmediate", typeof setImmediate === "function");
-	has.add("dom-mutation-observer",
+	has.add("setimmediate-api", typeof setImmediate === "function");
+	has.add("mutation-observer-api",
 		typeof MutationObserver !== "undefined"
 			&& (/\[\s*native\s+code\s*\]/i.test(MutationObserver) // Avoid polyfill version of MutationObserver
 				|| !/^\s*function/.test(MutationObserver)));
@@ -21,7 +21,7 @@ define(["requirejs-dplugins/has"], function (has) {
 			seq = 0,
 			uniqueId = Math.random() + "",
 			callbacks = {},
-			pseudoDiv = has("dom-mutation-observer") && document.createElement("div");
+			pseudoDiv = has("mutation-observer-api") && document.createElement("div");
 		function runCallbacks() {
 			for (var anyWorkDone = true; anyWorkDone;) {
 				anyWorkDone = false;
@@ -34,10 +34,10 @@ define(["requirejs-dplugins/has"], function (has) {
 			}
 			inFlight = false;
 		}
-		if (has("dom-mutation-observer")) {
+		if (has("mutation-observer-api")) {
 			pseudoDiv.id = 0;
 			new MutationObserver(runCallbacks).observe(pseudoDiv, {attributes: true});
-		} else if (!has("js-setimmediate")) {
+		} else if (!has("setimmediate-api")) {
 			window.addEventListener("message", function (event) {
 				if (event.data === uniqueId) {
 					runCallbacks();
@@ -48,8 +48,8 @@ define(["requirejs-dplugins/has"], function (has) {
 			var id = SCHEDULEID_PREFIX + seq++;
 			callbacks[id] = callback;
 			if (!inFlight) {
-				has("dom-mutation-observer") ? ++pseudoDiv.id :
-					has("js-setimmediate") ? setImmediate(runCallbacks) :
+				has("mutation-observer-api") ? ++pseudoDiv.id :
+					has("setimmediate-api") ? setImmediate(runCallbacks) :
 					window.postMessage(uniqueId, "*");
 				inFlight = true;
 			}

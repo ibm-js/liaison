@@ -28,7 +28,7 @@ define([
 	(function () {
 		var observableArrayMarker = "_observableArray";
 
-		if (has("es-object-observe")) {
+		if (has("object-observe-api")) {
 			// For useNative case, make ObservableArray an instance of Array instead of an inheritance,
 			// so that Array.observe() emits splices for .length update
 			ObservableArray = function (length) {
@@ -92,7 +92,7 @@ define([
 	 * @returns {boolean}
 	 *     true if o can be observed with {@link module:liaison/ObservableArray.observe ObservableArray.observe()}.
 	 */
-	if (has("es-object-observe")) {
+	if (has("object-observe-api")) {
 		ObservableArray.canObserve = function (a) {
 			return typeof (a || {}).splice === "function";
 		};
@@ -100,7 +100,7 @@ define([
 		ObservableArray.canObserve = ObservableArray.test;
 	}
 
-	if (!has("es-object-observe")) {
+	if (!has("object-observe-api")) {
 		(function () {
 			/**
 			 * Adds and/or removes elements from an array
@@ -298,7 +298,7 @@ define([
 					indexAdjustment = 0;
 				for (var i = 0; i < merged.length; ++i) {
 					var entry;
-					if (!has("es-object-observe") || !Object.isFrozen(merged[i])) {
+					if (!has("object-observe-api") || !Object.isFrozen(merged[i])) {
 						entry = merged[i];
 						entry.index += indexAdjustment;
 					} else {
@@ -354,7 +354,7 @@ define([
 				callback(merged);
 			}
 		}
-		if (has("es-object-observe")) {
+		if (has("object-observe-api")) {
 			return function (observableArray, callback) {
 				Array.observe(observableArray, callback = observeSpliceCallback.bind(observableArray, callback));
 				return {

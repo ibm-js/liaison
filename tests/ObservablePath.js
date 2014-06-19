@@ -245,7 +245,7 @@ define([
 					count++;
 				})),
 				observablePathShallow.observe(dfd.rejectOnError(function (newValue, oldValue) {
-					if (has("es-object-observe")) {
+					if (has("object-observe-api")) {
 						expect(newValue).to.equal("Baz1");
 						expect(oldValue).to.equal("Baz0");
 						count++;
@@ -264,7 +264,7 @@ define([
 					count++;
 				})),
 				observablePathPlain1.observe(dfd.rejectOnError(function (newValue, oldValue) {
-					if (has("es-object-observe")) {
+					if (has("object-observe-api")) {
 						expect(newValue).to.equal("Baz1");
 						expect(oldValue).to.equal("Baz0");
 						count++;
@@ -273,7 +273,7 @@ define([
 					}
 				})),
 				observablePathPlain2.observe(dfd.rejectOnError(function (newValue, oldValue) {
-					if (has("es-object-observe")) {
+					if (has("object-observe-api")) {
 						expect(newValue).to.equal("Baz1");
 						expect(oldValue).to.equal("Baz0");
 						count++;
@@ -290,7 +290,7 @@ define([
 				observablePathPlain1.setValue("Baz1");
 				observablePathPlain2.setValue("Baz1");
 				waitFor(function () {
-					return has("es-object-observe") ? 6 : 3;
+					return has("object-observe-api") ? 6 : 3;
 				}).then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 			});
 			it("Synchronous change delivery", function () {

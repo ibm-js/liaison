@@ -6,10 +6,10 @@ define([
 ], function (has, Observable, BindingSource) {
 	"use strict";
 
-	has.add("es-object-is", Object.is);
+	has.add("object-is-api", Object.is);
 
 	var EMPTY_OBJECT = {},
-		areSameValues = has("es-object-is") ? Object.is : function (lhs, rhs) {
+		areSameValues = has("object-is-api") ? Object.is : function (lhs, rhs) {
 			return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
 		};
 

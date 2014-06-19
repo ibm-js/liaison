@@ -91,8 +91,8 @@ define([
 	 * @param {Object} o The object to test.
 	 * @returns {boolean} true if o can be observed with {@link module:liaison/Observable.observe Observable.observe()}.
 	 */
-	has.add("es-object-observe", typeof Object.observe === "function" && typeof Array.observe === "function");
-	if (has("es-object-observe")) {
+	has.add("object-observe-api", typeof Object.observe === "function" && typeof Array.observe === "function");
+	if (has("object-observe-api")) {
 		Observable.canObserve = function (o) {
 			return typeof o === "object" && o != null;
 		};
@@ -153,7 +153,7 @@ define([
 	 */
 	Observable.CHANGETYPE_SPLICE = "splice";
 
-	if (has("es-object-observe")) {
+	if (has("object-observe-api")) {
 		(function () {
 			var o = {};
 			function callback(records) {
@@ -204,8 +204,8 @@ define([
 			 * @returns The value set.
 			 */
 			value: (function () {
-				has.add("es-object-is", Object.is);
-				var areSameValues = has("es-object-is") ? Object.is : function (lhs, rhs) {
+				has.add("object-is-api", Object.is);
+				var areSameValues = has("object-is-api") ? Object.is : function (lhs, rhs) {
 					return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
 				};
 				return function (name, value) {
