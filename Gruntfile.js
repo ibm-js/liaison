@@ -19,14 +19,14 @@ module.exports = function (grunt) {
 			local: {
 				options: {
 					runType: "runner",
-					config: "tests/webdriver",
+					config: "tests/intern.local",
 					reporters: ["runner"]
 				}
 			},
 			remote: {
 				options: {
 					runType: "runner",
-					config: "tests/sauce",
+					config: "tests/intern",
 					reporters: ["runner"]
 				}
 			}
