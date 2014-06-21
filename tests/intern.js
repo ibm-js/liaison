@@ -39,10 +39,10 @@ define({
 		// Non-empty selenium-version causes "browser failed to start" error for unknown reason
 		{browserName: "iphone", platform: "OS X 10.9", version: "7", "device-orientation": "portrait", "selenium-version": "", name: "liaison"},
 		{browserName: "ipad", platform: "OS X 10.9", version: "7", "device-orientation": "portrait", "selenium-version": "", name: "liaison"},
+		// {browserName: "iphone", platform: "OS X 10.8", version: "6.0", "device-orientation": "portrait", "selenium-version": "", name: "liaison"},
+		// {browserName: "ipad", platform: "OS X 10.8", version: "6.0", "device-orientation": "portrait", "selenium-version": "", name: "liaison"},
 		{browserName: "iphone", platform: "OS X 10.8", version: "6.1", "device-orientation": "portrait", "selenium-version": "", name: "liaison"},
-		{browserName: "ipad", platform: "OS X 10.8", version: "6.1", "device-orientation": "portrait", "selenium-version": "", name: "liaison"},
-		{browserName: "iphone", platform: "OS X 10.8", version: "6.0", "device-orientation": "portrait", "selenium-version": "", name: "liaison"},
-		{browserName: "ipad", platform: "OS X 10.8", version: "6.0", "device-orientation": "portrait", "selenium-version": "", name: "liaison"}
+		{browserName: "ipad", platform: "OS X 10.8", version: "6.1", "device-orientation": "portrait", "selenium-version": "", name: "liaison"}
 	],
 
 	maxConcurrency: 3,
