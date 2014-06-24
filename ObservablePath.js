@@ -1,12 +1,10 @@
 /** @module liaison/ObservablePath */
 define([
-	"requirejs-dplugins/has",
+	"./features",
 	"./Observable",
 	"./BindingSource"
 ], function (has, Observable, BindingSource) {
 	"use strict";
-
-	has.add("object-is-api", Object.is);
 
 	var EMPTY_OBJECT = {},
 		areSameValues = has("object-is-api") ? Object.is : function (lhs, rhs) {
@@ -71,8 +69,6 @@ define([
 	ObservablePath.prototype = Object.create(BindingSource);
 
 	/* global PathObserver */
-	has.add("polymer-pathobserver", typeof PathObserver !== "undefined");
-
 	ObservablePath.Observer = has("polymer-pathobserver") ? PathObserver : function (o, path) {
 		path = Array.isArray(path) ? path : path != null ? "" + path : [];
 		var comps = getPathComps(path, true);

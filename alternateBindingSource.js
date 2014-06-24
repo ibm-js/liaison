@@ -1,6 +1,6 @@
 define([
-	"requirejs-dplugins/has",
-	"liaison/ObservablePath"
+	"./features",
+	"./ObservablePath"
 ], function (has, ObservablePath) {
 	"use strict";
 
@@ -126,8 +126,6 @@ define([
 		};
 	}
 
-	has.add("polymer-createInstance",
-		typeof HTMLTemplateElement !== "undefined" && typeof HTMLTemplateElement.prototype.createInstance === "function");
 	if (has("polymer-createInstance")) {
 		(function () {
 			/* global HTMLTemplateElement */

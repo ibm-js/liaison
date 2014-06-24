@@ -1,6 +1,6 @@
 /** @module liaison/DOMTreeBindingTarget */
 define([
-	"requirejs-dplugins/has",
+	"./features",
 	"./schedule",
 	"./ObservableArray",
 	"./ObservablePath",
@@ -401,7 +401,6 @@ define([
 	 * @method HTMLTemplateElement#upgradeToTemplate
 	 * @returns {HTMLTemplateElement} The upgraded template element or script element.
 	 */
-	has.add("polymer-template-decorate", typeof HTMLTemplateElement !== "undefined" && typeof HTMLTemplateElement.decorate === "function");
 	var upgradeToTemplate = (function () {
 		function isUpgradable(node) {
 			return node.tagName === "TEMPLATE"

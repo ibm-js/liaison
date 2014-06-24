@@ -4,7 +4,7 @@
  * @mixes module:liaison/computed
  */
 define([
-	"requirejs-dplugins/has",
+	"../features",
 	"../computed",
 	"./ready!"
 ], function (has, computed) {
@@ -41,7 +41,6 @@ define([
 	})();
 
 	/* global Polymer */
-	has.add("polymer", typeof Polymer !== "undefined");
 	if (has("polymer") && Polymer.api) {
 		(function () {
 			var origCreatedCallback = Polymer.api.instance.base.createdCallback,

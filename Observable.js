@@ -1,8 +1,8 @@
 /** @module liaison/Observable */
 define([
-	"requirejs-dplugins/has",
+	"./features",
 	"./assignObservable",
-	"./schedule"
+	"./features!object-observe-api?:./schedule"
 ], function (has, assignObservable, schedule) {
 	"use strict";
 
@@ -91,7 +91,6 @@ define([
 	 * @param {Object} o The object to test.
 	 * @returns {boolean} true if o can be observed with {@link module:liaison/Observable.observe Observable.observe()}.
 	 */
-	has.add("object-observe-api", typeof Object.observe === "function" && typeof Array.observe === "function");
 	if (has("object-observe-api")) {
 		Observable.canObserve = function (o) {
 			return typeof o === "object" && o != null;
@@ -154,22 +153,6 @@ define([
 	Observable.CHANGETYPE_SPLICE = "splice";
 
 	if (has("object-observe-api")) {
-		(function () {
-			var o = {};
-			function callback(records) {
-				if (records[0].type === "new") {
-					Observable.CHANGETYPE_ADD = "new";
-					Observable.CHANGETYPE_UPDATE = "updated";
-					Observable.CHANGETYPE_DELETE = "deleted";
-					Observable.CHANGETYPE_RECONFIGURE = "reconfigured";
-					Observable.CHANGETYPE_SETPROTOTYPE = "prototype";
-				}
-			}
-			Object.observe(o, callback);
-			o.a = "a";
-			Object.deliverChangeRecords(callback);
-		})();
-
 		defineProperty(Observable.prototype, "set", { // Make set() not enumerable
 			value: function (name, value) {
 				this[name] = value;
@@ -204,7 +187,6 @@ define([
 			 * @returns The value set.
 			 */
 			value: (function () {
-				has.add("object-is-api", Object.is);
 				var areSameValues = has("object-is-api") ? Object.is : function (lhs, rhs) {
 					return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
 				};
@@ -240,10 +222,8 @@ define([
 				hotCallbacks = {},
 				deliverHandle = null;
 
-			/* global Platform */
-			has.add("polymer-platform", typeof Platform !== "undefined");
-
 			function deliverAllByTimeout() {
+				/* global Platform */
 				has("polymer-platform") && Platform.performMicrotaskCheckpoint(); // For Polymer watching for Observable
 				for (var anyWorkDone = true; anyWorkDone;) {
 					anyWorkDone = false;

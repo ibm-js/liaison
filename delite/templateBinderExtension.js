@@ -5,13 +5,13 @@
  * @private
  */
 define([
-	"dojo/has",
 	"delite/register",
+	"../features",
 	"../schedule",
 	"../templateBinder",
 	"../DOMTreeBindingTarget",
 	"./WidgetBindingTarget"
-], function (has, register, schedule, templateBinder) {
+], function (register, has, schedule, templateBinder) {
 	"use strict";
 
 	var slice = [].slice;
@@ -46,8 +46,6 @@ define([
 	}
 
 	/* global HTMLTemplateElement, HTMLUnknownElement */
-	has.add("polymer-createInstance",
-		typeof HTMLTemplateElement !== "undefined" && typeof HTMLTemplateElement.prototype.createInstance === "function");
 	if (!has("polymer-createInstance")) {
 		var list = [typeof HTMLTemplateElement !== "undefined" ? HTMLTemplateElement : HTMLUnknownElement, HTMLScriptElement];
 		typeof Element !== "undefined" && list.push(Element); // <template> in <svg>

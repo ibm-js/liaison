@@ -1,12 +1,6 @@
 /** @module liaison/schedule */
-define(["requirejs-dplugins/has"], function (has) {
+define(["./features"], function (has) {
 	"use strict";
-
-	has.add("setimmediate-api", typeof setImmediate === "function");
-	has.add("mutation-observer-api",
-		typeof MutationObserver !== "undefined"
-			&& (/\[\s*native\s+code\s*\]/i.test(MutationObserver) // Avoid polyfill version of MutationObserver
-				|| !/^\s*function/.test(MutationObserver)));
 
 	/**
 	 * Calls a function at the end of microtask.
