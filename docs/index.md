@@ -19,7 +19,7 @@ It also has following APIs, they aim to provide good compatibilities to APIs tha
 
 Below example establishes binding between properties and DOM elements. The bindings in `<input>` below are two-way:
 
-<iframe width="100%" height="300" src="http://jsfiddle.net/asudoh/TmHKX/embedded/html,js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/asudoh/TmHKX/">checkout the sample on JSFiddle</a></iframe>
+<iframe width="100%" height="300" src="http://jsfiddle.net/ibmjs/7pjxb/embedded/html,js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/7pjxb/">checkout the sample on JSFiddle</a></iframe>
 
 See [here](./declarative.html) for more details on declarative binding, and [here](./template.html) for advanced topics to work with `<template>`.
 
@@ -28,7 +28,7 @@ See [here](./declarative.html) for more details on declarative binding, and [her
 Below example establishes binding between a property and DOM element.
 `.set()` API is used for trigger change notification for observers. The binding in `<input>` below is two-way:
 
-<iframe width="100%" height="275" src="http://jsfiddle.net/asudoh/v5sz3/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/asudoh/v5sz3/">checkout the sample on JSFiddle</a></iframe>
+<iframe width="100%" height="275" src="http://jsfiddle.net/ibmjs/bEg3Y/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/bEg3Y/">checkout the sample on JSFiddle</a></iframe>
 
 See [here](./NodeBind.html) for more details on imperative binding.
 
