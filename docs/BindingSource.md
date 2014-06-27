@@ -89,6 +89,6 @@ The remainder of this document explains various implementations of `BindingSourc
 
 `ObservablePath` observes a value of object path. If ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) is not available natively in browser, the object tree should be constructed by [`Observable`](./Observable.html) instances for automatic change notification. Here's a usage example:
 
-<iframe width="100%" height="400" src="http://jsfiddle.net/asudoh/fh8t3/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/asudoh/fh8t3/">checkout the sample on JSFiddle</a></iframe>
+<iframe width="100%" height="400" src="http://jsfiddle.net/ibmjs/UAyFy/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/UAyFy/">checkout the sample on JSFiddle</a></iframe>
 
 **Note**: What above examples does with `<input>` and text node is very similar to what liaison's [DOM node binding](./NodeBind.html) does under the hood.
