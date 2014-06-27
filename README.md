@@ -1,37 +1,18 @@
 # liaison
 
 liaison is a data binding library that aims for emerging web standards compatibility.
-It has low-level observable objects that emit change records compatibile to ECMAScript Harmony [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) and [`Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
+It has [low-level observable objects](http://ibm-js.github.io/liaison/docs/Observable.html) that emit change records compatibile to ES7 [`Object.observe()` and `Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
 It also has following APIs, they aim to provide good compatibilities to APIs that are foreseed to be standards in each layer:
 
-* High-level observation API
-* Imperative two-way bindings to DOM and Custom Elements
-* Declarative two-way bindings based on mustache syntax
+* High-level observation API ([BindingSource](http://ibm-js.github.io/liaison/docs/BindingSource.html))
+* [Declarative two-way bindings based on mustache syntax](http://ibm-js.github.io/liaison/docs/declarative.html)
+* [Imperative two-way bindings to DOM and Custom Elements](http://ibm-js.github.io/liaison/docs/NodeBind.html)
 
 ## Basic usage
 
-### Imperative two-way binding
-
-Below example establishes two-way binding between a property and DOM element.
-`.set()` API is used for trigger change notification for observers:
-
-```javascript
-require([
-    "liaison/Observable",
-    "liaison/ObservablePath"
-], function (Observable, ObservablePath) {
-    var observable = new Observable({foo: "FooValue0"});
-    var observablePath = new ObservablePath(observable, "foo");
-    var input = document.querySelector("input");
-    input.bind("value", observablePath); // input.value becomes "FooValue0"
-    // input.value becomes "FooValue1" at the end of microtask
-    observable.set("foo", "FooValue1");
-});
-```
-
 ### Declarative two-way binding
 
-Below example establishes two-way binding between properties and DOM elements:
+Below example establishes binding between properties and DOM elements. The bindings in `<input>` below are two-way:
 
 ```html
 <template id="my-template">
@@ -68,6 +49,29 @@ require([
 ```
 
 ![Declarative binding example](./docs/images/declarative.png)
+
+See [here](http://ibm-js.github.io/liaison/docs/declarative.html) for more details on declarative binding, and [here](http://ibm-js.github.io/liaison/docs/template.html) for advanced topics to work with `<template>`.
+
+### Imperative two-way binding
+
+Below example establishes two-way binding between a property and DOM element.
+`.set()` API is used for trigger change notification for observers:
+
+```javascript
+require([
+    "liaison/Observable",
+    "liaison/ObservablePath"
+], function (Observable, ObservablePath) {
+    var observable = new Observable({foo: "FooValue0"});
+    var observablePath = new ObservablePath(observable, "foo");
+    var input = document.querySelector("input");
+    input.bind("value", observablePath); // input.value becomes "FooValue0"
+    // input.value becomes "FooValue1" at the end of microtask
+    observable.set("foo", "FooValue1");
+});
+```
+
+See [here](http://ibm-js.github.io/liaison/docs/NodeBind.html) for more details on imperative binding.
 
 ## Supported browsers
 
@@ -116,4 +120,4 @@ Then install dependencies with bower (or manually from github if you prefer to):
 
 ## Documentation
 
-
+You can find documentation [here](http://ibm-js.github.io/liaison/docs/).
