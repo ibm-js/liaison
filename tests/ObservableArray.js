@@ -1,7 +1,7 @@
 define([
 	"intern!bdd",
 	"intern/chai!expect",
-	"requirejs-dplugins/has",
+	"../features",
 	"../Observable",
 	"../ObservableArray"
 ], function (bdd, expect, has, Observable, ObservableArray) {
@@ -79,7 +79,7 @@ define([
 				var dfd = this.async(1000),
 					observableArray = ObservableArray.apply(undefined, baseData);
 				handles.push(Observable.observe(observableArray, dfd.callback(function (records) {
-					if (has("es-object-observe")) {
+					if (has("object-observe-api")) {
 						expect(records).to.deep.equal([
 							{
 								type: Observable.CHANGETYPE_ADD,

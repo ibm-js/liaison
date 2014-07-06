@@ -342,6 +342,138 @@ define([
 					};
 				});
 			});
+			it("Synthetic change record; Nested", function () {
+				function Thingy(a, b) {
+					Observable.call(this, {a: a, b: b});
+				}
+				Thingy.prototype = Object.create(Observable.prototype);
+				Thingy.prototype.increment = function (amount) {
+					var notifier = Observable.getNotifier(this);
+					notifier.performChange("increment", function () {
+						this.set("a", this.a + amount);
+						this.set("b", this.b + amount);
+					}.bind(this));
+					notifier.notify({
+						object: this,
+						type: "increment",
+						incremented: amount
+					});
+				};
+				Thingy.prototype.multiply = function (amount) {
+					var notifier = Observable.getNotifier(this);
+					notifier.performChange("multiply", function () {
+						this.set("a", this.a * amount);
+						this.set("b", this.b * amount);
+					}.bind(this));
+					notifier.notify({
+						object: this,
+						type: "multiply",
+						multiplied: amount
+					});
+				};
+				Thingy.prototype.incrementAndMultiply = function (incAmount, multAmount) {
+					var notifier = Observable.getNotifier(this);
+					notifier.performChange("incrementAndMultiply", function () {
+						this.increment(incAmount);
+						this.multiply(multAmount);
+					}.bind(this));
+					notifier.notify({
+						object: this,
+						type: "incrementAndMultiply",
+						incremented: incAmount,
+						multiplied: multAmount
+					});
+				};
+
+				var thingy = new Thingy(2, 4),
+					dfd = this.async(1000);
+
+				Observable.observe(thingy, dfd.rejectOnError(function (records) {
+					expect(records).to.deep.equal([
+						{
+							"type": "update",
+							"object": thingy,
+							"name": "a",
+							"oldValue": 2
+						},
+						{
+							"type": "update",
+							"object": thingy,
+							"name": "b",
+							"oldValue": 4
+						},
+						{
+							"object": thingy,
+							"type": "multiply",
+							"multiplied": 2
+						}
+					]);
+				}), ["multiply", "update"]);
+
+				Observable.observe(thingy, dfd.rejectOnError(function (records) {
+					expect(records).to.deep.equal([
+						{
+							"object": thingy,
+							"type": "increment",
+							"incremented": 2
+						},
+						{
+							"type": "update",
+							"object": thingy,
+							"name": "a",
+							"oldValue": 4
+						},
+						{
+							"type": "update",
+							"object": thingy,
+							"name": "b",
+							"oldValue": 6
+						}
+					]);
+				}), ["increment", "update"]);
+
+				Observable.observe(thingy, dfd.rejectOnError(function (records) {
+					expect(records).to.deep.equal([
+						{
+							"type": "update",
+							"object": thingy,
+							"name": "a",
+							"oldValue": 2
+						},
+						{
+							"type": "update",
+							"object": thingy,
+							"name": "b",
+							"oldValue": 4
+						},
+						{
+							"type": "update",
+							"object": thingy,
+							"name": "a",
+							"oldValue": 4
+						},
+						{
+							"type": "update",
+							"object": thingy,
+							"name": "b",
+							"oldValue": 6
+						}
+					], "Observe callback with default acceptList (native types only)");
+				}));
+
+				Observable.observe(thingy, dfd.callback(function (records) {
+					expect(records).to.deep.equal([
+						{
+							"object": thingy,
+							"type": "incrementAndMultiply",
+							"incremented": 2,
+							"multiplied": 2
+						}
+					], "Observe callback that accepts everything");
+				}), ["increment", "multiply", "incrementAndMultiply", "update"]);
+
+				thingy.incrementAndMultiply(2, 2);
+			});
 			it("Unobserve", function () {
 				var h0, h1,
 					dfd = this.async(1000),

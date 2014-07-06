@@ -273,56 +273,77 @@ define([
 			 * @returns {module:liaison/Observable~Notifier}
 			 */
 			Observable.getNotifier = (function () {
-				function enqueue(changeRecord) {
-					// Using Array#indexOf() for _acceptTable and hotCallbacks
-					// may regress notify/delivery performance up to 10x esp. with iOS
-					if (this._acceptTable[changeRecord.type]) {
-						this._changeRecords.push(changeRecord);
-						hotCallbacks[this._seq] = this;
+				function shouldDeliver(activeChanges, acceptTable, changeType) {
+					if (changeType in acceptTable) {
+						for (var s in acceptTable) {
+							if (activeChanges[s] > 0) {
+								return false;
+							}
+						}
 						return true;
 					}
 				}
-				function notify(changeRecord) {
-					/* jshint validthis: true */
-					if (this._activeChanges && !this._activeChanges.finished) {
-						this._activeChanges.push(changeRecord);
-					} else {
-						for (var i = 0, l = this.callbacks.length; i < l; ++i) {
-							enqueue.call(this.callbacks[i], changeRecord)
-								|| this._activeChanges && this._activeChanges.forEach(enqueue, this.callbacks[i]);
+				/**
+				 * Notifier object for Observable.
+				 * @class module:decor/Observable~Notifier
+				 */
+				var Notifier = function (target) {
+					this.target = target;
+					this.observers = {};
+					this._activeChanges = {};
+				};
+				Notifier.prototype = /** @lends module:decor/Observable~Notifier */ {
+					/**
+					 * Queue up a change record.
+					 * It will be notified at the end of microtask,
+					 * or when {@link module:decor/Observable.deliverChangeRecords Observable.deliverChangeRecords()}
+					 * is called.
+					 * @method module:decor/Observable~Notifier#notify
+					 * @param {module:decor/Observable~ChangeRecord} changeRecord
+					 *     The change record to queue up for notification.
+					 */
+					notify: function (changeRecord) {
+						for (var s in this.observers) {
+							if (shouldDeliver(this._activeChanges, this.observers[s].acceptTable, changeRecord.type)) {
+								var callback = this.observers[s].callback;
+								callback._changeRecords.push(changeRecord);
+								hotCallbacks[callback._seq] = callback;
+								if (!deliverHandle) {
+									deliverHandle = schedule(deliverAllByTimeout);
+								}
+							}
 						}
-						if (!deliverHandle) {
-							deliverHandle = schedule(deliverAllByTimeout);
+					},
+					/**
+					 * Creates a synthetic change record representing the series of changes
+					 * happening in the given callback.
+					 * @param {string} type The change type of synthetic change record.
+					 * @param {Function} callback
+					 *     A function returning a synthetic change record.
+					 */
+					performChange: function (type, callback) {
+						this._activeChanges[type] = (this._activeChanges[type] || 0) + 1;
+						var source = callback.call(undefined);
+						--this._activeChanges[type];
+						if (source) {
+							var target = {
+								type: type,
+								object: this.target
+							};
+							for (var s in source) {
+								if (!(s in target)) {
+									target[s] = source[s];
+								}
+							}
+							this.notify(target);
 						}
 					}
-				}
-				function performChange(type, callback) {
-					/* jshint validthis: true */
-					var target = {
-						type: type,
-						object: this.target
-					};
-					this._activeChanges = [];
-					var source = callback.call(undefined);
-					this._activeChanges.finished = true;
-					for (var s in source) {
-						if (!(s in target)) {
-							target[s] = source[s];
-						}
-					}
-					this.notify(target);
-					this._activeChanges = undefined;
-				}
+				};
 				return function (observable) {
 					if (!getOwnPropertyDescriptor(observable, "_notifier")) {
 						// Make the notifier reference not enumerable, configurable or writable
 						defineProperty(observable, "_notifier", {
-							value: {
-								target: observable,
-								callbacks: [],
-								notify: notify,
-								performChange: performChange
-							}
+							value: new Notifier(observable)
 						});
 					}
 					return observable._notifier;
@@ -367,8 +388,8 @@ define([
 				}, {}); // Observable only supports the first two
 				function remove(callback) {
 					/* jshint validthis: true */
-					for (var index; (index = this.callbacks.indexOf(callback)) >= 0;) {
-						this.callbacks.splice(index, 1);
+					if (callback._seq in this.observers) {
+						delete this.observers[callback._seq];
 						--callback._refCountOfNotifier;
 					}
 					removeGarbageCallback(callback);
@@ -398,13 +419,14 @@ define([
 						callback._acceptTable = acceptTable;
 					}
 					var notifier = Observable.getNotifier(observable);
-					if (notifier.callbacks.indexOf(callback) < 0) {
-						notifier.callbacks.push(callback);
-						if (!getOwnPropertyDescriptor(callback, "_refCountOfNotifier")) {
-							// Make the reference count (from notifiers) not enumerable or configurable
-							defineProperty(callback, "_refCountOfNotifier", {value: 0, writable: true});
-						}
+					if (!(callback._seq in notifier.observers)) {
+						notifier.observers[callback._seq] = {
+							acceptTable: acceptTable,
+							callback: callback
+						};
 						++callback._refCountOfNotifier;
+					} else {
+						notifier.observers[callback._seq].acceptTable = acceptTable;
 					}
 					return {
 						remove: remove.bind(notifier, callback)
