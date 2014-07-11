@@ -1,9 +1,8 @@
 /** @module liaison/Observable */
 define([
 	"./features",
-	"./assignObservable",
 	"./features!object-observe-api?:./schedule"
-], function (has, assignObservable, schedule) {
+], function (has, schedule) {
 	"use strict";
 
 	/**
@@ -73,7 +72,7 @@ define([
 		Observable = function (o) {
 			// Make Observable marker not enumerable, configurable or writable
 			defineProperty(this, observableMarker, {value: 1});
-			o && assignObservable(this, o);
+			o && Observable.assign(this, o);
 		};
 
 		/**
@@ -85,6 +84,34 @@ define([
 			return o && o[observableMarker];
 		};
 	})();
+
+	/**
+	 * @method module:liaison/Observable.is
+	 * @returns {boolean} true if the given two values are the same, considering NaN as well as +0 vs. -0.
+	 */
+	Observable.is = has("object-is-api") ? Object.is : function (lhs, rhs) {
+		return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
+	};
+
+	/**
+	 * Copy properties of given source objects to given target object.
+	 * If target object has {@link module:liaison/Observable#set set()} function for the property, uses it.
+	 * @function module:liaison/Observable.assign
+	 * @param {Object} dst The target object.
+	 * @param {...Object} var_args The source objects.
+	 * @returns {Object} The target object.
+	 */
+	Observable.assign = function (dst) {
+		for (var hasDstSetter = typeof dst.set === "function", i = 1, l = arguments.length; i < l; ++i) {
+			var src = arguments[i],
+				props = Object.getOwnPropertyNames(src);
+			for (var j = 0, m = props.length; j < m; ++j) {
+				var prop = props[j];
+				hasDstSetter ? dst.set(prop, src[prop]) : (dst[prop] = src[prop]);
+			}
+		}
+		return dst;
+	};
 
 	/**
 	 * @method module:liaison/Observable.canObserve
@@ -186,33 +213,28 @@ define([
 			 * @param value The property value.
 			 * @returns The value set.
 			 */
-			value: (function () {
-				var areSameValues = has("object-is-api") ? Object.is : function (lhs, rhs) {
-					return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
-				};
-				return function (name, value) {
-					var type = name in this ? Observable.CHANGETYPE_UPDATE : Observable.CHANGETYPE_ADD,
-						oldValue = this[name],
-						// For defining setter, ECMAScript setter should be used
-						setter = (getOwnPropertyDescriptor(this, name) || {}).set;
-					this[name] = value;
-					if (!areSameValues(value, oldValue) && setter === undefined) {
-						// Auto-notify if there is no setter defined for the property.
-						// Application should manually call Observable.getNotifier(observable).notify(changeRecord)
-						// if a setter is defined.
-						var changeRecord = {
-							type: type,
-							object: this,
-							name: name + ""
-						};
-						if (type === Observable.CHANGETYPE_UPDATE) {
-							changeRecord.oldValue = oldValue;
-						}
-						Observable.getNotifier(this).notify(changeRecord);
+			value: function (name, value) {
+				var type = name in this ? Observable.CHANGETYPE_UPDATE : Observable.CHANGETYPE_ADD,
+					oldValue = this[name],
+					// For defining setter, ECMAScript setter should be used
+					setter = (getOwnPropertyDescriptor(this, name) || {}).set;
+				this[name] = value;
+				if (!Observable.is(value, oldValue) && setter === undefined) {
+					// Auto-notify if there is no setter defined for the property.
+					// Application should manually call Observable.getNotifier(observable).notify(changeRecord)
+					// if a setter is defined.
+					var changeRecord = {
+						type: type,
+						object: this,
+						name: name + ""
+					};
+					if (type === Observable.CHANGETYPE_UPDATE) {
+						changeRecord.oldValue = oldValue;
 					}
-					return value;
-				};
-			})(),
+					Observable.getNotifier(this).notify(changeRecord);
+				}
+				return value;
+			},
 			configurable: true,
 			writable: true
 		});
@@ -285,21 +307,21 @@ define([
 				}
 				/**
 				 * Notifier object for Observable.
-				 * @class module:decor/Observable~Notifier
+				 * @class module:liaison/Observable~Notifier
 				 */
 				var Notifier = function (target) {
 					this.target = target;
 					this.observers = {};
 					this._activeChanges = {};
 				};
-				Notifier.prototype = /** @lends module:decor/Observable~Notifier */ {
+				Notifier.prototype = /** @lends module:liaison/Observable~Notifier */ {
 					/**
 					 * Queue up a change record.
 					 * It will be notified at the end of microtask,
-					 * or when {@link module:decor/Observable.deliverChangeRecords Observable.deliverChangeRecords()}
+					 * or when {@link module:liaison/Observable.deliverChangeRecords Observable.deliverChangeRecords()}
 					 * is called.
-					 * @method module:decor/Observable~Notifier#notify
-					 * @param {module:decor/Observable~ChangeRecord} changeRecord
+					 * @method module:liaison/Observable~Notifier#notify
+					 * @param {module:liaison/Observable~ChangeRecord} changeRecord
 					 *     The change record to queue up for notification.
 					 */
 					notify: function (changeRecord) {

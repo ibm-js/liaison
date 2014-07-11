@@ -6,7 +6,6 @@ define([
 	"./BindingTarget",
 	"./Each",
 	"./schedule",
-	"./assignObservable",
 	"./computed",
 	"./wrapper"
 ], 1);

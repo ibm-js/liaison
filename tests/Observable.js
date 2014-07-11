@@ -512,6 +512,39 @@ define([
 				h0.remove(); // Make sure removing the handle twice won't cause any problem
 				h0 = null;
 			});
+			it("Assign to Observable", function () {
+				var dfd = this.async(1000),
+					dst = new Observable(),
+					src = {
+						foo: "Foo",
+						bar: "Bar"
+					};
+				handles.push(Observable.observe(dst, dfd.callback(function (records) {
+					expect(records).to.deep.equal([
+						{
+							type: Observable.CHANGETYPE_ADD,
+							object: dst,
+							name: "foo"
+						},
+						{
+							type: Observable.CHANGETYPE_ADD,
+							object: dst,
+							name: "bar"
+						}
+					]);
+				})));
+				Observable.assign(dst, src);
+				expect(dst).to.deep.equal(src);
+			});
+			it("Assign to plain object", function () {
+				var dst = {},
+					src = {
+						foo: "Foo",
+						bar: "Bar"
+					};
+				Observable.assign(dst, src);
+				expect(dst).to.deep.equal(src);
+			});
 		});
 		// TODO(asudoh): Add more enumerable/configuable/writable tests
 		// TODO(asudoh): Add test for Observable.observe() is called twice for the same observable/callback pair, and removing that handle

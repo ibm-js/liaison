@@ -6,10 +6,7 @@ define([
 ], function (has, Observable, BindingSource) {
 	"use strict";
 
-	var EMPTY_OBJECT = {},
-		areSameValues = has("object-is-api") ? Object.is : function (lhs, rhs) {
-			return lhs === rhs && (lhs !== 0 || 1 / lhs === 1 / rhs) || lhs !== lhs && rhs !== rhs;
-		};
+	var EMPTY_OBJECT = {};
 
 	function getPathComps(path, create) {
 		return path === "" ? [] : typeof path.splice !== "function" ? path.split(".") : create ? path.slice() : path;
@@ -97,7 +94,7 @@ define([
 						}
 						if (found) {
 							var hasRemainder = this.remainder.length > 0;
-							if (!areSameValues(newValue, oldValue)) {
+							if (!Observable.is(newValue, oldValue)) {
 								if (this.observerRemainder) {
 									this.observerRemainder.remove();
 									this.observerRemainder = null;
@@ -110,7 +107,7 @@ define([
 							if (!this.beingDiscarded) {
 								var oldPathValue = hasRemainder ? getObjectPath(oldValue, this.remainder) : oldValue,
 									newPathValue = hasRemainder ? getObjectPath(newValue, this.remainder) : newValue;
-								if (!areSameValues(oldPathValue, newPathValue)) {
+								if (!Observable.is(oldPathValue, newPathValue)) {
 									callback(newPathValue, oldPathValue);
 								}
 							}
