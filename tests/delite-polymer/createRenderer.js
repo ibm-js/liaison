@@ -189,27 +189,30 @@ define([
 				});
 			});
 			it("Template with <d-star-rating>: Programmatic", function () {
-				var dfd = this.async(10000),
-					w = new StarRatingTemplateWidget({rating: 2, allowZero: false}).placeAt(document.body),
-					star = w.querySelector("d-star-rating");
+				var w = new StarRatingTemplateWidget({rating: 2, allowZero: false}).placeAt(document.body);
+				this.timeout = 10000;
 				handles.push({
 					remove: function () {
 						w.destroy();
 					}
 				});
-				setTimeout(dfd.callback(function () {
+				return waitFor(function () {
+					var star = w.querySelector("d-star-rating");
 					// Mixin properties are applied after template is instantiated
+					return star && star.value !== 0;
+				}).then(function () {
+					var star = w.querySelector("d-star-rating");
 					expect(star.value).to.equal(2);
 					expect(star.allowZero).to.be.false;
 					star.value = 4;
 					expect(w.rating).to.equal(4);
-				}), 500);
+				});
 			});
 			it("Template with <d-star-rating>: Declarative", function () {
-				var dfd = this.async(10000),
-					div = document.createElement("div"),
+				var div = document.createElement("div"),
 					observable = new Observable({rating: 2, allowZero: false}),
 					template = div.appendChild(document.createElement("template"));
+				this.timeout = 10000;
 				template.innerHTML = widgetWithStarRatingTemplate;
 				template.setAttribute("bind", "");
 				template.model = observable;
@@ -222,15 +225,18 @@ define([
 						document.body.removeChild(div);
 					}
 				});
-				setTimeout(dfd.rejectOnError(function () {
+				return waitFor(function () {
+					var starTemplateWidget = div.querySelector("liaison-test-starrating"),
+						star = starTemplateWidget && starTemplateWidget.querySelector("d-star-rating");
+					// Mixin properties are applied after template is instantiated
+					return star && star.value !== 0;
+				}).then(function () {
 					var star = div.querySelector("liaison-test-starrating").querySelector("d-star-rating");
-					setTimeout(dfd.callback(function () {
-						expect(star.value).to.equal(2);
-						expect(star.allowZero).to.be.false;
-						star.value = 4;
-						expect(observable.rating).to.equal(4);
-					}), 500);
-				}), 100);
+					expect(star.value).to.equal(2);
+					expect(star.allowZero).to.be.false;
+					star.value = 4;
+					expect(observable.rating).to.equal(4);
+				});
 			});
 			it("Nested template: Programmatic", function () {
 				var w = new NestedTemplateWidget({
