@@ -205,6 +205,9 @@ define([
 					expect(star.value).to.equal(2);
 					expect(star.allowZero).to.be.false;
 					star.value = 4;
+				}).then(waitFor.create(function () {
+					return w.rating !== 2;
+				})).then(function () {
 					expect(w.rating).to.equal(4);
 				});
 			});
@@ -235,6 +238,9 @@ define([
 					expect(star.value).to.equal(2);
 					expect(star.allowZero).to.be.false;
 					star.value = 4;
+				}).then(waitFor.create(function () {
+					return observable.rating !== 2;
+				})).then(function () {
 					expect(observable.rating).to.equal(4);
 				});
 			});

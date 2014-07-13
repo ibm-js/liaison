@@ -200,6 +200,9 @@ define([
 					var star = w.querySelector("d-star-rating");
 					expect(star.allowZero).not.to.be.true;
 					star.value = 4;
+				}).then(waitFor.create(function () {
+					return w.querySelector("d-star-rating").value !== 2;
+				})).then(function () {
 					expect(w.rating).to.equal(4);
 				});
 			});
@@ -223,6 +226,9 @@ define([
 					var star = div.querySelector("liaison-test-starrating").querySelector("d-star-rating");
 					expect(star.allowZero).not.to.be.true;
 					star.value = 4;
+				}).then(waitFor.create(function () {
+					return div.querySelector("d-star-rating").value !== 2;
+				})).then(function () {
 					expect(observable.rating).to.equal(4);
 				});
 			});

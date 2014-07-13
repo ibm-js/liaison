@@ -1,15 +1,14 @@
 /** @module liaison/delite/widgets/Widget */
 define([
 	"dcl/dcl",
-	"delite/Stateful",
 	"delite/Widget",
 	"../../computed",
 	"../../wrapper",
-	"../../wrapStateful",
+	"../../Observable",
 	"../../ObservablePath",
 	"../../templateBinder",
 	"../templateBinderExtension"
-], function (dcl, Stateful, Widget, computed, wrapper, wrapStateful, ObservablePath, templateBinder) {
+], function (dcl, Widget, computed, wrapper, Observable, ObservablePath, templateBinder) {
 	var MUSTACHE_BEGIN = "{{",
 		REGEXP_CHAGED_CALLBACK = /^(.+)Changed$/;
 
@@ -56,15 +55,10 @@ define([
 		 * @method
 		 */
 		preCreate: dcl.before(function () {
-			var tokens;
-			this.watch = Stateful.prototype.watch; // From delite/Widget#preCreate
-			wrapStateful(this);
-			this.own.apply(this, computed.apply(this)); // Let widget manage computed property so that it works for non-templated widgets
-			for (var s in this) {
-				if ((tokens = REGEXP_CHAGED_CALLBACK.exec(s)) && typeof this[s] === "function") {
-					this.own(new ObservablePath(this, tokens[1]).observe(this[s].bind(this)));
-				}
+			if (!this.set) {
+				this.set = Observable.prototype.set;
 			}
+			this.own.apply(this, computed.apply(this)); // Let widget manage computed property so that it works for non-templated widgets
 		}),
 
 		/**
@@ -99,11 +93,12 @@ define([
 			templateBinder.assignSources.call(this, this, toBeBound, this.createBindingSourceFactory);
 			this.own.apply(this, templateBinder.bind(toBeBound));
 
-			if (!this.preventDispatchValuesAtInitialization) {
-				var tokens;
-				for (var prop in this) {
-					if ((tokens = REGEXP_CHAGED_CALLBACK.exec(prop)) && typeof this[prop] === "function") {
-						this[prop](this[tokens[1]]);
+			var tokens;
+			for (var prop in this) {
+				if ((tokens = REGEXP_CHAGED_CALLBACK.exec(prop)) && typeof this[prop] === "function") {
+					var value = this.own(new ObservablePath.Observer(this, tokens[1]))[0].open(this[prop], this);
+					if (!this.preventDispatchValuesAtInitialization) {
+						this[prop](value);
 					}
 				}
 			}

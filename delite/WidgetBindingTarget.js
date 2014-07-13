@@ -1,10 +1,11 @@
 /** @module liaison/delite/WidgetBindingTarget */
 define([
 	"delite/register",
-	"../wrapStateful",
+	"../Observable",
+	"../ObservablePath",
 	"../BindingTarget",
 	"../DOMBindingTarget"
-], function (register, wrapStateful, BindingTarget) {
+], function (register, Observable, ObservablePath, BindingTarget) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},
@@ -23,9 +24,9 @@ define([
 	 *     this {@link module:liaison/delite/WidgetBindingTarget WidgetBindingTarget}'s behavior.
 	 */
 	var WidgetBindingTarget = (function () {
-		function setTo(name, old, current) {
+		function setTo(newValue) {
 			if ((this.source || EMPTY_OBJECT).setValue) {
-				this.source.setValue(current);
+				this.source.setValue(newValue);
 			}
 		}
 		return function () {
@@ -34,11 +35,18 @@ define([
 			this.targetProperty = (REGEXP_ATTRIBUTE_POINTER.exec(args[1]) || EMPTY_ARRAY)[1] || args[1];
 			// Defining HTMLInputElement#value, etc. in prototype breaks <input> in IE.
 			// Also Safari throws if we try to set up a "shadow property" for something like HTMLInputElement#value.
-			// Therefore rather than relying 100% on delite/Stateful to trigger emitting change record,
+			// Therefore rather than relying 100% on decor/Stateful to trigger emitting change record,
 			// we make the widget a "pseudo Obserable"
 			// and use its pseudo .set() API to make sure a change record is emitted when a widget property gets a new value.
-			wrapStateful(this.object);
-			this.hw = this.object.own(this.object.watch(this.targetProperty, setTo.bind(this)))[0];
+			if (!this.object.set) {
+				this.object.set = Observable.prototype.set;
+			}
+			this.hw = new ObservablePath.Observer(this.object, this.targetProperty);
+			if (typeof this.hw.remove !== "function") {
+				this.hw.remove = this.hw.close;
+			}
+			this.hw.open(setTo, this);
+			this.object.own(this.hw);
 		};
 	})();
 
@@ -59,6 +67,7 @@ define([
 		},
 		set: function (value) {
 			this.object.set(this.targetProperty, value);
+			this.hw.deliver(); // Deliver self-change immediately to avoid race condition
 		},
 		enumerable: true,
 		configurable: true

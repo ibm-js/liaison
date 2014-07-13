@@ -47,7 +47,7 @@ define([
 		} else {
 			// TODO(asudoh):
 			// Document that ObservableArray cannot be observed by Observable.observe()
-			// without CHANGETYPE_SPLICE in accept list.
+			// without "splice" in accept list.
 			// We need to create large amount of change records to do so,
 			// when splice happens with large amount of removals/adds
 			ObservableArray = function (length) {
@@ -125,13 +125,13 @@ define([
 					},
 					result = EMPTY_ARRAY.splice.apply(this, arguments),
 					lengthRecord = oldLength !== this.length && {
-						type: Observable.CHANGETYPE_UPDATE,
+						type: "update",
 						object: this,
 						name: "length",
 						oldValue: oldLength
 					},
 					notifier = Observable.getNotifier(this);
-				notifier.performChange(Observable.CHANGETYPE_SPLICE, function () {
+				notifier.performChange("splice", function () {
 					lengthRecord && notifier.notify(lengthRecord);
 					return changeRecord;
 				});
@@ -196,7 +196,7 @@ define([
 				 */
 				reverse: function () {
 					var changeRecord = {
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: this,
 							index: 0,
 							removed: this.slice(),
@@ -225,7 +225,7 @@ define([
 				 */
 				sort: function () {
 					var changeRecord = {
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: this,
 							index: 0,
 							removed: this.slice(),
@@ -259,14 +259,12 @@ define([
 	 * Internally calls {@link module:liaison/Observable.observe Observable.observe()}
 	 * observing for the following types of change records:
 	 * [
-	 *     {@link module:liaison/Observable.CHANGETYPE_ADD Observable.CHANGETYPE_ADD},
-	 *     {@link module:liaison/Observable.CHANGETYPE_UPDATE Observable.CHANGETYPE_UPDATE},
-	 *     {@link module:liaison/Observable.CHANGETYPE_DELETE Observable.CHANGETYPE_DELETE},
-	 *     {@link module:liaison/Observable.CHANGETYPE_SPLICE Observable.CHANGETYPE_SPLICE}
+	 *     "add",
+	 *     "update",
+	 *     "delete",
+	 *     "splice"
 	 * ]
-	 * All change records will be converted
-	 * to {@link module:liaison/Observable.CHANGETYPE_SPLICE Observable.CHANGETYPE_SPLICE},
-	 * and are sorted by index and merged to smaller number of change records.
+	 * All change records will be converted to "splice" and are sorted by index and merged to smaller number of change records.
 	 * @method
 	 * @param {Object} observable The {@link module:liaison/ObservableArray ObservableArray} to observe.
 	 * @param {module:liaison/Observable~ChangeCallback} callback The change callback.
@@ -280,9 +278,9 @@ define([
 				Math.min(end1, end2) - Math.max(start1, start2); // Intersected or contained
 		}
 		function normalize(record) {
-			return record.type !== Observable.CHANGETYPE_ADD && record.type !== Observable.CHANGETYPE_UPDATE ? record :
+			return record.type !== "add" && record.type !== "update" ? record :
 				{
-					type: Observable.CHANGETYPE_SPLICE,
+					type: "splice",
 					object: record.object,
 					index: +record.name,
 					removed: [record.oldValue],
@@ -302,7 +300,7 @@ define([
 						entry.index += indexAdjustment;
 					} else {
 						entry = merged[i] = {
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: merged[i].object,
 							index: merged[i].index + indexAdjustment,
 							removed: merged[i].removed,
@@ -328,7 +326,7 @@ define([
 							doneIncoming = true;
 						} else {
 							incoming = {
-								type: Observable.CHANGETYPE_SPLICE,
+								type: "splice",
 								object: entry.object,
 								index: Math.min(entry.index, incoming.index),
 								removed: removed,
@@ -364,10 +362,10 @@ define([
 		} else {
 			return function (observableArray, callback) {
 				var h = Object.create(Observable.observe(observableArray, callback = observeSpliceCallback.bind(observableArray, callback), [
-					Observable.CHANGETYPE_ADD,
-					Observable.CHANGETYPE_UPDATE,
-					Observable.CHANGETYPE_DELETE,
-					Observable.CHANGETYPE_SPLICE
+					"add",
+					"update",
+					"delete",
+					"splice"
 				]));
 				h.deliver = Observable.deliverChangeRecords.bind(Observable, callback);
 				return h;

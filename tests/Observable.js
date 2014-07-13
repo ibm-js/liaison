@@ -40,17 +40,17 @@ define([
 				handles.push(Observable.observe(observable, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable,
 							name: "foo"
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable,
 							name: "bar"
 						},
 						{
-							type: Observable.CHANGETYPE_UPDATE,
+							type: "update",
 							object: observable,
 							name: "foo",
 							oldValue: "Foo0"
@@ -68,12 +68,12 @@ define([
 				handles.push(Observable.observe(observable1, dfd.rejectOnError(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable1,
 							name: "foo"
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable1,
 							name: "bar"
 						}
@@ -82,17 +82,17 @@ define([
 				handles.push(Observable.observe(observable0, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable0,
 							name: "foo"
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable0,
 							name: "bar"
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable0,
 							name: "baz"
 						}
@@ -110,17 +110,17 @@ define([
 				handles.push(Observable.observe(observable, dfd.rejectOnError(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable,
 							name: "foo"
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable,
 							name: "bar"
 						},
 						{
-							type: Observable.CHANGETYPE_UPDATE,
+							type: "update",
 							object: observable,
 							name: "foo",
 							oldValue: "Foo0"
@@ -130,17 +130,17 @@ define([
 				handles.push(Observable.observe(observable, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable,
 							name: "foo"
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable,
 							name: "bar"
 						},
 						{
-							type: Observable.CHANGETYPE_UPDATE,
+							type: "update",
 							object: observable,
 							name: "foo",
 							oldValue: "Foo0"
@@ -163,17 +163,17 @@ define([
 						expect(observable0ObserverCalledCount).to.be.equal(2);
 						expect(changeRecords).to.deep.equal([
 							{
-								type: Observable.CHANGETYPE_ADD,
+								type: "add",
 								object: observable0,
 								name: "foo0"
 							},
 							{
-								type: Observable.CHANGETYPE_ADD,
+								type: "add",
 								object: observable1,
 								name: "foo1"
 							},
 							{
-								type: Observable.CHANGETYPE_ADD,
+								type: "add",
 								object: observable0,
 								name: "bar0"
 							}
@@ -217,22 +217,22 @@ define([
 				setTimeout(dfd.callback(function () {
 					expect(changeRecords).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable0,
 							name: "foo"
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable1,
 							name: "foo"
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable2,
 							name: "foo"
 						},
 						{
-							type: Observable.CHANGETYPE_UPDATE,
+							type: "update",
 							object: observable0,
 							name: "foo",
 							oldValue: "Foo0"
@@ -250,7 +250,7 @@ define([
 				handles.push(Observable.observe(observable, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_UPDATE,
+							type: "update",
 							object: observable,
 							name: "baz",
 							oldValue: 0
@@ -268,8 +268,8 @@ define([
 					callback = dfd.rejectOnError(function () {
 						expect(++count < 2).to.be.true;
 					});
-				handles.push(Observable.observe(observable, callback, [Observable.CHANGETYPE_UPDATE]));
-				handles.push(Observable.observe(observable, callback, [Observable.CHANGETYPE_ADD]));
+				handles.push(Observable.observe(observable, callback, ["update"]));
+				handles.push(Observable.observe(observable, callback, ["add"]));
 				observable.set("foo", "Foo0");
 				setTimeout(dfd.callback(function () {
 					expect(count).to.equal(1);
@@ -284,7 +284,7 @@ define([
 				handles.push(Observable.observe(observable, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable,
 							name: "foo"
 						}
@@ -298,23 +298,23 @@ define([
 				Observable.observe(observable, dfd.rejectOnError(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable,
 							name: "2"
 						},
 						{
-							type: Observable.CHANGETYPE_UPDATE,
+							type: "update",
 							object: observable,
 							name: "length",
 							oldValue: 2
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable,
 							name: "3"
 						},
 						{
-							type: Observable.CHANGETYPE_UPDATE,
+							type: "update",
 							object: observable,
 							name: "length",
 							oldValue: 3
@@ -482,12 +482,12 @@ define([
 				handles.push(h0 = Observable.observe(observable0, dfd.rejectOnError(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable0,
 							name: "foo0"
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable0,
 							name: "bar0"
 						}
@@ -496,7 +496,7 @@ define([
 				handles.push(h1 = Observable.observe(observable1, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observable1,
 							name: "foo1"
 						}
@@ -522,12 +522,12 @@ define([
 				handles.push(Observable.observe(dst, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: dst,
 							name: "foo"
 						},
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: dst,
 							name: "bar"
 						}

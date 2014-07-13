@@ -41,35 +41,35 @@ define([
 				handles.push(Observable.observe(observableArray, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 10,
 							removed: [],
 							addedCount: 2
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 11,
 							removed: ["l"],
 							addedCount: 0
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 0,
 							removed: [],
 							addedCount: 2
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 0,
 							removed: ["0"],
 							addedCount: 0
 						}
 					]);
-				}), [Observable.CHANGETYPE_UPDATE, Observable.CHANGETYPE_SPLICE]));
+				}), ["update", "splice"]));
 				observableArray.push("k", "l");
 				observableArray.pop();
 				observableArray.unshift("0", "1");
@@ -82,35 +82,35 @@ define([
 					if (has("object-observe-api")) {
 						expect(records).to.deep.equal([
 							{
-								type: Observable.CHANGETYPE_ADD,
+								type: "add",
 								object: observableArray,
 								name: "10"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "length",
 								oldValue: 10
 							},
 							{
-								type: Observable.CHANGETYPE_ADD,
+								type: "add",
 								object: observableArray,
 								name: "11"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "length",
 								oldValue: 11
 							},
 							{
-								type: Observable.CHANGETYPE_DELETE,
+								type: "delete",
 								object: observableArray,
 								name: "11",
 								oldValue: "l"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "length",
 								oldValue: 12
@@ -120,13 +120,13 @@ define([
 						// Shim part of ObservableArray does not emit change records for array indices as doing so will be heavy
 						expect(records).to.deep.equal([
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "length",
 								oldValue: 10
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "length",
 								oldValue: 12
@@ -144,61 +144,61 @@ define([
 					if (has("object-observe-api")) {
 						expect(records.sort(function (dst, src) { return dst.name - src.name; })).to.deep.equal([
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "0",
 								oldValue: "a"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "1",
 								oldValue: "b"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "2",
 								oldValue: "c"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "3",
 								oldValue: "d"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "4",
 								oldValue: "e"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "5",
 								oldValue: "f"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "6",
 								oldValue: "g"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "7",
 								oldValue: "h"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "8",
 								oldValue: "i"
 							},
 							{
-								type: Observable.CHANGETYPE_UPDATE,
+								type: "update",
 								object: observableArray,
 								name: "9",
 								oldValue: "j"
@@ -207,7 +207,7 @@ define([
 					} else {
 						expect(records).to.deep.equal([
 							{
-								type: Observable.CHANGETYPE_SPLICE,
+								type: "splice",
 								object: observableArray,
 								index: 0,
 								removed: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"],
@@ -215,7 +215,7 @@ define([
 							}
 						]);
 					}
-				}), [Observable.CHANGETYPE_UPDATE, Observable.CHANGETYPE_SPLICE]));
+				}), ["update", "splice"]));
 				observableArray.reverse();
 			});
 			// ECMAScript Object.observe() emits change records for every internal change in sort().
@@ -226,7 +226,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 0,
 							removed: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"],
@@ -242,34 +242,34 @@ define([
 				handles.push(Observable.observe(observableArray, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 0,
 							removed: [],
 							addedCount: 1
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 1,
 							removed: [],
 							addedCount: 1
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 2,
 							removed: [],
 							addedCount: 1
 						},
 						{
-							type: Observable.CHANGETYPE_UPDATE,
+							type: "update",
 							object: observableArray,
 							name: "1",
 							oldValue: "b"
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 3,
 							removed: [],
@@ -277,10 +277,10 @@ define([
 						}
 					]);
 				}), [
-					Observable.CHANGETYPE_ADD,
-					Observable.CHANGETYPE_UPDATE,
-					Observable.CHANGETYPE_DELETE,
-					Observable.CHANGETYPE_SPLICE
+					"add",
+					"update",
+					"delete",
+					"splice"
 				]));
 				observableArray.set(0, "a");
 				observableArray.set(1, "b");
@@ -294,7 +294,7 @@ define([
 				handles.push(Observable.observe(observableArray, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 0,
 							removed: [],
@@ -302,10 +302,10 @@ define([
 						}
 					]);
 				}), [
-					Observable.CHANGETYPE_ADD,
-					Observable.CHANGETYPE_UPDATE,
-					Observable.CHANGETYPE_DELETE,
-					Observable.CHANGETYPE_SPLICE
+					"add",
+					"update",
+					"delete",
+					"splice"
 				]));
 				observableArray.set(2, "c");
 			});
@@ -315,16 +315,16 @@ define([
 				handles.push(Observable.observe(observableArray, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_ADD,
+							type: "add",
 							object: observableArray,
 							name: "1"
 						}
 					]);
 				}), [
-					Observable.CHANGETYPE_ADD,
-					Observable.CHANGETYPE_UPDATE,
-					Observable.CHANGETYPE_DELETE,
-					Observable.CHANGETYPE_SPLICE
+					"add",
+					"update",
+					"delete",
+					"splice"
 				]));
 				observableArray.set(1, "b");
 			});
@@ -334,14 +334,14 @@ define([
 				handles.push(Observable.observe(observableArray, dfd.callback(function (records) {
 					expect(records).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 7,
 							removed: ["h", "i", "j"],
 							addedCount: 0
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 7,
 							removed: [],
@@ -349,10 +349,10 @@ define([
 						}
 					]);
 				}), [
-					Observable.CHANGETYPE_ADD,
-					Observable.CHANGETYPE_UPDATE,
-					Observable.CHANGETYPE_DELETE,
-					Observable.CHANGETYPE_SPLICE
+					"add",
+					"update",
+					"delete",
+					"splice"
 				]));
 				observableArray.set("length", 7);
 				observableArray.set("length", 12);
@@ -363,7 +363,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 7,
 							removed: ["h", "i", "j"],
@@ -380,7 +380,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 10,
 							removed: [],
@@ -397,7 +397,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 0,
 							removed: [],
@@ -417,7 +417,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 1,
 							removed: [undefined],
@@ -425,10 +425,10 @@ define([
 						}
 					]);
 				}), [
-					Observable.CHANGETYPE_ADD,
-					Observable.CHANGETYPE_UPDATE,
-					Observable.CHANGETYPE_DELETE,
-					Observable.CHANGETYPE_SPLICE
+					"add",
+					"update",
+					"delete",
+					"splice"
 				]));
 				observableArray.set(1, "b");
 			});
@@ -444,14 +444,14 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 3,
 							removed: ["d", "e", "f", "g"],
 							addedCount: 3
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 7,
 							removed: ["i", "j"],
@@ -474,7 +474,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 3,
 							removed: ["d", "e", "f", "g", "h", "i"],
@@ -497,7 +497,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 3,
 							removed: ["d", "e", "f", "g", "h"],
@@ -520,7 +520,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 3,
 							removed: ["d", "e", "f"],
@@ -543,14 +543,14 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 1,
 							removed: ["b", "c"],
 							addedCount: 3
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 5,
 							removed: ["e", "f"],
@@ -573,7 +573,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 2,
 							removed: ["c", "d", "e", "f"],
@@ -596,7 +596,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 3,
 							removed: ["d", "e", "f"],
@@ -619,7 +619,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 3,
 							removed: ["d", "e", "f", "g"],
@@ -646,14 +646,14 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 3,
 							removed: ["d", "e", "f", "g"],
 							addedCount: 4
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 8,
 							removed: ["i", "j"],
@@ -681,14 +681,14 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 3,
 							removed: ["d", "e", "f"],
 							addedCount: 2
 						},
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 6,
 							removed: ["h", "i", "j"],
@@ -714,7 +714,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 3,
 							removed: ["d", "e", "f", "g", "h", "i", "j"],
@@ -740,7 +740,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 1,
 							removed: ["b", "c", "d", "e", "f", "g", "h", "i"],
@@ -766,7 +766,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 1,
 							removed: ["b", "c", "d", "e", "f", "g", "h", "i"],
@@ -792,7 +792,7 @@ define([
 				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
 					expect(splices).to.deep.equal([
 						{
-							type: Observable.CHANGETYPE_SPLICE,
+							type: "splice",
 							object: observableArray,
 							index: 1,
 							removed: ["b", "c", "d", "e", "f", "g", "h", "i"],

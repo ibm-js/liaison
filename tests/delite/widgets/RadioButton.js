@@ -47,6 +47,9 @@ define([
 					var event = document.createEvent("HTMLEvents");
 					event.initEvent("change", false, true);
 					inputs[2].dispatchEvent(event);
+				}).then(waitFor.create(function () {
+					return observable.current !== "foo";
+				})).then(function () {
 					expect(observable.current).to.equal("baz");
 				});
 			});

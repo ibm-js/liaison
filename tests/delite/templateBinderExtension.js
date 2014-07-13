@@ -22,6 +22,8 @@ define([
 					handle.remove();
 				}
 			});
+/*
+			// TODO(asudoh): Wait for deliteful/Button.js to be merged
 			it("Simple binding: <d-button>", function () {
 				var model = new Observable({label: "Foo"}),
 					div = document.createElement("div"),
@@ -42,6 +44,9 @@ define([
 					expect(w.textContent).to.equal("Foo");
 					expect(w.bindings.label.value).to.equal("Foo");
 					w.label = "Bar";
+				}).then(waitFor.create(function () {
+					return model.label !== "Foo";
+				})).then(function () {
 					expect(model.label).to.equal("Bar");
 				}).then(waitFor.create(function () {
 					return template.nextSibling.textContent !== "Foo";
@@ -76,6 +81,9 @@ define([
 					expect(w.textContent).to.equal("Foo");
 					expect(w.bindings._label.value).to.equal("Foo");
 					w.label = "Bar";
+				}).then(waitFor.create(function () {
+					return model.label !== "Foo";
+				})).then(function () {
 					expect(model.label).to.equal("Bar");
 				}).then(waitFor.create(function () {
 					return template.nextSibling.textContent !== "Foo";
@@ -90,6 +98,7 @@ define([
 					expect(w.textContent).to.equal("Baz");
 				});
 			});
+*/
 			it("Simple binding: <d-star-rating>", function () {
 				var model = new Observable({rating: 2}),
 					div = document.createElement("div"),
@@ -110,6 +119,9 @@ define([
 					expect(w.value).to.equal(2);
 					expect(w.bindings.value.value).to.equal(2);
 					w.value = 4;
+				}).then(waitFor.create(function () {
+					return model.rating !== 2;
+				})).then(function () {
 					expect(model.rating).to.equal(4);
 					model.set("rating", 3);
 				}).then(waitFor.create(function () {

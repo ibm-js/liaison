@@ -1,8 +1,8 @@
 /** @module liaison/delite/createRenderer */
 define([
-	"../wrapStateful",
+	"../Observable",
 	"../DOMTreeBindingTarget"
-], function (wrapStateful) {
+], function (Observable) {
 	"use strict";
 
 	var forEach = [].forEach;
@@ -41,8 +41,8 @@ define([
 		}
 		return function () {
 			/* jshint validthis: true */
-			if (!this._observable) {
-				wrapStateful(this);
+			if (!this.set) {
+				this.set = Observable.prototype.set;
 			}
 			var template = this.ownerDocument.createElement("template");
 			template.innerHTML = templateString;
