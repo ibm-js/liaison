@@ -98,7 +98,7 @@ All contributions require a [Dojo Foundation CLA](http://dojofoundation.org/abou
 
 This project requires AMD loader ([requirejs](http://requirejs.org/) or [Dojo](http://dojotoolkit.org/)) to run in browser.
 
-AMD loader is the only dependency of liaison core code.
+liaison's core observable object is now in decor project (http://github.com/ibm-js/decor). Other than that, AMD loader is the only dependency of liaison core code.
 Code under delite directory is [delite](https://github.com/ibm-js/delite) integration code and therefore requires delite to run it. delite integration code also requires [DCL](http://www.dcljs.org).
 Code under polymer directory is [Polymer](http://www.polymer-project.org/) integration code and therefore requires Polymer to run it.
 Some sample code requires Dojo or [deliteful](https://github.com/ibm-js/deliteful).
