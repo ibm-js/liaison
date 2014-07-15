@@ -7,6 +7,10 @@
 		"requirejs-dplugins": ">=0.2.2-dev",
 		"decor": "ibm-js/decor#master",
 		"dojo": ">=1.9.1",
-		"deliteful": ">=0.1.1-dev"
+		"delite": "master",
+		"deliteful": "master"
+	},
+	"resolutions": {
+		"delite": "master"
 	}
 }
