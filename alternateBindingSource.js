@@ -102,7 +102,7 @@ define([
 					var source = factory && factory(model, node) || new ObservablePath.Observer(model, expression);
 					return new StyleShowBindingSource(source, node, name === "l-show");
 				};
-			} else if (name === "class") {
+			} else if (name === "class" && expression.indexOf(":") >= 0) {
 				var tokens = expression.split(":"),
 					className = tokens[0],
 					path = tokens.slice(1).join(":");

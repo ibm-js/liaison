@@ -23,6 +23,7 @@ define([
 	"requirejs-text/text!./templates/emptyBindingTemplate.html",
 	"requirejs-text/text!./templates/svgTemplate.html",
 	"requirejs-text/text!./templates/svgNestedTemplate.html",
+	"requirejs-text/text!./templates/styleClassValueTemplate.html",
 	"requirejs-text/text!./templates/styleBindingTemplate.html",
 	"requirejs-text/text!./templates/styleWithAlternateBindingTemplate.html",
 	"requirejs-text/text!./templates/eventTemplate.html",
@@ -53,6 +54,7 @@ define([
 	emptyBindingTemplate,
 	svgTemplate,
 	svgNestedTemplate,
+	styleValueTemplate,
 	styleTemplate,
 	styleWithAlternateBindingTemplate,
 	eventTemplate,
@@ -1073,6 +1075,31 @@ define([
 					});
 				});
 			}
+			it("CSS class attribute with regular value", function () {
+				var div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template")),
+					observable = new Observable({value: "Foo"});
+				this.timeout = 10000;
+				template.innerHTML = styleValueTemplate;
+				var binding = template.bind("bind", observable);
+				handles.push(binding);
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				return waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					expect(template.nextSibling.className).to.equal("my-class-Foo");
+					observable.set("value", "Bar");
+				}).then(waitFor.create(function () {
+					return template.nextSibling.className !== "my-class-Foo";
+				})).then(function () {
+					expect(template.nextSibling.className).to.equal("my-class-Bar");
+				});
+			});
 			it("Style binding", function () {
 				var div = document.createElement("div"),
 					template = div.appendChild(document.createElement("template")),

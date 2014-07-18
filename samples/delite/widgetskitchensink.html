@@ -3,37 +3,8 @@
 	<head>
 		<link rel="stylesheet" type="text/css" href="../css/samples.css">
 		<style type="text/css">
-			/* customize stars */
-
-			.d-star-rating-star-icon:before {
-				content: url("../../../deliteful/samples/images/star-orange.png");
-			}
-			
-			.d-star-rating-star-icon {
-				height: 14px;
-				width: 13px;
-			}
-
-			.d-star-rating-empty-star:before {
-				margin-left: -13px;
-			}
-
-			.d-star-rating-half-star:before {
-				margin-left: -26px;
-			}
-
-			.d-star-rating.d-rtl .d-star-rating-full-star:before {
-				margin-left: 0px;
-				margin-right: -39px;
-			}
-
-			.d-star-rating.d-rtl .d-star-rating-empty-star:before {
-				margin-left: 0px;
-				margin-right: -26px;
-			}
-
-			.d-star-rating.d-rtl .d-star-rating-half-star:before {
-				margin-left: 0px;
+			.d-progress-bar {
+				width: 30ex;
 			}
 		</style>
 		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
@@ -42,6 +13,7 @@
 				"liaison/ObservablePath",
 				"liaison/computed",
 				"liaison/wrapper",
+				"deliteful/ProgressBar",
 				"deliteful/ProgressIndicator",
 				"deliteful/Slider",
 				"liaison/DOMTreeBindingTarget",
@@ -131,6 +103,10 @@
 			<div>
 				<span class="cell">Progress indicator:</span>
 				<d-progress-indicator value="{{percent}}" active="{{active}}"></d-progress-indicator>
+			</div>
+			<div>
+				<span class="cell">Progress bar:</span>
+				<d-progress-bar value="{{num}}" max="{{max}}"></d-progress-bar>
 			</div>
 		</template>
 	</body>

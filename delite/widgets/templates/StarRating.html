@@ -1,5 +1,5 @@
 <template repeat="{{stars}}">
-	<div style="float:left;overflow:hidden;" class="d-star-rating-star-icon d-star-rating-{{state}}-star" data-uniqueId="{{uniqueId}}"></div>
+	<div class="d-star-rating-star-icon d-star-rating-start d-star-rating-{{state}}" data-uniqueId="{{uniqueId}}"></div><div class="d-star-rating-star-icon d-star-rating-end d-star-rating-{{state}}" data-uniqueId="{{uniqueId}}"></div>
 </template>
 <template if="{{noReuseInput}}">
 	<input type="number" name="{{name}}" value="{{value}}" readOnly="{{readOnly}}" disabled="{{disabled}}" style="display:none;">
