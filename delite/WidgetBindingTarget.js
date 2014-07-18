@@ -10,7 +10,26 @@ define([
 
 	var EMPTY_OBJECT = {},
 		EMPTY_ARRAY = [],
-		REGEXP_ATTRIBUTE_POINTER = /^_(.*)$/;
+		REGEXP_ATTRIBUTE_POINTER = /^_(.*)$/,
+		apn = {};
+
+	/**
+	 * Helper function to map "foo" --> "_setFooAttr" with caching to avoid recomputing strings.
+	 */
+	function propNames(name) {
+		if (apn[name]) {
+			return apn[name];
+		}
+		var uc = name.replace(/^[a-z]|-[a-zA-Z]/g, function (c) {
+			return c.charAt(c.length - 1).toUpperCase();
+		});
+		var ret = apn[name] = {
+			p: "_" + name + "Attr",		// shadow property, since real property hidden by setter/getter
+			s: "_set" + uc + "Attr",	// converts dashes to camel case, ex: accept-charset --> _setAcceptCharsetAttr
+			g: "_get" + uc + "Attr"
+		};
+		return ret;
+	}
 
 	/**
 	 * Binding target for a widget property/attribute.
@@ -94,12 +113,18 @@ define([
 	ElementClassList.forEach(function (ElementClass) {
 		var origBind = ElementClass.prototype.bind;
 		ElementClass.prototype.bind = (function () {
+			function isOwned(property) {
+				if (property) {
+					var names = propNames(property);
+					return names.p in this || names.g in this || names.s in this || (this.owns || EMPTY_OBJECT)[property];
+				}
+			}
 			// HTMLElements#attributes in Chrome has attribute names in lower case
 			function getWidgetProperty(property) {
 				if (typeof this.buildRendering === "function") {
 					var tokens = REGEXP_ATTRIBUTE_POINTER.exec(property),
 						targetProperty = tokens ? tokens[1] : property;
-					if (this.alwaysUseWidgetAttribute || (this._invalidatingProperties || EMPTY_OBJECT)[targetProperty] || targetProperty in this) {
+					if (this.alwaysUseWidgetAttribute || property in this) {
 						return property;
 					}
 					for (var s in this) {
@@ -117,7 +142,7 @@ define([
 				var target = this.bindings && this.bindings[property];
 				if (!target) {
 					var widgetProperty = getWidgetProperty.call(this, property);
-					target = widgetProperty && new WidgetBindingTarget(this, widgetProperty);
+					target = isOwned.call(this, widgetProperty) && new WidgetBindingTarget(this, widgetProperty);
 				}
 				return target && target.bind(source) || origBind.call(this, property, source);
 			};

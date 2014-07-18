@@ -1,5 +1,9 @@
 /** @module liaison/DOMBindingTarget */
-define(["./BindingTarget"], function (BindingTarget) {
+define([
+	"./features",
+	"./Observable",
+	"./BindingTarget"
+], function (has, Observable, BindingTarget) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},
@@ -12,6 +16,54 @@ define(["./BindingTarget"], function (BindingTarget) {
 		REGEXP_ATTRIBUTE_POINTER = /^_(.*)$/,
 		hasElement = typeof Element !== "undefined",
 		useExisting = hasElement && typeof HTMLElement.prototype.bind === "function";
+
+	/**
+	 * Sets value to a DOM property, and force emitting a change record unless ECMAScript setting is there.
+	 * Normally native Object.observe() does not emit a change record for DOM property,
+	 * but we introduce a special case emitting change record for via-binding DOM property update.
+	 * @param {Node} element The DOM node.
+	 * @param {string} prop The property name.
+	 * @param value The value to set.
+	 */
+	function setProperty(node, prop, value) {
+		var autoEmit,
+			testObserver,
+			type = prop in node ? "update" : "add",
+			oldValue = node[prop],
+			// This is not enough value/oldValue check for property having setter,
+			// but Object.observe() does not auto-emit change records for those properties anyway
+			areSameValues = Observable.is(value, oldValue);
+		if (has("object-observe-api") && !areSameValues) {
+			autoEmit = node.constructor._autoEmit = node.constructor._autoEmit || {};
+			if (!(prop in autoEmit)) {
+				autoEmit[prop] = false;
+				Object.observe(node, testObserver = function () {
+					autoEmit[prop] = true;
+				});
+			}
+		}
+		node[prop] = value;
+		if (has("object-observe-api") && testObserver) {
+			Object.deliverChangeRecords(testObserver);
+			Object.unobserve(node, testObserver);
+		}
+		if (!areSameValues
+			&& (has("object-observe-api") ? !autoEmit[prop] : (Object.getOwnPropertyDescriptor(node, prop) || EMPTY_OBJECT).set === undefined)) {
+			// Auto-notify if there is no setter defined for the property.
+			// Application should manually call Observable.getNotifier(observable).notify(changeRecord)
+			// if a setter is defined.
+			var changeRecord = {
+				type: type,
+				object: node,
+				name: prop + ""
+			};
+			if (type === "update") {
+				changeRecord.oldValue = oldValue;
+			}
+			Observable.getNotifier(node).notify(changeRecord);
+		}
+		return value;
+	}
 
 	/**
 	 * Binding target for a DOM attribute.
@@ -37,7 +89,14 @@ define(["./BindingTarget"], function (BindingTarget) {
 			return this.object.getAttribute(this.targetProperty);
 		},
 		set: function (value) {
+			var changeRecord = {
+				type: "update",
+				object: this.object,
+				name: this.targetProperty,
+				oldValue: this.value
+			};
 			this.object.setAttribute(this.targetProperty, value != null ? value : "");
+			Observable.getNotifier(this.object).notify(changeRecord);
 		},
 		enumerable: true,
 		configurable: true
@@ -148,7 +207,7 @@ define(["./BindingTarget"], function (BindingTarget) {
 			return this.object[this.targetProperty];
 		},
 		set: function (value) {
-			this.object[this.targetProperty] = value != null ? value : "";
+			setProperty(this.object, this.targetProperty, value != null ? value : "");
 		},
 		enumerable: true,
 		configurable: true
@@ -303,7 +362,8 @@ define(["./BindingTarget"], function (BindingTarget) {
 			return this.object[this.property];
 		},
 		set: function (value) {
-			if ((this.object[this.property] = value) && REGEXP_TYPE_RADIO.test(this.object.type)) {
+			setProperty(this.object, this.property, value);
+			if (value && REGEXP_TYPE_RADIO.test(this.object.type)) {
 				for (var elems = getOtherRadioButtonsInTheSameGroup(this.object), i = 0, l = elems.length; i < l; ++i) {
 					var target = (elems[i].bindings || EMPTY_OBJECT).checked;
 					target && target.updateSource();

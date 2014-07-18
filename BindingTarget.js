@@ -36,7 +36,11 @@ define(function () {
 		},
 
 		set value(value) {
-			this.object[this.property] = value;
+			if (typeof this.object.set === "function") {
+				this.object.set(this.property, value);
+			} else {
+				this.object[this.property] = value;
+			}
 		},
 
 		/**
