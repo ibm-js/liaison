@@ -4,13 +4,14 @@
 	"dependencies": {
 		"requirejs": "2.1.x",
 		"requirejs-dplugins": ">=0.2.2-dev",
-		"decor": "ibm-js/decor#master",
+		"decor": "master",
 		"dojo": ">=1.9.1",
 		"dojox": ">=1.9.1",
 		"delite": "master",
 		"deliteful": "master"
 	},
 	"resolutions": {
+		"decor": "master",
 		"delite": "master"
 	}
 }

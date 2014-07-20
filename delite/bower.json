@@ -4,6 +4,10 @@
 	"dependencies": {
 		"requirejs": "2.1.x",
 		"requirejs-dplugins": ">=0.2.2-dev",
+		"decor": "master",
 		"delite": "master"
+	},
+	"resolutions": {
+		"decor": "master"
 	}
 }
