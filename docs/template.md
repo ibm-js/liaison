@@ -3,8 +3,6 @@ layout: default
 title: More ways to work with template
 ---
 
-[Go up](./)
-
 # Conditional template instnatiation
 
 {% raw %}
