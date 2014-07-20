@@ -3,9 +3,7 @@ layout: default
 title: Node#bind() and types of bindings
 ---
 
-[Go up](./)
-
-# `Node#bind()` and types of bindings
+# Node#bind() and types of bindings
 
 liaison's declarative data binding syntax uses `Node#bind(property, source)` API under the hood, which can be used for example:
 
@@ -31,7 +29,7 @@ It means that changing data model updates the text, but update to the text (by i
 
 When you bind to a regular element attribute like `style`, it'll be one-way binding from data model to attribute value:
 
-<iframe width="100%" height="250" src="http://jsfiddle.net/ibmjs/Ga3nT/embedded/html,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/Ga3nT/">checkout the sample on JSFiddle</a></iframe>
+<iframe width="100%" height="175" src="http://jsfiddle.net/ibmjs/Ga3nT/embedded/html,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/Ga3nT/">checkout the sample on JSFiddle</a></iframe>
 
 It means that changing data model updates the attribute value, but update to the attribute value (by imperative DOM API) won't update data model.
 
@@ -51,6 +49,6 @@ If an attribute in delite widget is one of its properties, liaison's data bindin
 
 <iframe width="100%" height="175" src="http://jsfiddle.net/ibmjs/XqEVa/embedded/html,js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/XqEVa/">checkout the sample on JSFiddle</a></iframe>
 
-## `bind`, `repeat` and `if` attributes in `<template>` and its equivalents
+## bind, repeat and if attributes in template element
 
 `bind`, `repeat` and `if` attributes in `<template>` and its equivalents instantiate template with the given data model. See [here](./declarative.html) for more details.

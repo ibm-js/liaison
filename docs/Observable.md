@@ -3,9 +3,7 @@ layout: default
 title: Observable
 ---
 
-[Go up](./)
-
-# `Observable`
+# Observable
 
 `Observable` is an object working as a shim of ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
 `Observable` has `.set()` method for automatic emission of change record, and static `Observable.observe()` method to observe for that, for example:
@@ -33,7 +31,7 @@ In such conditions, you can manually emit a change record (and queue it for deli
 
 <iframe width="100%" height="300" src="http://jsfiddle.net/ibmjs/5ezRw/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/5ezRw/">checkout the sample on JSFiddle</a></iframe>
 
-# `ObservableArray`
+# ObservableArray
 
 `ObservableArray` is an object that extends native JavaScript array, and works as a shim of ES7 [`Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe). Like `Observable`, `ObserableArray` has `.set()` method for automatic emission of change record, and static `ObservableArray.observe()` method to observe for that. With `ObservableArray.observe()`, change records are translated to a synthetic version representing array splice (which is compatible to ES7 [`Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe)) where applicable. Here's an example:
 

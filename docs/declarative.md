@@ -3,8 +3,6 @@ layout: default
 title: Declarative data binding
 ---
 
-[Go up](./)
-
 # Declarative data binding
 
 liaison's declarative data binding is based on [`<template>` element](http://www.w3.org/TR/html5/scripting-1.html#the-template-element), one of the specs in [Web Components](http://w3c.github.io/webcomponents/explainer/) umbrella.
@@ -81,6 +79,6 @@ In addition to two-way data binding between model property and UI, repeating tem
 
 Updating array element with particular index (e.g. `model.set(1, wrapper.wrap({first: "John", last: "Jacklin"}))`) as well as `push()`/`pop()`, etc. are translated to splices and are reflected to repeating template instances.
 
-## More ways to work with `<template>`
+## More ways to work with template
 
 liaison's declarative data binding provides more ways to work with `<template>`. See [here](./template.html) for details.

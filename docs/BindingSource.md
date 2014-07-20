@@ -3,9 +3,7 @@ layout: default
 title: BindingSource
 ---
 
-[Go up](./)
-
-# `BindingSource`
+# BindingSource
 
 liaison library defines an interface, `BindingSource`, for abstracting various types of things that can be observed. `BindingSource` points to something like object path, a list of `BindingSource`, etc., which is called "source" thereafter, and observes changes in source. `BindingSource` has the following interface that's compatible with [Polymer Observer API](https://github.com/Polymer/observe-js#observable):
 
@@ -85,7 +83,7 @@ liaison library defines an interface, `BindingSource`, for abstracting various t
 
 The remainder of this document explains various implementations of `BindingSource` interface.
 
-## `ObservablePath`
+## ObservablePath
 
 `ObservablePath` observes a value of object path. If ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) is not available natively in browser, the object tree should be constructed by [`Observable`](./Observable.html) instances for automatic change notification. Here's a usage example:
 
