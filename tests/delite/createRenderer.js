@@ -201,7 +201,7 @@ define([
 					expect(star.allowZero).not.to.be.true;
 					star.value = 4;
 				}).then(waitFor.create(function () {
-					return w.value !== 2;
+					return w.rating !== 2;
 				})).then(function () {
 					expect(w.rating).to.equal(4);
 				});
