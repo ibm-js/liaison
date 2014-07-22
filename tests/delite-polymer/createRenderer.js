@@ -64,7 +64,7 @@ define([
 					buildRendering: createRenderer(starRatingTemplate),
 					baseClass: "liaison-test-starrating",
 					rating: 0,
-					zeroAreaWidth: 8
+					allowZero: true
 				}),
 				NestedTemplateWidget = register("liaison-test-nested", [HTMLElement, Widget], {
 					buildRendering: renderNestedTemplate,
@@ -199,7 +199,7 @@ define([
 				return waitFor(function () {
 					var star = w.querySelector("d-star-rating");
 					// Mixin properties are applied after template is instantiated
-					return star && star.value !== 0;
+					return star && star.value !== undefined && star.value !== 0 && star.allowZero !== undefined && star.allowZero !== true;
 				}).then(function () {
 					var star = w.querySelector("d-star-rating");
 					expect(star.value).to.equal(2);
@@ -232,7 +232,7 @@ define([
 					var starTemplateWidget = div.querySelector("liaison-test-starrating"),
 						star = starTemplateWidget && starTemplateWidget.querySelector("d-star-rating");
 					// Mixin properties are applied after template is instantiated
-					return star && star.value !== 0;
+					return star && star.value !== undefined && star.value !== 0 && star.allowZero !== undefined && star.allowZero !== true;
 				}).then(function () {
 					var star = div.querySelector("liaison-test-starrating").querySelector("d-star-rating");
 					expect(star.value).to.equal(2);

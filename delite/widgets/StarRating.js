@@ -72,6 +72,12 @@ define([
 		readOnly: false,
 
 		/**
+		 * If true, clicking on blank area at the left will set zero to the value.
+		 * @type {boolean}
+		 */
+		allowZero: true,
+
+		/**
 		 * If true, this widget does not accept user's gestures.
 		 * @type {boolean}
 		 */
@@ -93,7 +99,9 @@ define([
 		 * Setting this attribute to a negative value is not supported.
 		 * @type {number}
 		 */
-		zeroAreaWidth: undefined,
+		_zeroAreaWidth: computed(function (allowZero, readOnly) {
+			return allowZero && !readOnly ? 20 : 0;
+		}, "allowZero", "readOnly"),
 
 		_incrementKeyCodes: [keys.RIGHT_ARROW, keys.UP_ARROW, keys.NUMPAD_PLUS], // keys to press to increment value
 		_decrementKeyCodes: [keys.LEFT_ARROW, keys.DOWN_ARROW, keys.NUMPAD_MINUS], // keys to press to decrement value
@@ -147,16 +155,6 @@ define([
 					});
 				};
 			}
-		},
-
-		/**
-		 * Getter for {@link module:liaison/delite/widgets/StarRating#zeroAreaWidth zeroAreaWidth property}.
-		 * @returns {number}
-		 *     {@link module:liaison/delite/widgets/StarRating#zeroAreaWidth zeroAreaWidth property} value.
-		 */
-		_getZeroAreaWidthAttr: function () {
-			var val = this._get("zeroAreaWidth");
-			return val === undefined ? (this.readOnly ? 0 : 20) : val;
 		},
 
 		/**
@@ -239,12 +237,11 @@ define([
 		},
 
 		/**
-		 * Watches for change in {@link module:liaison/delite/widgets/StarRating#readOnly readOnly attribute},
-		 * and updates CSS and {@link module:liaison/delite/widgets/StarRating#passive passive attribute}.
-		 * @param  {boolean} readOnly The new value.
+		 * Watches for change in _zeroAreaWidth and updates CSS.
+		 * @param {number} zeroAreaWidth The new value.
 		 */
-		readOnlyChanged: function (readOnly) {
-			this.style.paddingLeft = (readOnly ? 0 : this.zeroAreaWidth) + "px";
+		_zeroAreaWidthChanged: function (zeroAreaWidth) {
+			this.style.paddingLeft = zeroAreaWidth + "px";
 		},
 
 		/**
@@ -404,7 +401,7 @@ define([
 		 * @private
 		 */
 		_decrementValue: function () {
-			if (this.value > (this.zeroAreaWidth ? 0 : 1)) {
+			if (this.value > (this.allowZero ? 0 : 1)) {
 				this.set("value", this.value - (this.editHalfValues ? 0.5 : 1));
 			}
 		},
@@ -446,7 +443,7 @@ define([
 		 * @returns {boolean} True if the position is in zero area.
 		 */
 		_inZeroSettingArea: function (x) {
-			return x < this.zeroAreaWidth;
+			return x < this._zeroAreaWidth;
 		},
 
 		/**
@@ -455,8 +452,8 @@ define([
 		 * @returns {number} The value associated with the horizontal position.
 		 */
 		_xToRawValue: function (x, domNodeWidth) {
-			var starStripLength = domNodeWidth - this.zeroAreaWidth;
-			return (x - this.zeroAreaWidth) / (starStripLength / this.max);
+			var starStripLength = domNodeWidth - this._zeroAreaWidth;
+			return (x - this._zeroAreaWidth) / (starStripLength / this.max);
 		}
 	});
 
