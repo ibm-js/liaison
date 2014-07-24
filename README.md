@@ -1,12 +1,12 @@
 # liaison
 
 liaison is a data binding library that aims for emerging web standards compatibility.
-It has [low-level observable objects](http://ibm-js.github.io/liaison/docs/Observable.html) that emit change records compatibile to ES7 [`Object.observe()` and `Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
+It has [low-level observable objects](http://ibm-js.github.io/liaison/docs/master/Observable.html) that emit change records compatibile to ES7 [`Object.observe()` and `Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
 It also has following APIs, they aim to provide good compatibilities to APIs that are foreseed to be standards in each layer:
 
-* High-level observation API ([BindingSource](http://ibm-js.github.io/liaison/docs/BindingSource.html))
-* [Declarative two-way bindings based on mustache syntax](http://ibm-js.github.io/liaison/docs/declarative.html)
-* [Imperative two-way bindings to DOM and Custom Elements](http://ibm-js.github.io/liaison/docs/NodeBind.html)
+* High-level observation API ([BindingSource](http://ibm-js.github.io/liaison/docs/master/BindingSource.html))
+* [Declarative two-way bindings based on mustache syntax](http://ibm-js.github.io/liaison/docs/master/declarative.html)
+* [Imperative two-way bindings to DOM and Custom Elements](http://ibm-js.github.io/liaison/docs/master/NodeBind.html)
 
 ## Basic usage
 
@@ -48,9 +48,9 @@ require([
 });
 ```
 
-![Declarative binding example](./docs/images/declarative.png)
+![Declarative binding example](http://ibm-js.github.io/liaison/docs/master/images/declarative.png)
 
-See [here](http://ibm-js.github.io/liaison/docs/declarative.html) for more details on declarative binding, and [here](http://ibm-js.github.io/liaison/docs/template.html) for advanced topics to work with `<template>`.
+See [here](http://ibm-js.github.io/liaison/docs/master/declarative.html) for more details on declarative binding, and [here](http://ibm-js.github.io/liaison/docs/master/template.html) for advanced topics to work with `<template>`.
 
 ### Imperative two-way binding
 
@@ -71,7 +71,7 @@ require([
 });
 ```
 
-See [here](http://ibm-js.github.io/liaison/docs/NodeBind.html) for more details on imperative binding.
+See [here](http://ibm-js.github.io/liaison/docs/master/NodeBind.html) for more details on imperative binding.
 
 ## Supported browsers
 
@@ -120,4 +120,4 @@ Then install dependencies with bower (or manually from github if you prefer to):
 
 ## Documentation
 
-You can find documentation [here](http://ibm-js.github.io/liaison/docs/).
+You can find documentation [here](http://ibm-js.github.io/liaison/docs/master/).
