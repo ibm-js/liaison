@@ -1,8 +1,66 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta http-equiv="refresh" content="0; URL=./docs/master/">
-	</head>
-	<body>
-	</body>
-</html>
+---
+layout: main
+title: liaison
+---
+<div class="jumbotron">
+	<div class="container-fluid">
+	<div class="row">
+		<div class="col-xs-12 col-md-8">
+			<h2>Creating application with good separation-of-concern on top of emerging stardards with liaison</h2>
+			<p>liaison is a data binding library that aims for emerging web standards compatibility. It provides a basis of building your application having separation-of-concern (MV* style) in mind.</p>
+			<p>
+				<a href="getting-started.html" class="btn btn-primary btn-lg" role="button">Get started</a>
+				<a href="docs/master/index.html" class="btn btn-success btn-lg" role="button">Learn more &raquo;</a>
+			</p>
+		</div>
+	</div>
+	</div>
+</div>
+
+<p></p>
+
+<p>
+	liaison has <a href="./docs/master/Observable.html">low-level observable objects</a> that emit change records compatibile to ES7 <a href="http://wiki.ecmascript.org/doku.php?id=harmony:observe"><code>Object.observe()</code> and <code>Array.observe()</code></a>.
+	It also has following APIs, they aim to provide good compatibilities to APIs that are foreseed to be standards in each layer:
+</p>
+
+<ul>
+	<li>High-level observation API (<a href="./docs/master/BindingSource.html">BindingSource</a>)</li>
+	<li><a href="./docs/master/declarative.html">Declarative two-way bindings based on mustache syntax</a></li>
+	<li><a href="./docs/master/NodeBind.html">Imperative two-way bindings to DOM and Custom Elements</a></li>
+</ul>
+
+<div class="page-header">
+	<h2>Basic usage</h2>
+</div>
+
+<h3>Declarative binding</h3>
+
+<p>Below example establishes binding between properties and DOM elements. The bindings in <code>&lt;input&gt;</code> below are two-way:</p>
+
+<iframe width="100%" height="300" src="http://jsfiddle.net/ibmjs/7pjxb/embedded/html,js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/7pjxb/">checkout the sample on JSFiddle</a></iframe>
+
+<p>See <a href="./docs/master/declarative.html">here</a> for more details on declarative binding, and <a href="./docs/master/template.html">here</a> for advanced topics to work with <code>&lt;template&gt;</code>.</p>
+
+<h3>Imperative binding</h3>
+
+<p>Below example establishes binding between a property and DOM element.
+<code>.set()</code> API is used for trigger change notification for observers. The binding in <code>&lt;input&gt;</code> below is two-way:</p>
+
+<iframe width="100%" height="275" src="http://jsfiddle.net/ibmjs/bEg3Y/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/bEg3Y/">checkout the sample on JSFiddle</a></iframe>
+
+<p>See <a href="./docs/master/NodeBind.html">here</a> for more details on imperative binding.</p>
+
+<div class="page-header">
+	<h2>Supported browsers</h2>
+</div>
+
+<p>liaison supports newer browsers with better web standards conformance. Current list of supported browsers are:</p>
+
+<ul>
+	<li>IE9+ (Document modes emulating older IEs are not supported)</li>
+	<li>Safari 6.1/7.0</li>
+	<li>Latest Firefox</li>
+	<li>Latest Chrome</li>
+	<li>Android “stock” browser 4.1+</li>
+</ul>
