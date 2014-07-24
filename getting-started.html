@@ -39,27 +39,27 @@ $ vi index.html{% endhighlight %}
 {% raw %}
 <!DOCTYPE html>
 <html>
-	<head>
-		<script type="text/javascript" src="./bower_components/requirejs/require.js" data-main="./bower_components/"></script>
-		<script type="text/javascript">
-			require([
-				"liaison/wrapper",
-				"liaison/DOMTreeBindingTarget"
-			], function (wrapper, DOMTreeBindingTarget) {
-				function startup() {
-					document.querySelector("template").bind("bind", wrapper.wrap({
-						hello: "Hello!"
-					}));
-				}
-				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
-			});
-		</script>
-	</head>
-	<body>
-		<template>
-			{{hello}} <input type="text" value="{{hello}}">
-		</template>
-	</body>
+    <head>
+        <script type="text/javascript" src="./bower_components/requirejs/require.js" data-main="./bower_components/"></script>
+        <script type="text/javascript">
+            require([
+                "liaison/wrapper",
+                "liaison/DOMTreeBindingTarget"
+            ], function (wrapper, DOMTreeBindingTarget) {
+                function startup() {
+                    document.querySelector("template").bind("bind", wrapper.wrap({
+                        hello: "Hello!"
+                    }));
+                }
+                document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+            });
+        </script>
+    </head>
+    <body>
+        <template>
+            {{hello}} <input type="text" value="{{hello}}">
+        </template>
+    </body>
 </html>{% endraw %}{% endhighlight %}
 	</div>
 </div>
