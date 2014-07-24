@@ -1,0 +1,73 @@
+---
+layout: main
+title: liaison
+key: getting-started
+---
+<div class="jumbotron">
+	<h2>Getting started with liaison</h2>
+	<p>
+		liaison is a data binding library that aims for emerging web standards compatibility.
+		It provides a basis of building your application having separation-of-concern (MV* style) in mind.
+	</p>
+</div>
+
+<p></p>
+
+<h3>Start building your own MV* application</h3>
+
+<div class="page-header">
+	<h2>Install liaison</h2>
+</div>
+<div class="container-fluid">
+	<div class="col-xs-12 col-md-6">
+		Start with installing node.js, then Bower. Bower lets you install liaison automatically.
+	</div>
+	<div class="col-xs-12 col-md-6">
+{% highlight bash %}
+$ npm install -g bower
+$ mkdir -p app && cd $_
+$ bower install liaison
+$ vi index.html{% endhighlight %}
+	</div>
+</div>
+<div class="container-fluid">
+	<p>
+		For index.html, you can start with something like this:
+	</p>
+	<div>
+{% highlight html %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="./bower_components/requirejs/require.js" data-main="./bower_components/"></script>
+		<script type="text/javascript">
+			require([
+				"liaison/wrapper",
+				"liaison/DOMTreeBindingTarget"
+			], function (wrapper, DOMTreeBindingTarget) {
+				function startup() {
+					document.querySelector("template").bind("bind", wrapper.wrap({
+						hello: "Hello!"
+					}));
+				}
+				document.body ? startup() : window.addEventListener("DOMContentLoaded", startup);
+			});
+		</script>
+	</head>
+	<body>
+		<template>
+			{{hello}} <input type="text" value="{{hello}}">
+		</template>
+	</body>
+</html>{% endhighlight %}
+	</div>
+</div>
+
+<div class="page-header">
+	<h2>Go further</h2>
+</div>
+<div class="container-fluid">
+	Don't hesitate to checkout the <a href="docs/master/index.html">documentation</a> to go further.
+	Also, check out samples under <a href="https://github.com/ibm-js/liaison/tree/master/samples" target="_blank">samples</a> directory.
+	Different samples there have different dependencies, so make sure running <code>bower install</code> there.
+</div>
