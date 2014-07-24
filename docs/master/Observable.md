@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Observable
+title: Observable - A shim of ES7 Object.observe() by value-holder object
 ---
 
 # Observable
 
-`Observable` is an object working as a shim of ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
+`Observable` (now moved to [decor](https://github.com/ibm-js/decor) project) is an object working as a shim of ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
 `Observable` has `.set()` method for automatic emission of change record, and static `Observable.observe()` method to observe for that, for example:
 
 <iframe width="100%" height="225" src="http://jsfiddle.net/ibmjs/pngb8/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/pngb8/">checkout the sample on JSFiddle</a></iframe>
