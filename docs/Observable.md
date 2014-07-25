@@ -10,13 +10,13 @@ title: Observable - A shim of ES7 Object.observe() by value-holder object
 
 <iframe width="100%" height="225" src="http://jsfiddle.net/ibmjs/pngb8/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/pngb8/">checkout the sample on JSFiddle</a></iframe>
 
-Similar to ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe), change records are delivered in batch at end of micro-task. In above example, you'll see that change to `foo` property and change to `bar` properties are notified in a single callback, in a format of array. The format of change records is compatible with ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
+Similar to ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe), change records are delivered in batch at end of [micro-task](http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#microtask). In above example, you'll see that change to `foo` property and change to `bar` properties are notified in a single callback, in a format of array. The format of change records is compatible with ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
 
 Under the hood, `Observable.observe()` directly uses ES7 [`Object.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) if it's available natively in browser.
 
 ## Synchronous delivery of change record
 
-There are some cases you want to deliver change records immediately, instead of waiting for end of micro-task. For that purpose, you can use `Observable.deliverChangeRecord()` that synchronously delivers change records that are queued for callback. Here's an example:
+There are some cases you want to deliver change records immediately, instead of waiting for end of [micro-task](http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#microtask). For that purpose, you can use `Observable.deliverChangeRecord()` that synchronously delivers change records that are queued for callback. Here's an example:
 
 <iframe width="100%" height="300" src="http://jsfiddle.net/ibmjs/S83Ey/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/S83Ey/">checkout the sample on JSFiddle</a></iframe>
 
