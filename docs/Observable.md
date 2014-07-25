@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Observable - A shim of ES7 Object.observe() by value-holder object
+keywords: ['Object.observe', 'Array.observe', 'shim']
 ---
 
 # Observable
