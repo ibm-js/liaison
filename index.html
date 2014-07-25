@@ -51,6 +51,18 @@ title: liaison - A data binding library that aims for emerging web standards com
 
 <p>See <a href="./docs/master/NodeBind.html">here</a> for more details on imperative binding.</p>
 
+<h3><a href="http://ibm-js.github.io/delite/">delite</a>/<a href="http://ibm-js.github.io/deliteful/">deliteful</a> widgets in template</h3>
+
+<p>You can have <a href="http://ibm-js.github.io/delite/">delite</a>/<a href="http://ibm-js.github.io/deliteful/">deliteful</a> widgets in <code>&lt;template&gt;</code> for data binding, once you import liaison/delite/templateBinderExtension module. It's two-way, too, meaning that in addition to data model update reflected to widget, update in widget is reflected back to data model. Here's an example:</p>
+
+<iframe width="100%" height="175" src="http://jsfiddle.net/ibmjs/XqEVa/embedded/result,html,js" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/XqEVa/">checkout the sample on JSFiddle</a></iframe>
+
+<h3><a href="http://ibm-js.github.io/delite/">delite</a> widget with liaison's data binding features</h3>
+
+<p>You can also create <a href="http://ibm-js.github.io/delite/">delite</a> widgets with liaison's two-way binding features by using liaison/delite/createRender module for widget's <code>buildRendering()</code> callback, for example:</p>
+
+<iframe width="100%" height="300" src="http://jsfiddle.net/ibmjs/y4QN6/embedded/js,html,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/y4QN6/">checkout the sample on JSFiddle</a></iframe>
+
 <div class="page-header">
 	<h2>Supported browsers</h2>
 </div>
