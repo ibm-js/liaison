@@ -7,7 +7,7 @@
 		"requirejs-dplugins": "0.2.x",
 		"decor": ">=0.2.0-beta",
 		"dojo": ">=1.9.1",
-		"delite": ">=0.1.10-dev",
-		"deliteful": ">=0.1.5-dev"
+		"delite": ">=0.2.0-beta",
+		"deliteful": ">=0.2.0-beta"
 	}
 }

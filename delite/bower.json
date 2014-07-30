@@ -5,6 +5,6 @@
 		"requirejs": "2.1.x",
 		"requirejs-dplugins": "0.2.x",
 		"decor": ">=0.2.0-beta",
-		"delite": ">=0.1.10-dev"
+		"delite": ">=0.2.0-beta"
 	}
 }
