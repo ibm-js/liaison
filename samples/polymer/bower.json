@@ -3,8 +3,8 @@
 	"version": "0.1.0-dev",
 	"dependencies": {
 		"requirejs": "2.1.x",
-		"requirejs-dplugins": ">=0.2.2-dev",
-		"decor": ">=0.1.0-dev",
+		"requirejs-dplugins": "0.2.x",
+		"decor": ">=0.2.0-beta",
 		"dojo": ">=1.9.1",
 		"dojox": ">=1.9.1",
 		"polymer": "0.2.1"
