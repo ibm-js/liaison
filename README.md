@@ -1,7 +1,7 @@
 # liaison
 
 liaison is a data binding library that aims for emerging web standards compatibility.
-It has [low-level observable objects](http://ibm-js.github.io/liaison/docs/master/Observable.html) that emit change records compatibile to ES7 [`Object.observe()` and `Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe).
+It has [low-level observable objects](http://ibm-js.github.io/liaison/docs/master/Observable.html) that work as shims of ES7 [`Object.observe()` and `Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) with "value-holder object" approach.
 It also has following APIs, they aim to provide good compatibilities to APIs that are foreseed to be standards in each layer:
 
 * High-level observation API ([BindingSource](http://ibm-js.github.io/liaison/docs/master/BindingSource.html))
