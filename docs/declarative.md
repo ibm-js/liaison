@@ -20,11 +20,11 @@ Let's take a look at the first one. If you have `<template>` like below:
 
 You can instantiate it by assigning a data model by below code for example:
 
-<iframe width="100%" height="225" src="http://jsfiddle.net/ibmjs/VSzLz/embedded/js,html,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/VSzLz/">checkout the sample on JSFiddle</a></iframe>
+<iframe width="100%" height="250" src="http://jsfiddle.net/ibmjs/VSzLz/embedded/js,html,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/VSzLz/">checkout the sample on JSFiddle</a></iframe>
 
 You can do the repeating one in a similar manner:
 
-<iframe width="100%" height="425" src="http://jsfiddle.net/ibmjs/hL5NK/embedded/js,html,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/hL5NK/">checkout the sample on JSFiddle</a></iframe>
+<iframe width="100%" height="475" src="http://jsfiddle.net/ibmjs/hL5NK/embedded/js,html,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/hL5NK/">checkout the sample on JSFiddle</a></iframe>
 
 **Note**: `wrapper.wrap()` API creates a tree of "container object", called [`Observable` and `ObservableArray`](./Observable.html). "Container object" approach allows event-driven change noitification instead of dirty-checking, which ensures the best performance especially for large-scale applications with many watched objects. In environment where ES7 [`Object.observe()` and `Array.observe()`](http://wiki.ecmascript.org/doku.php?id=harmony:observe) are available natively, liaison's two-way data binding features work with plain JavaScript object/array.
 
@@ -75,7 +75,7 @@ See [here](./NodeBind.html) to see in what cases two-way binding is supported.
 
 In addition to two-way data binding between model property and UI, repeating template instances reflects array splices in model:
 
-<iframe width="100%" height="525" src="http://jsfiddle.net/ibmjs/y2yJ4/embedded/js,html,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/y2yJ4/">checkout the sample on JSFiddle</a></iframe>
+<iframe width="100%" height="550" src="http://jsfiddle.net/ibmjs/y2yJ4/embedded/js,html,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/y2yJ4/">checkout the sample on JSFiddle</a></iframe>
 
 Updating array element with particular index (e.g. `model.set(1, wrapper.wrap({first: "John", last: "Jacklin"}))`) as well as `push()`/`pop()`, etc. are translated to splices and are reflected to repeating template instances.
 
