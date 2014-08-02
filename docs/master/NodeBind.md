@@ -7,7 +7,7 @@ title: Node#bind() and types of bindings
 
 liaison's declarative data binding syntax uses `Node#bind(property, source)` API under the hood, which can be used for example:
 
-<iframe width="100%" height="275" src="http://jsfiddle.net/ibmjs/bEg3Y/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/bEg3Y/">checkout the sample on JSFiddle</a></iframe>
+<iframe width="100%" height="325" src="http://jsfiddle.net/ibmjs/bEg3Y/embedded/js,result" allowfullscreen="allowfullscreen" frameborder="0"><a href="http://jsfiddle.net/ibmjs/bEg3Y/">checkout the sample on JSFiddle</a></iframe>
 
 `source` is an instance of [BindingSource API](./BindingSource.html) that's compatible to [Polymer Observer API](https://github.com/Polymer/observe-js#observable) and points to an property in object, etc. Updates in `source` is reflected to DOM, and update in DOM is reflected back to `source` where two-way binding is supported, which are in many cases.
 
