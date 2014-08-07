@@ -7,4 +7,4 @@ pygments: true
 redcarpet:
   extensions: ['tables']
 
-keywords: ['Data binding', 'Object.observe shim', 'Array.observe shim', 'Web Components', 'Standards']
+keywords: ['Data binding', 'MVC', 'MV*', 'JavaScript', 'Object.observe', 'Array.observe', 'shim', 'Web Components', 'Standards']
