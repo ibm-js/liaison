@@ -125,10 +125,20 @@ define([
 			});
 			it("Attribute reflecting model", function () {
 				var div = document.createElement("div"),
+					values = {
+						"undefined": undefined,
+						"boolean": false,
+						"number": 0,
+						"object": null
+					},
 					observable = new Observable({foo: "Foo0"}),
 					binding = div.bind("attrib", new ObservablePath(observable, "foo"));
 				this.timeout = 10000;
 				handles.push(binding);
+				for (var s in values) {
+					handles.push(div.bind(s, values[s]));
+					expect(div.getAttribute(s)).to.equal(values[s] == null ? "" : "" + values[s]);
+				}
 				expect(div.getAttribute("attrib")).to.equal("Foo0");
 				expect(binding.value).to.equal("Foo0");
 				observable.set("foo", "Foo1");
@@ -429,6 +439,12 @@ define([
 			});
 			it("Text node reflecting model", function () {
 				var text = document.createTextNode(""),
+					values = {
+						"undefined": undefined,
+						"boolean": false,
+						"number": 0,
+						"object": null
+					},
 					observable = new Observable({foo: "Foo0"}),
 					binding = document.body.appendChild(text).bind("nodeValue", new ObservablePath(observable, "foo"));
 				this.timeout = 10000;
@@ -438,6 +454,11 @@ define([
 						document.body.removeChild(text);
 					}
 				});
+				for (var s in values) {
+					var moretext = document.createTextNode("");
+					handles.push(moretext.bind("nodeValue", values[s]));
+					expect(moretext.nodeValue).to.equal(values[s] == null ? "" : "" + values[s]);
+				}
 				expect(text.nodeValue).to.equal("Foo0");
 				expect(binding.value).to.equal("Foo0");
 				observable.set("foo", "Foo1");
