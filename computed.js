@@ -1,16 +1,11 @@
 /**
  * @module liaison/computed
  */
-(function (root, factory) {
-	// Module definition to support AMD, node.js and browser globals
-	if (typeof exports === "object") {
-		module.exports = factory("./Observable", "./ObservablePath", "./Each");
-	} else if (typeof define === "function" && define.amd) {
-		define(["./Observable", "./ObservablePath", "./Each"], factory);
-	} else {
-		root.computed = factory(root.Observable, root.ObservablePath, root.Each);
-	}
-})(this, function (Observable, ObservablePath, Each) {
+define([
+	"decor/Observable",
+	"./ObservablePath",
+	"./Each"
+], function (Observable, ObservablePath, Each) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},

@@ -1,6 +1,6 @@
 /** @module liaison/Each */
 define([
-	"./Observable",
+	"decor/Observable",
 	"./ObservableArray",
 	"./BindingSource",
 	"./ObservablePath",

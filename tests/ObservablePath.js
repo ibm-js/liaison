@@ -3,7 +3,7 @@ define([
 	"intern/chai!expect",
 	"requirejs-dplugins/has",
 	"dojo/Deferred",
-	"../Observable",
+	"decor/Observable",
 	"../ObservablePath",
 	"./waitFor"
 ], function (bdd, expect, has, Deferred, Observable, ObservablePath, waitFor) {

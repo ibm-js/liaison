@@ -1,11 +1,11 @@
 /** @module liaison/delite/WidgetBindingTarget */
 define([
+	"decor/Observable",
 	"delite/register",
-	"../Observable",
 	"../ObservablePath",
 	"../BindingTarget",
 	"../DOMBindingTarget"
-], function (register, Observable, ObservablePath, BindingTarget) {
+], function (Observable, register, ObservablePath, BindingTarget) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},

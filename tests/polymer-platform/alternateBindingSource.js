@@ -2,7 +2,7 @@ define([
 	"intern!bdd",
 	"intern/chai!expect",
 	"dojo/Deferred",
-	"../../Observable",
+	"decor/Observable",
 	"../waitFor",
 	"requirejs-text/text!../templates/eventTemplate.html",
 	"requirejs-text/text!../templates/nestedEventTemplate.html",

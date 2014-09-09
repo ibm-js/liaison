@@ -1,7 +1,7 @@
 define([
 	"intern!bdd",
 	"intern/chai!expect",
-	"../../Observable",
+	"decor/Observable",
 	"../../BindingTarget",
 	"../waitFor",
 	"requirejs-text/text!../../tests/delite/templates/buttonTemplate.html",

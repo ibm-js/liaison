@@ -1,10 +1,10 @@
 define([
 	"intern!bdd",
 	"intern/chai!expect",
+	"decor/Observable",
 	"../features",
-	"../Observable",
 	"../ObservableArray"
-], function (bdd, expect, has, Observable, ObservableArray) {
+], function (bdd, expect, Observable, has, ObservableArray) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {

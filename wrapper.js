@@ -1,6 +1,6 @@
 /** @module liaison/wrapper */
 define([
-	"./Observable",
+	"decor/Observable",
 	"./ObservableArray"
 ], function (Observable, ObservableArray) {
 	"use strict";
@@ -10,7 +10,7 @@ define([
 	/**
 	 * @function module:liaison/wrapper.wrap
 	 * @param {Object} o A plain object.
-	 * @returns {module:liaison/Observable} The {@link module:liaison/Observable Observable} version of the given object.
+	 * @returns {module:decor/Observable} The {@link module:decor/Observable Observable} version of the given object.
 	 */
 	function wrap(o) {
 		var root = o,
@@ -48,8 +48,8 @@ define([
 
 	/**
 	 * @function module:liaison/wrapper.unwrap
-	 * @param {module:liaison/Observable} o A {@link module:liaison/Observable Observable}.
-	 * @returns {Object} The plain object version of the given {@link module:liaison/Observable Observable}.
+	 * @param {module:decor/Observable} o A {@link module:decor/Observable Observable}.
+	 * @returns {Object} The plain object version of the given {@link module:decor/Observable Observable}.
 	 */
 	function unwrap(o) {
 		var tree = [];

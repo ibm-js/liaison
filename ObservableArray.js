@@ -1,7 +1,7 @@
 /** @module liaison/ObservableArray */
 define([
 	"requirejs-dplugins/has",
-	"./Observable"
+	"decor/Observable"
 ], function (has, Observable) {
 	"use strict";
 
@@ -15,7 +15,7 @@ define([
 	 * of {@link http://wiki.ecmascript.org/doku.php?id=harmony:observe ECMAScript Harmony Array.observe()}.
 	 * @class
 	 * @alias module:liaison/ObservableArray
-	 * @augments module:liaison/Observable
+	 * @augments module:decor/Observable
 	 * @param {module:liaison/ObservableArray~CtorArguments} [args]
 	 *     The length of the new array or the initial list of array elements.
 	 */
@@ -256,7 +256,7 @@ define([
 
 	/**
 	 * Observes an ObservableArray for changes.
-	 * Internally calls {@link module:liaison/Observable.observe Observable.observe()}
+	 * Internally calls {@link module:decor/Observable.observe Observable.observe()}
 	 * observing for the following types of change records:
 	 * [
 	 *     "add",
@@ -267,7 +267,7 @@ define([
 	 * All change records will be converted to "splice" and are sorted by index and merged to smaller number of change records.
 	 * @method
 	 * @param {Object} observable The {@link module:liaison/ObservableArray ObservableArray} to observe.
-	 * @param {module:liaison/Observable~ChangeCallback} callback The change callback.
+	 * @param {module:decor/Observable~ChangeCallback} callback The change callback.
 	 * @returns {Handle} The handle to stop observing.
 	 * @throws {TypeError} If the 1st argument is non-object or null.
 	 */

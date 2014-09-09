@@ -1,14 +1,14 @@
 /** @module liaison/delite/widgets/Widget */
 define([
 	"dcl/dcl",
+	"decor/Observable",
 	"delite/Widget",
 	"../../computed",
 	"../../wrapper",
-	"../../Observable",
 	"../../ObservablePath",
 	"../../templateBinder",
 	"../templateBinderExtension"
-], function (dcl, Widget, computed, wrapper, Observable, ObservablePath, templateBinder) {
+], function (dcl, Observable, Widget, computed, wrapper, ObservablePath, templateBinder) {
 	var MUSTACHE_BEGIN = "{{",
 		REGEXP_CHAGED_CALLBACK = /^(.+)Changed$/;
 

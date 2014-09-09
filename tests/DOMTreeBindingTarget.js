@@ -2,7 +2,7 @@ define([
 	"intern!bdd",
 	"intern/chai!expect",
 	"dojo/Deferred",
-	"../Observable",
+	"decor/Observable",
 	"../ObservablePath",
 	"../ObservableArray",
 	"../DOMTreeBindingTarget",

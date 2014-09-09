@@ -1,9 +1,9 @@
 /** @module liaison/ObservablePath */
 define([
+	"decor/Observable",
 	"./features",
-	"./Observable",
 	"./BindingSource"
-], function (has, Observable, BindingSource) {
+], function (Observable, has, BindingSource) {
 	"use strict";
 
 	var EMPTY_OBJECT = {};
@@ -43,11 +43,11 @@ define([
 	}
 
 	/**
-	 * A path of {@link module:liaison/Observable Observable}.
+	 * A path of {@link module:decor/Observable Observable}.
 	 * @class module:liaison/ObservablePath
 	 * @augments module:liaison/BindingSource
-	 * @param {Object} object The {@link module:liaison/Observable Observable} to observe a property of.
-	 * @param {string} [path] The object path under the given {@link module:liaison/Observable Observable}.
+	 * @param {Object} object The {@link module:decor/Observable Observable} to observe a property of.
+	 * @param {string} [path] The object path under the given {@link module:decor/Observable Observable}.
 	 * @param {Function} [formatter]
 	 *     A function that converts the value from source
 	 *     before being sent to {@link BindingSource#observe observe()} callback

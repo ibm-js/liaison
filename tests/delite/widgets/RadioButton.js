@@ -2,15 +2,15 @@ define([
 	"intern!bdd",
 	"intern/chai!expect",
 	"delite/register",
+	"decor/Observable",
 	"../../../wrapper",
-	"../../../Observable",
 	"../../../ObservablePath",
 	"../../../delite/widgets/RadioButton",
 	"../../waitFor",
 	"requirejs-text/text!./templates/basicRadioButton.html",
 	"../../../delite/WidgetBindingTarget",
 	"../../sandbox/monitor"
-], function (bdd, expect, register, wrapper, Observable, ObservablePath, RadioButton, waitFor, basicRadioButtonTemplate) {
+], function (bdd, expect, register, Observable, wrapper, ObservablePath, RadioButton, waitFor, basicRadioButtonTemplate) {
 	/* jshint withstmt: true */
 	/* global describe, afterEach, it */
 	with (bdd) {

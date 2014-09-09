@@ -1,6 +1,6 @@
 /** @module liaison/delite/createRenderer */
 define([
-	"../Observable",
+	"decor/Observable",
 	"../DOMTreeBindingTarget"
 ], function (Observable) {
 	"use strict";

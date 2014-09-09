@@ -1,7 +1,7 @@
 define([
 	"intern!bdd",
 	"intern/chai!expect",
-	"../Observable",
+	"decor/Observable",
 	"../ObservableArray",
 	"../ObservablePath",
 	"../Each"

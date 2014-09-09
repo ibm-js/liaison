@@ -1,9 +1,9 @@
 /** @module liaison/DOMBindingTarget */
 define([
+	"decor/Observable",
 	"./features",
-	"./Observable",
 	"./BindingTarget"
-], function (has, Observable, BindingTarget) {
+], function (Observable, has, BindingTarget) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},

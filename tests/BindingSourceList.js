@@ -1,7 +1,7 @@
 define([
 	"intern!bdd",
 	"intern/chai!expect",
-	"../Observable",
+	"decor/Observable",
 	"../ObservablePath",
 	"../BindingSourceList"
 ], function (bdd, expect, Observable, ObservablePath, BindingSourceList) {
