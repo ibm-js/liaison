@@ -3,12 +3,12 @@
 	"version": "0.1.0-dev",
 	"dependencies": {
 		"requirejs": "2.1.x",
-		"requirejs-dplugins": "0.2.x",
-		"decor": ">=0.2.0-beta",
+		"requirejs-dplugins": "0.3.x",
+		"decor": ">=0.3.0",
 		"dojo": ">=1.9.1",
 		"dojox": ">=1.9.1",
-		"delite": ">=0.2.0-beta",
-		"deliteful": ">=0.2.0-beta",
+		"delite": ">=0.4.0",
+		"deliteful": ">=0.4.0-beta",
 		"platform": "Polymer/platform#0.2.1"
 	}
 }

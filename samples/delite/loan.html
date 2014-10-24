@@ -65,7 +65,7 @@
 				function startup () {
 					var REGEXP_NUMBER_BINDING = /^number:(.*)$/;
 					register("liaison-sample-loan", [HTMLElement, Widget], wrapper.wrap({
-						buildRendering: createRenderer(document.getElementById("loan-template").innerHTML),
+						render: createRenderer(document.getElementById("loan-template").innerHTML),
 						baseClass: "liaison-sample-loan",
 						Name: "John Doe",
 						BaseIncome: 50000,

@@ -57,7 +57,7 @@
 				function startup(){
 					var seq = 0;
 					register("liaison-sample-collection", [HTMLElement, Widget], wrapper.wrap({
-						buildRendering: createRenderer(document.getElementById("collection-template").innerHTML),
+						render: createRenderer(document.getElementById("collection-template").innerHTML),
 						baseClass: "liaison-sample-collection",
 						addItem: function (event, detail, sender) {
 							sender.querySelector("input").blur(); // IE9 does not blur <input> at onsubmit. TODO(asudoh): Switch to oninput

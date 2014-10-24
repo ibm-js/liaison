@@ -27,7 +27,7 @@ define([
 	 *         "liaison/delite/createRenderer"
 	 *     ], function (register, Widget, createRenderer) {
 	 *         register("liaison-example-basic", [HTMLElement, Widget], {
-	 *             buildRendering: createRenderer(document.getElementById("basic-template").innerHTML),
+	 *             render: createRenderer(document.getElementById("basic-template").innerHTML),
 	 *             baseClass: "liaison-example-basic",
 	 *             first: "John",
 	 *             last: "Doe"
@@ -79,7 +79,7 @@ define([
 	 *         "liaison/delite/createRenderer!my/template"
 	 *     ], function (register, Widget, renderer) {
 	 *         register("liaison-example-basic", [HTMLElement, Widget], {
-	 *             buildRendering: renderer,
+	 *             render: renderer,
 	 *             baseClass: "liaison-example-basic",
 	 *             first: "John",
 	 *             last: "Doe"

@@ -4,10 +4,10 @@
 	"dependencies": {
 		"requirejs": "2.1.x",
 		"requirejs-text": ">=2.0.11",
-		"requirejs-dplugins": "0.2.x",
-		"decor": ">=0.2.0-beta",
+		"requirejs-dplugins": "0.3.x",
+		"decor": ">=0.3.0",
 		"dojo": ">=1.9.1",
-		"delite": ">=0.2.0-beta",
-		"deliteful": ">=0.2.0-beta"
+		"delite": ">=0.4.0",
+		"deliteful": ">=0.4.0-beta"
 	}
 }

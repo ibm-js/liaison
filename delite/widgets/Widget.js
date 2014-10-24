@@ -54,7 +54,7 @@ define([
 		 * Also adds support for propChanged() callback, as well as activates computed properties.
 		 * @method
 		 */
-		preCreate: dcl.before(function () {
+		preRender: dcl.before(function () {
 			if (!this.set) {
 				this.set = Observable.prototype.set;
 			}
@@ -67,7 +67,7 @@ define([
 		 * assign those attributes, and start data binding as necessary.
 		 * @method
 		 */
-		postCreate: dcl.after(function () {
+		postRender: dcl.after(function () {
 			var toBeBound = [],
 				nodes = [this],
 				declarations = [typeof this.attribs === "function" ? this.attribs() : this.attribs],

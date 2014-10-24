@@ -128,7 +128,7 @@ define([
 							"value": "{{value}}"
 						}
 					},
-					buildRendering: function () {
+					render: function () {
 						this.valueNode = this.ownerDocument.createElement("input");
 						this.valueNode.setAttribute("type", "text");
 						this.appendChild(this.valueNode);
@@ -173,7 +173,7 @@ define([
 							}
 						};
 					},
-					buildRendering: function () {
+					render: function () {
 						this.valueNode = this.ownerDocument.createElement("input");
 						this.valueNode.setAttribute("type", "text");
 						this.appendChild(this.valueNode);

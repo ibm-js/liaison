@@ -20,7 +20,7 @@
 			], function (register, computed, wrapper, createRenderer, Widget) {
 				function startup() {
 					register("liaison-sample-basic", [HTMLElement, Widget], wrapper.wrap({
-						buildRendering: createRenderer(document.getElementById("basic-template").innerHTML),
+						render: createRenderer(document.getElementById("basic-template").innerHTML),
 						baseClass: "liaison-sample-basic",
 						first: "John",
 						last: "Doe",

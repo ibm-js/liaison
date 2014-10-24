@@ -39,7 +39,7 @@
 			], function (register, wrapper, createRenderer, Widget) {
 				function startup () {
 					register("liaison-sample-select", [HTMLElement, Widget], wrapper.wrap({
-						buildRendering: createRenderer(document.getElementById("select-template").innerHTML),
+						render: createRenderer(document.getElementById("select-template").innerHTML),
 						baseClass: "liaison-sample-select",
 						Serial: "360324",
 						First: "John",

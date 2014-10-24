@@ -161,7 +161,7 @@ define([
 		 * Builds DOM inside widget, stamps out the template
 		 * and create data bindings that are not defined in the template.
 		 */
-		buildRendering: function () {
+		render: function () {
 			pointer.setTouchAction(this, "none");
 
 			var inputs = this.getElementsByTagName("input");

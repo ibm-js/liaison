@@ -37,7 +37,7 @@ define([
 			var currentNode,
 				iterator = node.ownerDocument.createNodeIterator(node, NodeFilter.SHOW_ELEMENT, null, false);
 			while ((currentNode = iterator.nextNode())) {
-				if (typeof currentNode.buildRendering === "function") {
+				if (typeof currentNode.render === "function") {
 					currentNode.destroy();
 				}
 			}

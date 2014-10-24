@@ -27,7 +27,7 @@
 			], function (dcl, register, wrapper, createRenderer, Widget) {
 				function startup () {
 					register("liaison-sample-swap", [HTMLElement, Widget], wrapper.wrap({
-						buildRendering: createRenderer(document.getElementById("swap-template").innerHTML),
+						render: createRenderer(document.getElementById("swap-template").innerHTML),
 						baseClass: "liaison-sample-swap",
 						data: [
 							{

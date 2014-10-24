@@ -56,39 +56,39 @@ define([
 		describe("Test liaison/delite-polymer/createRenderer", function () {
 			var handles = [],
 				InputTemplateWidget = register("liaison-test-input", [HTMLElement, Widget], {
-					buildRendering: renderInputTemplate,
+					render: renderInputTemplate,
 					baseClass: "liaison-test-input",
 					object: undefined
 				}),
 				StarRatingTemplateWidget = register("liaison-test-starrating", [HTMLElement, Widget], {
-					buildRendering: createRenderer(starRatingTemplate),
+					render: createRenderer(starRatingTemplate),
 					baseClass: "liaison-test-starrating",
 					rating: 0,
 					allowZero: true
 				}),
 				NestedTemplateWidget = register("liaison-test-nested", [HTMLElement, Widget], {
-					buildRendering: renderNestedTemplate,
+					render: renderNestedTemplate,
 					baseClass: "liaison-test-nested",
 					first: undefined,
 					name: undefined
 				}),
 				NestedRepeatingTemplateWidget = register("liaison-test-nestedrepeating", [HTMLElement, Widget], {
-					buildRendering: renderNestedRepeatingTemplate,
+					render: renderNestedRepeatingTemplate,
 					baseClass: "liaison-test-nestedrepeating",
 					names: undefined
 				}),
 				NestedWidgetTemplateWidget = register("liaison-test-nestedwidget", [HTMLElement, Widget], {
-					buildRendering: renderNestedWidgetTemplate,
+					render: renderNestedWidgetTemplate,
 					baseClass: "liaison-test-nestedwidget",
 					name: undefined
 				}),
 				ComplexAttributeTemplateWidget = register("liaison-test-complexattribute", [HTMLElement, Widget], {
-					buildRendering: renderComplexAttributeTemplate,
+					render: renderComplexAttributeTemplate,
 					baseClass: "liaison-test-complexattribute",
 					name: undefined
 				}),
 				AlternateBindingTemplateWidget = register("liaison-test-alternatebinding", [HTMLElement, Widget], {
-					buildRendering: renderAlternateBindingTemplate,
+					render: renderAlternateBindingTemplate,
 					baseClass: "liaison-test-alternatebinding",
 					createBindingSourceFactory: function (descriptor) {
 						var match = /(\w+):(.*)/.exec(descriptor),
@@ -105,22 +105,22 @@ define([
 					first: undefined
 				}),
 				AttributeTemplateWidget = register("liaison-test-attributetempate", [HTMLElement, Widget], {
-					buildRendering: renderAttributeTemplate,
+					render: renderAttributeTemplate,
 					baseClass: "liaison-test-attributetempate",
 					handleClick: undefined
 				}),
 				EventTemplateWidget = register("liaison-test-events", [HTMLElement, Widget], {
-					buildRendering: renderEventsTemplate,
+					render: renderEventsTemplate,
 					baseClass: "liaison-test-events",
 					handleClick: undefined
 				}),
 				NestedEventTemplateWidget = register("liaison-test-nested-events", [HTMLElement, Widget], {
-					buildRendering: createRenderer("<liaison-test-nested-events-inner></liaison-test-nested-events-inner>"),
+					render: createRenderer("<liaison-test-nested-events-inner></liaison-test-nested-events-inner>"),
 					baseClass: "liaison-test-nested-events",
 					handleClick: undefined
 				});
 			register("liaison-test-nested-events-inner", [HTMLElement, Widget], {
-				buildRendering: createRenderer("<liaison-test-events></liaison-test-events>"),
+				render: createRenderer("<liaison-test-events></liaison-test-events>"),
 				baseClass: "liaison-test-nested-events-inner",
 				handleClick: undefined
 			});

@@ -121,7 +121,7 @@ define([
 			}
 			// HTMLElements#attributes in Chrome has attribute names in lower case
 			function getWidgetProperty(property) {
-				if (typeof this.buildRendering === "function") {
+				if (typeof this.render === "function") {
 					var tokens = REGEXP_ATTRIBUTE_POINTER.exec(property),
 						targetProperty = tokens ? tokens[1] : property;
 					if (this.alwaysUseWidgetAttribute || property in this) {

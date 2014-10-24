@@ -1,9 +1,10 @@
 /** @module liaison/delite/widgets/RadioButton */
 define([
 	"dcl/dcl",
+	"decor/Observable",
 	"delite/register",
 	"./Widget"
-], function (dcl, register, Widget) {
+], function (dcl, Observable, register, Widget) {
 	function on(elem, eventName, listener) {
 		elem.addEventListener(eventName, listener);
 		return {
@@ -28,7 +29,7 @@ define([
 		/**
 		 * Coerces the input type to radio button and attach the change event handler, as this radio button is initialized.
 		 */
-		buildRendering: function () {
+		render: function () {
 			var value = this.value;
 			this.type = "radio";
 			if (value !== this.value) {
@@ -44,7 +45,7 @@ define([
 		 */
 		checkedChanged: function (checked) {
 			if (checked) {
-				this.set("current", this.value);
+				Observable.prototype.set.call(this, "current", this.value);
 			}
 		},
 
@@ -55,7 +56,7 @@ define([
 		 */
 		valueChanged: function (value) {
 			if (this.checked) {
-				this.set("current", value);
+				Observable.prototype.set.call(this, "current", value);
 			}
 		},
 
@@ -65,7 +66,7 @@ define([
 		 * @param {number} current The new value.
 		 */
 		currentChanged: function (current) {
-			this.set("checked", this.value + "" === current + "");
+			Observable.prototype.set.call(this, "checked", this.value + "" === current + "");
 		},
 
 		/**
@@ -73,7 +74,7 @@ define([
 		 */
 		onChange: function () {
 			if (this.checked) {
-				this.set("current", this.value);
+				Observable.prototype.set.call(this, "current", this.value);
 			}
 		}
 	});
