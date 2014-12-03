@@ -15,5 +15,6 @@
 			"url": "https://github.com/ibm-js/liaison/blob/master/LICENSE"
 		}
 	],
-	"bugs": "https://github.com/ibm-js/liaison/issues"
+	"bugs": "https://github.com/ibm-js/liaison/issues",
+	"private": true
 }
