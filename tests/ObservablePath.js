@@ -245,13 +245,9 @@ define([
 					count++;
 				})),
 				observablePathShallow.observe(dfd.rejectOnError(function (newValue, oldValue) {
-					if (has("object-observe-api")) {
-						expect(newValue).to.equal("Baz1");
-						expect(oldValue).to.equal("Baz0");
-						count++;
-					} else {
-						throw new Error("ObservablePath should't respond to setValue() with shallow Observable tree.");
-					}
+					expect(newValue).to.equal("Baz1");
+					expect(oldValue).to.equal("Baz0");
+					count++;
 				})),
 				observablePathInner.observe(dfd.rejectOnError(function (newValue, oldValue) {
 					expect(newValue).to.equal("Baz1");
@@ -264,22 +260,14 @@ define([
 					count++;
 				})),
 				observablePathPlain1.observe(dfd.rejectOnError(function (newValue, oldValue) {
-					if (has("object-observe-api")) {
-						expect(newValue).to.equal("Baz1");
-						expect(oldValue).to.equal("Baz0");
-						count++;
-					} else {
-						throw new Error("ObservablePath should't respond to setValue() with plain object.");
-					}
+					expect(newValue).to.equal("Baz1");
+					expect(oldValue).to.equal("Baz0");
+					count++;
 				})),
 				observablePathPlain2.observe(dfd.rejectOnError(function (newValue, oldValue) {
-					if (has("object-observe-api")) {
-						expect(newValue).to.equal("Baz1");
-						expect(oldValue).to.equal("Baz0");
-						count++;
-					} else {
-						throw new Error("ObservablePath should't respond to setValue() with plain object.");
-					}
+					expect(newValue).to.equal("Baz1");
+					expect(oldValue).to.equal("Baz0");
+					count++;
 				}));
 				handles.push(observablePath, observablePathShallow, observablePathInner, observablePathDeep);
 				handles.push(observablePathPlain1, observablePathPlain2);

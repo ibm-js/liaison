@@ -38,8 +38,7 @@ define([
 			prop = comps.pop();
 		o = comps.length > 0 ? getObjectPath(o, comps) : o;
 		return Object(o) !== o || !path ? undefined : // Bail if the target is not an object
-			typeof o.set === "function" ? o.set(prop, value) :
-			(o[prop] = value);
+			Observable.prototype.set.call(o, prop, value);
 	}
 
 	/**
@@ -146,10 +145,8 @@ define([
 			setValue: function (value) {
 				if (this.remainder.length > 0) {
 					setObjectPath((this.o || EMPTY_OBJECT)[this.prop], this.remainder, value);
-				} else if (typeof (this.o || EMPTY_OBJECT).set === "function" && this.prop) {
-					this.o.set(this.prop, value);
 				} else if (Object(this.o) === this.o && this.prop) { // Bail if the target is not an object
-					this.o[this.prop] = value;
+					Observable.prototype.set.call(this.o, this.prop, value);
 				}
 			},
 
