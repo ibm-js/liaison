@@ -78,11 +78,27 @@ See [here](http://ibm-js.github.io/liaison/docs/master/NodeBind.html) for more d
 liaison takes an approach where you make an explicit API call to emit change records of an object or an array for observation.
 With this approach, the underlying system doesn't need to do a heavylifting to compare old/new values of all object properties observed in your application, which becomes non-trivial for bigger-scale applications.
 
-For example, `observable.set("foo", "FooValue1")` in above example explicitly emits a change record of `observable` object for observation. Here is the list of the APIs you can use to explicitly emit change records:
+For example,
+
+```javascript
+observable.set("foo", "FooValue1")
+```
+
+in above example explicitly emits a change record of `observable` object for observation. If it were `observable.foo = "FooValue1"` change record would *not* be emitted and thus observation callback would't be called (unless ES7 `Object.observe()` is availble in your browser).
+
+Similar for value assignment to array by index, call
+
+```javascript
+observableArray.set(n, "ValueForObservableArrayN")
+```
+
+to explicitly emit change records of `observableArray` for observation. If it were `observableArray[n] = "ValueForObservableArrayN"` change records would *not* be emitted and thus observation callback won't be called (unless ES7 `Array.observe()` is availble in your browser).
+
+Here is the list of the APIs you can use to explicitly emit change records:
 
 * [`Observable`](http://ibm-js.github.io/decor/docs/0.5.0/Observable.html) (In [decor](https://github.com/ibm-js/decor) library)
   * `#set()`
-  * `#assign()` (New in 0.6.0)
+  * `.assign()` (New in 0.6.0)
 * [`ObservableArray`](http://ibm-js.github.io/liaison/docs/master/Observable.html)
   * `#set()`
   * `#pop()`
