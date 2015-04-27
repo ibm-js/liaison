@@ -6,6 +6,7 @@
 		"requirejs-dplugins": "0.5.x",
 		"decor": "0.6.x",
 		"dojo": ">=1.9.1",
-		"dojox": ">=1.9.1"
+		"dojox": ">=1.9.1",
+		"dcl": "1.1.2"
 	}
 }
