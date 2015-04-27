@@ -4,11 +4,11 @@
 	"dependencies": {
 		"requirejs": "2.1.x",
 		"requirejs-dplugins": "0.5.x",
-		"decor": "0.5.x",
+		"decor": "0.6.x",
 		"dojo": ">=1.9.1",
 		"dojox": ">=1.9.1",
-		"delite": "0.6.x",
-		"deliteful": "0.6.x",
+		"delite": "0.7.x",
+		"deliteful": "0.7.x",
 		"platform": "Polymer/platform#0.2.1"
 	}
 }

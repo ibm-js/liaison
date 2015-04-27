@@ -4,7 +4,7 @@
 	"dependencies": {
 		"requirejs": "2.1.x",
 		"requirejs-dplugins": "0.5.x",
-		"decor": "0.5.x"
+		"decor": "0.6.x"
 	},
 	"ignore": [
 		".jshintrc",
