@@ -313,7 +313,7 @@ define([
 						merged.splice(i--, 1);
 						var removed,
 							addedCount = entry.addedCount - amount + incoming.addedCount;
-						if (entry.index < incoming.index) {
+						if (entry.index <= incoming.index) {
 							removed = incoming.removed.slice(Math.max(amount, 0));
 							EMPTY_ARRAY.unshift.apply(removed, entry.removed);
 						} else {

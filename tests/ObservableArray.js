@@ -630,6 +630,75 @@ define([
 				observableArray.splice(4, 2, "A", "B", "C");
 				observableArray.splice(3, 5, "0", "1", "2");
 			});
+			it("ObservableArray.observe() with two splices: First and second on the same index, adjacent", function () {
+				// ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+				// SPLICE: {index: 1, removed: ["b"], added: []}
+				// ["a", "c", "d", "e", "f", "g", "h", "i", "j"]
+				// SPLICE: {index: 1, removed: ["c", "d"], added: []}
+				// ["a", "e", "f", "g", "h", "i", "j"]
+				// MERGED: {index: 1, removed: ["b", "c", "d"], added: []}
+				var dfd = this.async(1000),
+					observableArray = ObservableArray.apply(undefined, baseData);
+				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
+					expect(splices).to.deep.equal([
+						{
+							type: "splice",
+							object: observableArray,
+							index: 1,
+							removed: ["b", "c", "d"],
+							addedCount: 0
+						}
+					]);
+				})));
+				observableArray.splice(1, 1);
+				observableArray.splice(1, 2);
+			});
+			it("ObservableArray.observe() with two splices: First and second on the same index, intersects", function () {
+				// ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+				// SPLICE: {index: 1, removed: ["b"], added: ["A", "B", "C"]}
+				// ["a", "A", "B", "C", "c", "d", "e", "f", "g", "h", "i", "j"]
+				// SPLICE: {index: 1, removed: ["A", "B"], added: ["D", "E"]}
+				// ["a", "C", "D", "E", "c", "d", "e", "f", "g", "h", "i", "j"]
+				// MERGED: {index: 1, removed: ["b"], added: ["C", "D", "E"]}
+				var dfd = this.async(1000),
+					observableArray = ObservableArray.apply(undefined, baseData);
+				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
+					expect(splices).to.deep.equal([
+						{
+							type: "splice",
+							object: observableArray,
+							index: 1,
+							removed: ["b"],
+							addedCount: 3
+						}
+					]);
+				})));
+				observableArray.splice(1, 1, "A", "B", "C");
+				observableArray.splice(1, 2, "D", "E");
+			});
+			it("ObservableArray.observe() with two splices: First and second on the same index, second splice range contains first splice range", function () {
+				// ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
+				// SPLICE: {index: 1, removed: ["b"], added: ["A", "B", "C"]}
+				// ["a", "A", "B", "C", "c", "d", "e", "f", "g", "h", "i", "j"]
+				// SPLICE: {index: 1, removed: ["A", "B", "C", "c"], added: ["D", "E"]}
+				// ["a", "D", "E", "d", "e", "f", "g", "h", "i", "j"]
+				// MERGED: {index: 1, removed: ["b"], added: ["D", "E"]}
+				var dfd = this.async(1000),
+					observableArray = ObservableArray.apply(undefined, baseData);
+				handles.push(ObservableArray.observe(observableArray, dfd.callback(function (splices) {
+					expect(splices).to.deep.equal([
+						{
+							type: "splice",
+							object: observableArray,
+							index: 1,
+							removed: ["b", "c"],
+							addedCount: 2
+						}
+					]);
+				})));
+				observableArray.splice(1, 1, "A", "B", "C");
+				observableArray.splice(1, 4, "D", "E");
+			});
 			it("ObservableArray.observe() with three splices: Third is adjacent with first but not with second", function () {
 				// ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 				// SPLICE: {index: 3, removed: ["d", "e", "f"], added: ["A", "B"]}
