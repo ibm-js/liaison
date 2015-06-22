@@ -676,7 +676,8 @@ define([
 				observableArray.splice(1, 1, "A", "B", "C");
 				observableArray.splice(1, 2, "D", "E");
 			});
-			it("ObservableArray.observe() with two splices: First and second on the same index, second splice range contains first splice range", function () {
+			it("ObservableArray.observe() with two splices: First and second on the same index," +
+				" second splice range contains first splice range", function () {
 				// ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 				// SPLICE: {index: 1, removed: ["b"], added: ["A", "B", "C"]}
 				// ["a", "A", "B", "C", "c", "d", "e", "f", "g", "h", "i", "j"]
