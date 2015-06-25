@@ -356,7 +356,9 @@ define([
 				Array.observe(observableArray, callback = observeSpliceCallback.bind(observableArray, callback));
 				return {
 					deliver: Object.deliverChangeRecords.bind(Object, callback),
-					remove: Array.unobserve.bind(Array, observableArray, callback)
+					remove: function () {
+						Array.unobserve(observableArray, callback);
+					}
 				};
 			};
 		} else {

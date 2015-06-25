@@ -432,6 +432,43 @@ define([
 				]));
 				observableArray.set(1, "b");
 			});
+			it("Unobserve", function () {
+				var h0, h1,
+					dfd = this.async(1000),
+					observableArray0 = new ObservableArray("a", "b"),
+					observableArray1 = new ObservableArray("c", "d");
+				handles.push(h0 = ObservableArray.observe(observableArray0, dfd.rejectOnError(function (records) {
+					expect(records).to.deep.equal([
+						{
+							type: "splice",
+							object: observableArray0,
+							index: 0,
+							removed: ["a", "b"],
+							addedCount: 2
+						}
+					]);
+				})));
+				handles.push(h1 = ObservableArray.observe(observableArray1, dfd.callback(function (records) {
+					expect(records).to.deep.equal([
+						{
+							type: "splice",
+							object: observableArray1,
+							index: 0,
+							removed: ["c"],
+							addedCount: 1
+						}
+					]);
+				})));
+				observableArray0.set(0, "A");
+				observableArray1.set(0, "C");
+				expect(h1.remove()).to.be.undefined;
+				h1 = null;
+				observableArray1.set(1, "D");
+				observableArray0.set(1, "B");
+				expect(h0.remove()).to.be.undefined;
+				expect(h0.remove()).to.be.undefined; // Make sure removing the handle twice won't cause any problem
+				h0 = null;
+			});
 			it("ObservableArray.observe() with two splices: Second index is bigger, no intersection", function () {
 				// ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 				// SPLICE: {index: 3, removed: ["d", "e", "f", "g"], added: ["A", "B", "C"]}
