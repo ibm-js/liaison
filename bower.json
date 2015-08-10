@@ -4,7 +4,7 @@
 	"dependencies": {
 		"requirejs": "2.1.x",
 		"requirejs-dplugins": "0.5.x",
-		"decor": "0.6.x",
+		"decor": "98d210986edc05845bdc0ec25b712398bcf5bb9b",
 		"dcl": "1.1.2"
 	},
 	"ignore": [

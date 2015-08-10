@@ -4,11 +4,14 @@
 	"dependencies": {
 		"requirejs": "2.1.x",
 		"requirejs-dplugins": "0.5.x",
-		"decor": "0.6.x",
-		"dojo": ">=1.9.1",
-		"dojox": ">=1.9.1",
+		"decor": "98d210986edc05845bdc0ec25b712398bcf5bb9b",
+		"dojo": "~1.10.0",
+		"dojox": "~1.10.0",
 		"delite": "0.7.x",
 		"deliteful": "0.7.x",
 		"platform": "Polymer/platform#0.2.1"
+	},
+	"resolutions": {
+		"decor": "98d210986edc05845bdc0ec25b712398bcf5bb9b"
 	}
 }

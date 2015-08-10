@@ -45,7 +45,7 @@ define([
 		},
 		activate: function () {
 			var o = this.o;
-			if (typeof o._getProps !== "function" || !REGEXP_SHADOW_PROP.test(this.name)) {
+			if (typeof o.getProps !== "function" || !REGEXP_SHADOW_PROP.test(this.name)) {
 				var sourcePaths = [],
 					entryPaths = [];
 				this.paths.forEach(function (path) {

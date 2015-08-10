@@ -3,9 +3,9 @@
 	"version": "0.1.0-dev",
 	"dependencies": {
 		"requirejs": "2.1.x",
-		"requirejs-dplugins": ">=0.5.0",
-		"decor": ">=0.4.0",
-		"dojo": ">=1.9.1",
+		"requirejs-dplugins": "~0.5.0",
+		"decor": "98d210986edc05845bdc0ec25b712398bcf5bb9b",
+		"dojo": "~1.10.0",
 		"polymer": "0.2.1",
 		"dcl": "1.1.2"
 	}

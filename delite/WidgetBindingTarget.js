@@ -24,7 +24,7 @@ define([
 			return c.charAt(c.length - 1).toUpperCase();
 		});
 		var ret = apn[name] = {
-			p: "_" + name + "Attr",		// shadow property, since real property hidden by setter/getter
+			p: "_shadow" + uc + "Attr",	// shadow property, since real property hidden by setter/getter
 			s: "_set" + uc + "Attr",	// converts dashes to camel case, ex: accept-charset --> _setAcceptCharsetAttr
 			g: "_get" + uc + "Attr"
 		};
