@@ -1,15 +1,15 @@
 /** @module liaison/DOMTreeBindingTarget */
 define([
+	"decor/ObservableArray",
 	"./features",
 	"./schedule",
-	"./ObservableArray",
 	"./ObservablePath",
 	"./BindingSourceList",
 	"./BindingTarget",
 	"./DOMBindingTarget",
 	"./computed",
 	"./templateBinder"
-], function (has, schedule, ObservableArray, ObservablePath, BindingSourceList, BindingTarget, DOMBindingTarget, computed, templateBinder) {
+], function (ObservableArray, has, schedule, ObservablePath, BindingSourceList, BindingTarget, DOMBindingTarget, computed, templateBinder) {
 	"use strict";
 
 	var EMPTY_OBJECT = {},

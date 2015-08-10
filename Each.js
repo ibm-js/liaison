@@ -1,7 +1,7 @@
 /** @module liaison/Each */
 define([
 	"decor/Observable",
-	"./ObservableArray",
+	"decor/ObservableArray",
 	"./BindingSource",
 	"./ObservablePath",
 	"./BindingSourceList"

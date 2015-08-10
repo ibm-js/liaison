@@ -1,7 +1,7 @@
 /** @module liaison/wrapper */
 define([
 	"decor/Observable",
-	"./ObservableArray"
+	"decor/ObservableArray"
 ], function (Observable, ObservableArray) {
 	"use strict";
 

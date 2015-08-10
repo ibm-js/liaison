@@ -7,16 +7,16 @@ define([
 	"dojo/string",
 	"dpointer/events",
 	"decor/Observable",
+	"decor/ObservableArray",
 	"delite/register",
 	"./Widget",
 	"../createRenderer!./templates/StarRating.html",
-	"../../ObservableArray",
 	"../../ObservablePath",
 	"../../computed",
 	"dojo/i18n!deliteful/StarRating/nls/StarRating",
 	"delite/theme!deliteful/StarRating/themes/{{theme}}/StarRating.css"
-], function (dcl, domClass, domGeometry, keys, string, pointer, Observable, register, Widget, renderer,
-	ObservableArray, ObservablePath, computed, messages) {
+], function (dcl, domClass, domGeometry, keys, string, pointer, Observable, ObservableArray, register, Widget, renderer,
+	ObservablePath, computed, messages) {
 	/**
 	 * Star rating widget based on Liaison features.
 	 * This widget does not have all features that deliteful/StarRating has,

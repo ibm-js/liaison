@@ -1,5 +1,4 @@
 define([
-	"./ObservableArray",
 	"./ObservablePath",
 	"./BindingSourceList",
 	"./BindingTarget",

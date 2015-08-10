@@ -2,7 +2,7 @@ define([
 	"intern!bdd",
 	"intern/chai!expect",
 	"decor/Observable",
-	"../ObservableArray",
+	"decor/ObservableArray",
 	"../computed",
 	"../wrapper"
 ], function (bdd, expect, Observable, ObservableArray, computed, wrapper) {
