@@ -5,7 +5,7 @@
 		"requirejs": "2.1.x",
 		"requirejs-text": "~2.0.14",
 		"requirejs-dplugins": "~0.5.0",
-		"decor": "98d210986edc05845bdc0ec25b712398bcf5bb9b",
+		"decor": "c9429f0b1b0f092f774f96c40153d3bcefb79e60",
 		"dojo": "~1.10.0",
 		"dcl": "1.1.2"
 	}

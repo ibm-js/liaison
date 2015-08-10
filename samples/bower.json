@@ -4,7 +4,7 @@
 	"dependencies": {
 		"requirejs": "2.1.x",
 		"requirejs-dplugins": "0.5.x",
-		"decor": "98d210986edc05845bdc0ec25b712398bcf5bb9b",
+		"decor": "c9429f0b1b0f092f774f96c40153d3bcefb79e60",
 		"dojo": "~1.10.0",
 		"dojox": "~1.10.0",
 		"dcl": "1.1.2"
