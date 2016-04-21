@@ -46,6 +46,7 @@ define([
 					})
 				}));
 				var elem = register.createElement("liaison-test-basic-data");
+				elem.deliver(); // To run initializeInvalidating()
 				created = true;
 				elem.first = "Anne";
 				elem.last = "Ackerman";
@@ -67,6 +68,7 @@ define([
 						elem.destroy();
 					}
 				});
+				elem.deliver(); // To run initializeInvalidating()
 				handles.push(new ObservablePath(elem, "name").observe(dfd.rejectOnError(function (name, oldName) {
 					expect(name).to.equal("Ben Doe");
 					expect(oldName).to.equal("John Doe");
@@ -108,6 +110,7 @@ define([
 					})
 				}));
 				var elem = register.createElement("liaison-test-computedarray");
+				elem.deliver(); // To run initializeInvalidating()
 				created = true;
 				handles.push({
 					remove: function () {
@@ -140,6 +143,7 @@ define([
 						elem.destroy();
 					}
 				});
+				elem.deliver(); // To run initializeInvalidating()
 				elem.set("value", "value0");
 				return waitFor(function () {
 					return elem.getAttribute("aria-value") && elem.valueNode.value;
@@ -185,6 +189,7 @@ define([
 						elem.destroy();
 					}
 				});
+				elem.deliver(); // To run initializeInvalidating()
 				elem.set("value", "value0");
 				return waitFor(function () {
 					return elem.getAttribute("aria-value") && elem.valueNode.value;
@@ -203,20 +208,26 @@ define([
 				});
 			});
 			it("Dispatch values at initialization", function () {
-				var gotValue;
+				var created,
+					dfd = this.async(10000);
 				register("liaison-test-dispatch", [HTMLElement, Widget], {
 					value: "foo",
-					valueChanged: function (value) {
-						gotValue = value;
-					}
+					valueChanged: dfd.rejectOnError(function (value) {
+						if (created) {
+							expect(value).to.equal("foo");
+							dfd.resolve(1);
+						}
+					})
 				});
 				var elem = register.createElement("liaison-test-dispatch");
 				handles.push({
 					remove: function () {
+						elem.parentNode.removeChild(elem);
 						elem.destroy();
 					}
 				});
-				expect(gotValue).to.equal("foo");
+				created = true;
+				document.body.appendChild(elem);
 			});
 			it("Prevent dispatching values at initialization", function () {
 				var got;
@@ -230,9 +241,11 @@ define([
 				var elem = register.createElement("liaison-test-preventdispatch");
 				handles.push({
 					remove: function () {
+						elem.parentNode.removeChild(elem);
 						elem.destroy();
 					}
 				});
+				document.body.appendChild(elem);
 				expect(got).not.to.be.true;
 			});
 		});

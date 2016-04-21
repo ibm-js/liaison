@@ -10,7 +10,7 @@
 				color: red;
 			}
 		</style>
-		<script type="text/javascript" src="../../../dojo/dojo.js" data-dojo-config="async: 1"></script>
+		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
 		<script id="loan-template" type="text/x-template">
 			<div>
 				<h2>Borrower information</h2>
@@ -29,7 +29,15 @@
 			</div>
 		</script>
 		<script type="text/javascript">
-			require([
+			require({
+				packages: [
+					{
+						name: "dojox",
+						location: "dojox",
+						main: "main"
+					}
+				]
+			}, [
 				"delite/register",
 				"liaison/ObservablePath",
 				"liaison/BindingSourceList",

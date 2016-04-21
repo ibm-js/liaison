@@ -232,6 +232,17 @@ define([
 				}
 			}
 			return bound;
+		},
+
+		/**
+		 * Put a template instance right before the given node.
+		 * Should be called with template instance data (what `HTMLTemplateElement#instantiate()` returns in liaison) as the `this` object.
+		 * @param {Node} parentNode What `content`'s parent node should be.
+		 * @param {Node} refNode Where `content` should be placed before.
+		 */
+		insertBefore: function (parentNode, refNode) {
+			parentNode.insertBefore(this.content, refNode);
+			return this;
 		}
 	};
 

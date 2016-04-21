@@ -83,8 +83,7 @@ define([
 				}
 				var condition = this.object.bindings[ATTRIBUTE_IF];
 				if (this.model && (!condition || condition.value)) {
-					this.instanceData = this.getTemplate().instantiate(this.model);
-					this.object.parentNode.insertBefore(this.instanceData.content, this.object.nextSibling);
+					this.instanceData = this.getTemplate().instantiate(this.model).insertBefore(this.object.parentNode, this.object.nextSibling);
 				}
 			}
 			return function (value) {
@@ -174,12 +173,10 @@ define([
 						}
 					}
 					for (var iAddition = 0; iAddition < splices[i].addedCount; ++iAddition) {
-						var instanceData = this.template.instantiate(this.model[spliceIndex + iAddition]);
-						this.object.parentNode.insertBefore(instanceData.content, referenceNode);
 						this.instanceDataList.splice(
 							spliceIndex + iAddition,
 							0,
-							instanceData);
+							this.template.instantiate(this.model[spliceIndex + iAddition]).insertBefore(this.object.parentNode, referenceNode));
 					}
 				}
 			}
@@ -502,7 +499,8 @@ define([
 			var instanceData = {
 					model: model,
 					content: content,
-					childNodes: EMPTY_ARRAY.slice.call(content.childNodes)
+					childNodes: EMPTY_ARRAY.slice.call(content.childNodes),
+					insertBefore: templateBinder.insertBefore
 				},
 				applied = computed.apply(model);
 

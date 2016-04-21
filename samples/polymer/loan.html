@@ -3,7 +3,7 @@
 	<head>
 		<link rel="stylesheet" type="text/css" href="../css/samples.css">
 		<script type="text/javascript" src="../../../platform/platform.js"></script>
-		<script type="text/javascript" src="../../../dojo/dojo.js" data-dojo-config="async: 1"></script>
+		<script type="text/javascript" src="../../../requirejs/require.js" data-main="../../../"></script>
 		<link rel="import" href="../../../polymer/polymer.html">
 		<polymer-element name="liaison-sample-loan">
 			<template>
@@ -28,7 +28,15 @@
 				<div><span class="cell">Percent Housing (Under 33%):</span> <input type="text" disabled="{{HousingPercentDisabled}}" value="{{number:HousingPercent}}"> <span class="error-message">{{HousingPercentError}}</span></div>
 			</template>
 			<script type="text/javascript">
-				require([
+				require({
+					packages: [
+						{
+							name: "dojox",
+							location: "dojox",
+							main: "main"
+						}
+					]
+				}, [
 					"liaison/ObservablePath",
 					"liaison/BindingSourceList",
 					"liaison/polymer/computed",

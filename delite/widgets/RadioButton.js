@@ -21,6 +21,16 @@ define([
 		baseClass: "d-l-radiobutton",
 
 		/**
+		 * List of properties whose data binding should be handled by this widget
+		 * but don't want to define property here.
+		 * @type {Object}
+		 */
+		owns: {
+			checked: true,
+			value: true
+		},
+
+		/**
 		 * The current value of the radio group of this radio button.
 		 * @type {string}
 		 */

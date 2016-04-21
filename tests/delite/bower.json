@@ -4,14 +4,11 @@
 	"dependencies": {
 		"requirejs": "2.1.x",
 		"requirejs-text": "~2.0.14",
-		"requirejs-dplugins": "~0.5.0",
-		"decor": "c9429f0b1b0f092f774f96c40153d3bcefb79e60",
-		"dojo": "~1.10.0",
-		"delite": "~0.7.0",
-		"deliteful": "~0.7.0",
-		"dcl": "1.1.2"
-	},
-	"resolutions": {
-		"decor": "c9429f0b1b0f092f774f96c40153d3bcefb79e60"
+		"requirejs-dplugins": "0.6.x",
+		"decor": "0.7.x",
+		"dojo": "~1.11.0",
+		"delite": "0.8.x",
+		"deliteful": "0.8.x",
+		"dcl": "1.1.x"
 	}
 }

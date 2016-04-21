@@ -29,9 +29,21 @@ define([
 				template.innerHTML = basicRadioButtonTemplate;
 				handles.push(template.bind("bind", observable));
 				return waitFor(function () {
+					// Putting element containing non-upgraded `<template>` (happens with IE) to render tree
+					// causes content in `<template>` being upgraded by delite code
+					// Ref: https://github.com/ibm-js/delite/blob/0.8.2/register.js#L505
+					return (template.content || {}).nodeType === Node.DOCUMENT_FRAGMENT_NODE;
+				}).then(function () {
+					document.body.appendChild(div);
+					handles.push({
+						remove: function () {
+							document.body.removeChild(div);
+						}
+					});
+				}).then(waitFor.create(function () {
 					var inputs = div.getElementsByTagName("input");
 					return inputs.length === 3 && inputs[1].checked;
-				}).then(function () {
+				})).then(function () {
 					var inputs = div.getElementsByTagName("input");
 					expect(inputs[0].checked).not.to.be.true;
 					expect(inputs[2].checked).not.to.be.true;
@@ -61,9 +73,21 @@ define([
 				template.innerHTML = basicRadioButtonTemplate;
 				handles.push(template.bind("bind", observable));
 				return waitFor(function () {
+					// Putting element containing non-upgraded `<template>` (happens with IE) to render tree
+					// causes content in `<template>` being upgraded by delite code
+					// Ref: https://github.com/ibm-js/delite/blob/0.8.2/register.js#L505
+					return (template.content || {}).nodeType === Node.DOCUMENT_FRAGMENT_NODE;
+				}).then(function () {
+					document.body.appendChild(div);
+					handles.push({
+						remove: function () {
+							document.body.removeChild(div);
+						}
+					});
+				}).then(waitFor.create(function () {
 					var inputs = div.getElementsByTagName("input");
 					return inputs.length === 3 && inputs[1].checked;
-				}).then(function () {
+				})).then(function () {
 					observable.set("bazChecked", true);
 				}).then(waitFor.create(function () {
 					return observable.current !== "bar";
@@ -79,9 +103,21 @@ define([
 				template.innerHTML = basicRadioButtonTemplate;
 				handles.push(template.bind("bind", observable));
 				return waitFor(function () {
+					// Putting element containing non-upgraded `<template>` (happens with IE) to render tree
+					// causes content in `<template>` being upgraded by delite code
+					// Ref: https://github.com/ibm-js/delite/blob/0.8.2/register.js#L505
+					return (template.content || {}).nodeType === Node.DOCUMENT_FRAGMENT_NODE;
+				}).then(function () {
+					document.body.appendChild(div);
+					handles.push({
+						remove: function () {
+							document.body.removeChild(div);
+						}
+					});
+				}).then(waitFor.create(function () {
 					var inputs = div.getElementsByTagName("input");
 					return inputs.length === 3 && inputs[2].checked;
-				}).then(function () {
+				})).then(function () {
 					observable.set("bazValue", "BAZ");
 				}).then(waitFor.create(function () {
 					return observable.current !== "baz";

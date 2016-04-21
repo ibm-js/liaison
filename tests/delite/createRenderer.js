@@ -608,7 +608,7 @@ define([
 					}
 				});
 				return waitFor(function () {
-					return ((w.querySelector("div").bindings || {})["on-click"] || {}).value;
+					return (((w.querySelector("div") || {}).bindings || {})["on-click"] || {}).value;
 				}).then(function () {
 					var event = document.createEvent("MouseEvents");
 					event.initEvent("click", true, true);
