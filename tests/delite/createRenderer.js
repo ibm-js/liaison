@@ -20,6 +20,7 @@ define([
 	"../../delite/createRenderer!./templates/nestedWidgetTemplate.html",
 	"../../delite/createRenderer!./templates/complexAttributeTemplate.html",
 	"../../delite/createRenderer!./templates/attachPointTemplate.html",
+	"../../delite/createRenderer!./templates/dataAttachPointTemplate.html",
 	"../../delite/createRenderer!./templates/simpleWithAlternateBindingTemplate.html",
 	"../../delite/createRenderer!../templates/eventTemplate.html",
 	"deliteful/StarRating",
@@ -47,6 +48,7 @@ define([
 	renderNestedWidgetTemplate,
 	renderComplexAttributeTemplate,
 	renderAttachPointTemplate,
+	renderDataAttachPointTemplate,
 	renderAlternateBindingTemplate,
 	renderEventsTemplate
 ) {
@@ -90,6 +92,10 @@ define([
 				AttachPointTemplateWidget = register("liaison-test-attachpoint", [HTMLElement, Widget], {
 					render: renderAttachPointTemplate,
 					baseClass: "liaison-test-attachpoint"
+				}),
+				DataAttachPointTemplateWidget = register("liaison-test-dataattachpoint", [HTMLElement, Widget], {
+					render: renderDataAttachPointTemplate,
+					baseClass: "liaison-test-dataattachpoint"
 				}),
 				AlternateBindingTemplateWidget = register("liaison-test-alternatebinding", [HTMLElement, Widget], {
 					render: renderAlternateBindingTemplate,
@@ -511,6 +517,20 @@ define([
 			});
 			it("Attach point", function () {
 				var w = new AttachPointTemplateWidget().placeAt(document.body);
+				this.timeout = 10000;
+				handles.push({
+					remove: function () {
+						w.destroy();
+					}
+				});
+				return waitFor(function () {
+					return w.valueNode;
+				}).then(function () {
+					expect(w.valueNode).to.equal(w.querySelector("input"));
+				});
+			});
+			it("Attach point with alternate attribute name", function () {
+				var w = new DataAttachPointTemplateWidget().placeAt(document.body);
 				this.timeout = 10000;
 				handles.push({
 					remove: function () {
