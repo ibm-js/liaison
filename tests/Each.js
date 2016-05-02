@@ -377,12 +377,16 @@ define([
 				}));
 				observable.set("foo", new ObservableArray(new Observable({Name: "Irene Ira"}), new Observable({Name: "John Jacklin"})));
 				observable.foo.push(new Observable({Name: "Anne Ackerman"}), new Observable({Name: "Ben Beckham"}));
-				expect(each.discardChanges()).to.deep.equal([[
+				// Safari 9.1 seems to have property duplication by enumerating an array with a custom property:
+				// https://gist.github.com/asudoh/c9ea4df348b09dbcfcb0bb518ca88c26
+				// Which breaks Chai deep-equal assertion.
+				// Wrapping the expected value with ObservableArray, too. for a work-around.
+				expect(each.discardChanges()).to.deep.equal([new ObservableArray(
 					new Observable({Name: "Irene Ira"}),
 					new Observable({Name: "John Jacklin"}),
 					new Observable({Name: "Anne Ackerman"}),
 					new Observable({Name: "Ben Beckham"})
-				]]);
+				)]);
 				dfd.resolve(1);
 			});
 			it("Round-trip of formatter/parser", function () {
