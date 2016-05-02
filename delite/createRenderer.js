@@ -55,8 +55,8 @@ define([
 				template._instanceData = this.instanceData;
 			}
 			this.own(template.instantiate(this).insertBefore(this))[0].content;
-			forEach.call(this.querySelectorAll("[data-attach-point]"), function (elem) {
-				var value = elem.getAttribute("data-attach-point");
+			forEach.call(this.querySelectorAll("[attach-point],[data-attach-point]"), function (elem) {
+				var value = elem.getAttribute("attach-point") || elem.getAttribute("data-attach-point");
 				if (value) {
 					this[value] = elem;
 				}
