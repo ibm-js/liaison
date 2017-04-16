@@ -17,6 +17,8 @@ define([
 	"requirejs-text/text!./templates/deepNestedTemplate.html",
 	"requirejs-text/text!./templates/simpleWithConditionalAttributeBindingTemplate.html",
 	"requirejs-text/text!./templates/simpleConditionalBindingTemplate.html",
+	"requirejs-text/text!./templates/multipleConditionsTemplate.html",
+	"requirejs-text/text!./templates/nestedConditionsTemplate.html",
 	"requirejs-text/text!./templates/simpleConditionalRepeatingTemplate.html",
 	"requirejs-text/text!./templates/computedTemplate.html",
 	"requirejs-text/text!./templates/attributeTemplate.html",
@@ -48,6 +50,8 @@ define([
 	deepNestedTemplate,
 	simpleWithConditionalAttributeBindingTemplate,
 	simpleConditionalBindingTemplate,
+	multipleConditionsTemplate,
+	nestedConditionsTemplate,
 	simpleConditionalRepeatingTemplate,
 	computedTemplate,
 	attributeTemplate,
@@ -766,6 +770,74 @@ define([
 					return template.nextSibling.nodeValue !== "John ";
 				})).then(function () {
 					expect(template.nextSibling.nodeValue).to.equal("Anne ");
+				});
+			});
+			it("Multiple conditions template", function () {
+				this.timeout = 10000;
+				var observable = new Observable({
+						showFirst: true,
+						showFifth: true
+					}),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template"));
+				template.innerHTML = multipleConditionsTemplate;
+				handles.push(template.bind("bind", observable));
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				return waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					var inputs = template.querySelectorAll("input");
+					expect(inputs.length).to.equal(2);
+					expect(inputs[0].value).to.equal("first");
+					expect(inputs[1].value).to.equal("fifth");
+					observable.set("showThird", true);
+				}).then(function () {
+					return waitFor(function () {
+						return template.querySelectorAll("input").length === 3;
+					});
+				}).then(function () {
+					var inputs = template.querySelectorAll("input");
+					expect(inputs.length).to.equal(3);
+					expect(inputs[0].value).to.equal("first");
+					expect(inputs[1].value).to.equal("third");
+					expect(inputs[2].value).to.equal("fifth");
+				});
+			});
+			it("Nested conditions template", function () {
+				this.timeout = 10000;
+				var observable = new Observable({
+						showInner: true
+					}),
+					div = document.createElement("div"),
+					template = div.appendChild(document.createElement("template"));
+				template.innerHTML = nestedConditionsTemplate;
+				handles.push(template.bind("bind", observable));
+				document.body.appendChild(div);
+				handles.push({
+					remove: function () {
+						document.body.removeChild(div);
+					}
+				});
+				return waitFor(function () {
+					return template.nextSibling;
+				}).then(function () {
+					expect(template.textContent.trim()).to.equal("hello");
+					observable.set("showOuter", true);
+				}).then(function () {
+					return waitFor(100);
+				}).then(function () {
+					expect(template.textContent.trim()).to.equal("hello brave new world");
+					observable.set("showInner", false);
+				}).then(function () {
+					return waitFor(100);
+				}).then(function () {
+					expect(template.textContent.trim()).to.equal("hello world");
+					observable.set("showInner", false);
 				});
 			});
 			it("Simple conditional repeating template", function () {
